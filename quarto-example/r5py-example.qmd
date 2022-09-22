@@ -1,0 +1,117 @@
+---
+title: "r5py-example"
+jupyter: python3
+---
+
+## Using Quarto as a computational notebook
+
+This document is an example of using Quarto as a computational notebook. Quarto is a new type of file that uses markdown and can work with multiple languages: R, Python, Julia. This type of file enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Example using {r5py}
+
+This file was originally created as part of a Quarto project for RStudio.
+
+**QUESTION:** could the project be used using a different IDE? PyCharm or something else?
+
+The project options use a conda environment called PyERT created using Anaconda.
+
+**QUESTION:** What is the best way to share the environment for collaborating?
+
+This document basically replicates [Getting started with r5py](https://r5py.readthedocs.io/en/latest/notebooks/basic-usage.html)
+
+Note that the chunks of code specify the language. This next chunk of code imports {sys} and modifies the maximum RAM memory that can be used. This needs to be done at the very beginning, **before importing {r5py}**.
+```{python}
+import sys
+sys.argv.append(["--max-memory", "8G"])
+```
+
+The example uses a sample dataset. The origin and destination data are imported from a public use file and read using {geopandas}. This means that {geopandas} needs to imported first:
+```{python}
+import geopandas 
+
+points_url = "https://github.com/r5py/r5py/raw/main/docs/data/Helsinki/population_points_2020.gpkg"
+points = geopandas.read_file(points_url)
+points.head()
+```
+
+The GeoDataFrame is a grid of points covering parts of Helsinki and the point data also contain the number of residents in cells of 250 m of radius.
+```{python}
+points.explore("population", cmap="Reds", marker_kwds={"radius": 12})
+```
+
+The following chunk of code makes a map to explore the geospatial data: 
+```{python}
+points.explore("population", cmap="Reds", marker_kwds={"radius": 12})
+```
+
+Here, we select a point to represent an origin and is stored in a separate GeoDataFrame:
+```{python}
+origin = points.loc[points["id"] == 54].copy()
+origin.explore(color="blue", max_zoom=14, marker_kwds={"radius": 12})
+```
+
+Load the sample transport network, which is stored in the `quarto-exampl/data/` folder (and was retrieved from the [r5py](https://github.com/r5py/r5py/tree/main/docs/data) GitHub repository):
+```{python}
+from r5py import TransportNetwork
+
+transport_network = TransportNetwork(
+    "./data/Helsinki/kantakaupunki.osm.pbf",
+    [
+        "./data/Helsinki/GTFS.zip"
+    ]
+)
+```
+
+With the network we can compute the travel times. A travel time matrix is a dataset detailing the travel costs (e.g., time) between given locations (origins and destinations) in a study area. To compute a travel time matrix with {r5py} based on public transportation, we first need to initialize an `r5py.TravelTimeMatrixComputer` object. As inputs, we pass following arguments for the `TravelTimeMatrixComputer`:
+
+- transport_network, which we created in the previous step representing the routable transport network.
+
+- origins, which is a GeoDataFrame with one location that we created earlier (however, you can also use multiple locations as origins).
+
+- destinations, which is a GeoDataFrame representing the destinations (in our case, the points GeoDataFrame).
+
+- departure, which should be Python’s datetime object (in our case standing for “22nd of February 2022 at 08:30”) to tell {r5py} that the schedules of this specific time and day should be used for doing the calculations.
+
+**Note:** By default, {r5py} summarizes and calculates a median travel time from all possible connections within one hour from given depature time (with 1 minute frequency). It is possible to adjust this time window using departure_time_window parameter.
+
+- transport_modes, which determines the travel modes that will be used in the calculations. These can be passed using the options from the TransitMode and LegMode classes.
+
+**Hint:** To see all available options, run help(TransitMode) or help(LegMode).
+
+**Note:** In addition to these ones, the constructor also accepts many other parameters listed here, such as walking and cycling speed, maximum trip duration, maximum number of transit connections used during the trip, etc.
+
+Here we first create a travel_time_matrix_computer instance as described above:
+```{python}
+import datetime
+from r5py import TravelTimeMatrixComputer, TransitMode, LegMode
+
+
+travel_time_matrix_computer = TravelTimeMatrixComputer(
+    transport_network,
+    origins=origin,
+    destinations=points,
+    departure=datetime.datetime(2022,2,22,8,30),
+    transport_modes=[TransitMode.TRANSIT, LegMode.WALK]
+)
+```
+
+Running this initializes the TravelTimeMatrixComputer, but any calculations were not done yet. To actually run the computations, we need to call `.compute_travel_times()` on the instance, which will calculate the travel times between all points:
+```{python}
+travel_time_matrix = travel_time_matrix_computer.compute_travel_times()
+travel_time_matrix.head()
+```
+
+As a result, this returns a pandas.DataFrame which we stored in the travel_time_matrix variable. The values in the travel_time column are travel times in minutes between the points identified by from_id and to_id. As you can see, the id value in the from_id column is the same for all rows because we only used one origin location as input.
+
+To get a better sense of the results, let’s create a travel time map based on our results. We can do this easily by making a table join between the points GeoDataFrame and the travel_time_matrix. The key in the travel_time_matrix table is the column to_id and the corresponding key in points GeoDataFrame is the column id:
+
+```{python}
+join = points.merge(travel_time_matrix, left_on="id", right_on="to_id")
+join.head()
+```
+
+Now we have the travel times attached to each point, and we can easily visualize them on a map:
+```{python}
+join.explore("travel_time", cmap="Greens", marker_kwds={"radius": 12})
+```
+

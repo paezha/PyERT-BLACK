@@ -277,3 +277,12 @@ TSWLatexianTemp*
 
 # DS_Store file from Mac computers
 .DS_Store
+.Rproj.user
+
+# Quarto/Rstudio project files
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+/.quarto/
