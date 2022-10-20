@@ -2,17 +2,46 @@
 
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{comment}
+\usepackage{enumerate}
+\usepackage{adjustbox}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage[shortlabels]{enumitem}
+\usepackage{float}
+\usepackage{array}
+\usepackage{pdflscape}
+\usepackage{tabularx,ragged2e,booktabs,caption}
+\usepackage{longtable}
+\hypersetup{
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=red,          % color of internal links (change box color with linkbordercolor)
+    citecolor=green,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan           % color of external links
+}
 
 \title{Hazard Analysis\\\progname}
 
 \author{\authname}
 
-\date{}
+\date{October 19, 2022}
 
 \input{../Comments}
 \input{../Common}
 
 \begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+~\newpage
+
+\pagenumbering{roman}
 
 \begin{table}[hp]
 \caption{Revision History} \label{TblRevisionHistory}
@@ -20,16 +49,305 @@
 \toprule
 \textbf{Date} & \textbf{Developer(s)} & \textbf{Change}\\
 \midrule
-Date1 & Name(s) & Description of changes\\
-Date2 & Name(s) & Description of changes\\
-... & ... & ...\\
+Oct. 19, 2022 & Zabrain Ali & Modified Hazard Analysis\\
+Oct. 19, 2022 & Jasper Leung & Modified Hazard Analysis\\
+Oct. 19, 2022 & Hongzhao Tan & Modified Hazard Analysis\\
+Oct. 19, 2022 & Mengtong Shi & Modified Hazard Analysis\\
+Oct. 19, 2022 & Mike Li & Modified Hazard Analysis\\
+Oct. 19, 2022 & Linqi Jiang & Modified Hazard Analysis\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
+~\newpage
+
+\tableofcontents
+
+~\newpage
+\thispagestyle{empty}
+\listoftables
 \newpage
 
-\maketitle
+\pagenumbering{arabic}
 
+%\wss{You are free to modify this template.}
 
+\section{Introduction}
+
+%\wss{You can include your definition of what a hazard is here.}
+This document is the hazard analysis for the PyERT system. PyERT is a software toolkit that aims to reverse engineering the GERT toolkit. PyERT is intended to re-implement the features in GERT that use ArcGIS Pro packages with open-source packages and libraries to make it fully open-source and independent from proprietary software like ArcGIS Pro. The definition of a hazard is a condition or property in the system together with a condition in the environment that has the potential to cause harm or damage.
+
+\section{Scope and Purpose of Hazard Analysis}
+The scope of the document is to identify potential hazards within the system components, the steps to mitigate the hazards, and the resulting safety and security requirements. 
+
+\section{System Boundaries and Components}
+The system that is referred to in this document that the hazard analysis will be conducted on consists of:
+\begin{enumerate}
+    \item The script of the PyERT toolkit, including following 4 major components:
+        \begin{itemize}
+            %\item Removing Invalid GPS Points
+            %\item Dividing GPS Points into Adjacent Clusters
+            \item GPS Points Preprocessing
+            \item Classification of GPS Points Segments
+            \item Alternative Routes 
+            \item Activity Locations Information
+        \end{itemize}
+    \item The physical computer of the user
+\end{enumerate}
+The system boundary hence includes the script of the toolkit which is the implementation of the toolkit the users will run on their devices to achieve their goals. The physical computer is not controlled by the PyERT toolkit but by the user, and is still an important element of the system for hazard analysis since it is the environment the script will be executed in.
+
+\section{Critical Assumptions}
+\begin{itemize}
+    \item The project assumes the users will directly run the compiled .pyc files of the source code .py files with through the command line to use the product.
+\end{itemize}
+\begin{comment}
+\wss{These assumptions that are made about the software or system.  You should
+minimize the number of assumptions that remove potential hazards.  For instance,
+you could assume a part will never fail, but it is generally better to include
+this potential failure mode.}
+\end{comment}
+
+\section{Failure Mode and Effect Analysis}
+The following pages contain a failure modes and effect analysis (FMEA) table of the PyERT system.
+%\newpage
+\newgeometry{margin=0.5in}
+\begin{landscape}
+% \pagestyle{empty}
+\begin{longtable}{|p{4cm}|p{2.5cm}|p{3.5cm}|p{3cm}|p{5.5cm}|p{1.8cm}|p{2cm}|}
+\caption{Failure Mode and Effect Analysis} \label{FMEA}\\
+\hline
+ Component & Failure Modes & Effects of Failure & Causes of Failure & Recommended Action & SR & Ref.  \\
+ \endfirsthead
+ \multicolumn{7}{c}
+ {Table \thetable\ Continued from previous page}\\
+ \hline
+ Component & Failure Modes & Effects of Failure & Causes of Failure & Recommended Action & SR & Ref.  \\
+ \endhead
+ \multicolumn{7}{r}{{Continued on next page}} \\
+\endfoot
+\multicolumn{7}{r}{{Concluded}} \\
+\endlastfoot
+ \hline
+ GPS Points Preprocessing
+ & 
+ \begin{enumerate}
+     \item Missing data 
+     \item Missing input
+ \end{enumerate}
+ & 
+  \begin{enumerate}
+     \item Inaccurate GPS point
+     \item Missing GPS points
+ \end{enumerate}
+& 
+  \begin{enumerate}[label=1\alph*.]
+     \item Faulty data
+ \end{enumerate}
+   \begin{enumerate}[label=2\alph*.]
+     \item Incorrect data format
+ \end{enumerate}
+&
+  \begin{enumerate}[label=1\alph*.]
+     \item Replace missing data with other values such as mean, median, mode, random sampling, interpolation. Delete any data that is detected to be faulty.
+ \end{enumerate}
+   \begin{enumerate}[label=2\alph*.]
+     \item Return an error message stating that the format of the user's inputted data was not correct
+ \end{enumerate}
+&  
+\begin{enumerate}[label=1\alph*.]
+     \item IR2
+ \end{enumerate}
+ \begin{enumerate}[label=2\alph*.]
+     \item IR3
+ \end{enumerate}
+&
+\begin{enumerate}
+     \item HR1-1
+     \item HR1-2
+ \end{enumerate}
+ \\
+ \hline
+ Classification of GPS Points Segments
+ &
+  \begin{enumerate}
+     \item Incorrect travel mode
+ \end{enumerate}
+ & 
+  \begin{enumerate}
+     \item Inaccuracy of data for specific travel modes
+ \end{enumerate}
+ &
+ \begin{enumerate}[label=1\alph*.]
+     \item Error with the Multinomial Logit Model used by the Mode Detection Module that is not successfully extracting GPS data into different travel modes
+ \end{enumerate}
+ &
+  \begin{enumerate}[label=1\alph*.]
+     \item Classify unknown segments by adjacent/similar segments
+ \end{enumerate}
+  & \begin{enumerate}[label=1\alph*.]
+     \item IR4
+ \end{enumerate}
+ &
+ \begin{enumerate}
+     \item HR2-1
+ \end{enumerate}
+ \\
+ \hline
+ Generating Routes and Alternatives
+ &   
+ \begin{enumerate}
+     \item Route cannot be generated from the given data
+ \end{enumerate}
+& 
+ \begin{enumerate}[label=1\alph*.]
+     \item Unable to generate output containing routes
+     \item Unable to use route for analysis
+ \end{enumerate}
+ & 
+\begin{enumerate}[label=1\alph*.]
+     \item Faulty data
+     \item Given GPS points don't form a route
+\end{enumerate}
+ & 
+\begin{enumerate}[label=1\alph*.]
+      \item Same as HR1-1-1a
+      \item Return error output to user stating a route could not be generated from the given data
+\end{enumerate}
+& 
+\begin{enumerate}[label=1\alph*.]
+    \item IR2
+    \item IR5
+\end{enumerate}
+&
+ \begin{enumerate}
+     \item HR3-1
+ \end{enumerate}
+\\
+\hline
+Activity Locations Information
+& 
+\begin{enumerate}
+    \item No stop or end points of trip segment
+\end{enumerate}
+& 
+\begin{enumerate}
+    \item Unable to generate potential activity locations
+\end{enumerate}
+& 
+\begin{enumerate}[label=1\alph*.]
+    \item Faulty data
+    \item No significant period of time detected where the location of the GPS point doesn't change
+\end{enumerate}
+&
+\begin{enumerate}[label=1\alph*.]
+    \item Same as HR1-1-1a
+    \item Modify conditions needed to determine potential activity locations.
+\end{enumerate}
+& 
+\begin{enumerate}[label=1\alph*.]
+    \item IR2
+    \item IR6
+\end{enumerate}
+&
+ \begin{enumerate}
+     \item HR4-1
+ \end{enumerate}\\
+\hline
+General
+& 
+\begin{enumerate}
+    \item Program closes unexpectedly
+\end{enumerate}
+& 
+\begin{enumerate}[label=1\alph*.]
+    \item Current process is lost
+    \item No output can be generated
+\end{enumerate}
+& 
+\begin{enumerate}[label=1\alph*.]
+    \item Instability in program or the user's system causes crash
+    \item The user's system loses power
+\end{enumerate}
+&
+\begin{enumerate}[label=1\alph*.]
+    \item Reopen the program and check the error generated by the program
+    \item Same as H5-1-1a
+\end{enumerate}
+&
+\begin{enumerate}[label=1\alph*.]
+    \item IR7
+\end{enumerate}
+&
+ \begin{enumerate}
+     \item HR5-1
+ \end{enumerate}\\
+\hline
+\end{longtable}
+\end{landscape}
+\restoregeometry
+\newpage
+\section{Safety and Security Requirements}
+Using the results from the FMEA, we can add the following safety and security requirements to our already existing safety and security requirements specified in the Software Requirements Specification. New requirements will be highlighted in \textbf{bold}.
+\subsection{Safety Requirements}
+N/A
+\subsection{Security Requirements}
+\subsubsection{Privacy Requirements}
+\begin{enumerate}[{PR}1. ]
+\item \label{PR1} \textbf{The program shall not store a user's personal information.}
+    \begin{itemize} 
+        \item Rationale: To ensure that a user's information and privacy is maintained.
+        \item Associated Hazards: \textit{N/A}
+    \end{itemize} 
+\end{enumerate}
+
+\subsubsection{Audit Requirements}
+\begin{enumerate}[{AR}1. ]
+\item \label{AR1}\textbf{All revisions to the program shall be visible on GitHub.}
+    \begin{itemize} 
+        \item Rationale: To allow audits for all versions of the program.
+         \item Associated Hazards: \textit{N/A}
+    \end{itemize} 
+\end{enumerate}
+
+\subsubsection{Integrity Requirements}
+\begin{enumerate}[{IR}1. ]
+\item \label{IR1} \textbf{The program shall not use any files other than the ones the user has provided and the ones that are included with the program and Python.}
+    \begin{itemize} 
+        \item Rationale: To ensure the user's information and privacy is maintained, no external files should be accessed.
+         \item Associated Hazards: \textit{N/A}
+    \end{itemize}
+\item \label{IR2} \textbf{The program shall attempt to correct the user's inputted data if data is detected to be missing or faulty.}
+    \begin{itemize} 
+        \item Rationale: An error should be generated even if there are small errors in the user's input, to ensure ease of use for the user.
+         \item Associated Hazards: HR1-1, HR3-1, HR4-1
+    \end{itemize} 
+\item \label{IR3} \textbf{The program shall return an error message if the file containing the data is in the wrong format.}
+    \begin{itemize} 
+        \item Rationale: The program should only be designed to accept csv inputs of a certain format, so unexpected program behaviour is avoided. The user should be informed of this format error.
+         \item Associated Hazards: HR1-2
+    \end{itemize} 
+\item \label{IR4} \textbf{Segments with unknown detected travel modes shall be re-processed and compared to similar segments so the travel modes can be determined.}
+    \begin{itemize} 
+        \item Rationale: The data returned to the user should be as complete as possible, so the program should attempt to classify as many travel modes as possible.
+         \item Associated Hazards: HR2-1
+    \end{itemize} 
+\item \label{IR5} \textbf{If the given GPS points cannot form a route, an error shall be returned to the user.}
+    \begin{itemize} 
+        \item Rationale: The user should know if the data they used cannot be used to form routes.
+         \item Associated Hazards: HR3-1
+    \end{itemize}
+\item \label{IR6} \textbf{If potential activity locations cannot be determined, the conditions for finding potential activity should be modified to find potential activity locations.}
+    \begin{itemize} 
+        \item Rationale: The data returned to the user should be as complete as possible,so the program should attempt determine as many activity locations as possible.
+         \item Associated Hazards: HR4-1
+    \end{itemize} 
+\item \label{IR7} \textbf{If the program closes unexpectedly, an error should be returned the next time the user opens the program.}
+    \begin{itemize} 
+        \item Rationale: The user should be informed if the program unexpectedly crashes.
+         \item Associated Hazards: HR5-1
+    \end{itemize} 
+\end{enumerate}
+
+\section{Roadmap}
+The hazard analysis resulted in many new security requirements being added to the already existing requirements from the Software Requirements Specification. Due to time constraints, not all of the security requirements will be implemented. AR1, IR1, IR3, IR5 and IR7 will be implemented before the end of the capstone, while the other requirements may not be implemented before the end of the capstone.
 \end{document}
