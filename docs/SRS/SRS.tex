@@ -46,7 +46,7 @@
 
 \title{Software Requirements Specification for \progname: PyERT} 
 \author{\authname}
-\date{October 5, 2022}
+\date{November 2, 2022}
 	
 \maketitle
 
@@ -61,6 +61,7 @@
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
 05/10/2022 & 1.0 & Initial Software Requirements Specification\\
+02/11/2022 & 1.1 & Modified Functional Requirements and Naming Conventions\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -109,6 +110,8 @@ This document describes the requirements for PyERT. The template for the Softwar
  \hline
  CI/CD & Continuous Integration / Continuous Deployment\\
  \hline
+ \textcolor{red}{RCA} & \textcolor{red}{Route Choice Analysis} \\
+ \hline
 \end{tabular}
 \caption{\bf Naming Conventions and Terminology}
 \end{table}
@@ -152,7 +155,7 @@ The goal of the original GERT toolkit is to break the limit of previously develo
 
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[scale=0.75]{SRS/contextdiagram.png}
+    \includegraphics[scale=0.75]{contextdiagram.png}
     \caption{\bf Context Diagram}
 \end{figure}
 
@@ -227,7 +230,7 @@ The plan for the project is to re-implement the features of the original GERT to
 \subsubsection{Individual Product Use Cases}
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[scale=0.75]{SRS/Use_Case_Diagram.png}
+    \includegraphics[scale=0.75]{Use_Case_Diagram.png}
     \caption{\bf Use Case Diagram}
 \end{figure}
 
@@ -242,7 +245,7 @@ The plan for the project is to re-implement the features of the original GERT to
     {\bf Description:} & The product shall be able to read and generate CSV and SHP files.  \\
     {\bf Rationale:} & Since the product is a re-implemented version of the GERT toolkit, it shall be able to take and generate the same types of files the GERT toolkit used to take and generate as its inputs and outputs respectively.\\
     {\bf Organizer:} & Software Engineer\\
-    {\bf Fit Criterion:} & After the user execute the product with valid input data in CSV and SHP formats, the product will be able to read the data from the input and generate required CSV and SHP files after processing the input data.\\
+    {\bf Fit Criterion:} & After the user executes the product with valid input data in CSV and SHP formats, the product will be able to read the data from the input and generate required CSV and SHP files after processing the input data.\\
 \end{tabular}
 \begin{tabular}{l r}
 {\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
@@ -315,7 +318,7 @@ The plan for the project is to re-implement the features of the original GERT to
 \newline
 \begin{tabular}{l p{11.5cm}}
     {\bf Description:} & The product shall tag each valid input GPS point as a stop (stationary) point or a trip (moving) point.  \\
-    {\bf Rationale:} & The requirement is necessary for the product to further classify the GPS trajectories into trip(moving) and stop(stationary) segments.\\
+    {\bf Rationale:} & The requirement is necessary for the product to further classify the GPS trajectories into trip (moving) and stop (stationary) segments.\\
     {\bf Organizer:} & Software Engineer\\
     {\bf Fit Criterion:} & All valid input GPS points will be tagged as a stop point or trip point after being clustered. \\
 \end{tabular}
@@ -339,10 +342,11 @@ The plan for the project is to re-implement the features of the original GERT to
 \end{tabular}
 \newline
 \begin{tabular}{l p{11.5cm}}
-    {\bf Description:} & The product shall partition  valid GPS trajectories into segments and classify the segments into stationary activity (stop) episodes and travel (moving) episodes.  \\
+    {\bf Description:} & The product shall partition valid GPS trajectories into segments \textcolor{red}{\sout{and classify the segments into stationary activity (stop) episodes and travel (moving) episodes}}.  \\
     {\bf Rationale:} & The requirement is needed to fully capture the valuable information from the perspective of activity analysis.\\
     {\bf Organizer:} & Software Engineer\\
-    {\bf Fit Criterion:} & Modules that can automatically capture land interest points details will be developed.\\
+    {\bf Fit Criterion:} & \textcolor{red}{\sout{Modules that can automatically capture land interest points details will be developed.}
+    The product will generate partitioned segments given valid GPS trajectories.}\\
 \end{tabular}
 \begin{tabular}{l r}
 {\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
@@ -367,7 +371,8 @@ The plan for the project is to re-implement the features of the original GERT to
     {\bf Description:} & The product shall extract trip segments (sequences of GPS points in travel episode) from valid GPS trajectories.  \\
     {\bf Rationale:} & The requirement is needed to fully capture the valuable information from the perspective of activity analysis.\\
     {\bf Organizer:} & Software Engineer\\
-    {\bf Fit Criterion:} & The availability of huge GPS data and the high potential to collect more make it a necessary procedure that can automatically extract information from these data.\\
+    {\bf Fit Criterion:} & \textcolor{red}{\sout{The availability of huge GPS data and the high potential to collect more make it a necessary procedure that can automatically extract information from these data.}
+    The product will extract all the trip segments if the GPS trajectories are valid.}\\
 \end{tabular}
 \begin{tabular}{l r}
 {\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
@@ -414,10 +419,10 @@ The plan for the project is to re-implement the features of the original GERT to
 \end{tabular}
 \newline
 \begin{tabular}{l p{11.5cm}}
-    {\bf Description:} & The product shall generate alternative routes for trip segments in SHP format  with digital road/pedestrian network and assign values to RCA variables for each of the alternative routes in CSV format based on road network attributes that are provided.  \\
-    {\bf Rationale:} & Both are cross-platform data formats for spreadsheet and GIS applications, respectively thus, it makes it easy to manipulate GERT’s outputs in other applications. \\
+    {\bf Description:} & The product shall generate alternative routes for trip segments in SHP format with digital road/pedestrian networks \textcolor{red}{\sout{and assign values to RCA variables for each of the alternative routes in CSV format based on road network attributes that are provided}}.  \\
+    {\bf Rationale:} & \textcolor{red}{\sout{Both are} SHP is a} cross-platform data format\textcolor{red}{\sout{s for spreadsheet and GIS applications, respectively};} thus, it makes it easy to manipulate GERT’s outputs in other applications. \\
     {\bf Organizer:} & Software Engineer\\
-    {\bf Fit Criterion:} &  GERT is designed to work on minimal inputs with generic variables such as location coordinates and time stamps. This feature allows implementation in environments without additional information aside from GPS data.\\
+    {\bf Fit Criterion:} &  \textcolor{red}{\sout{GERT is designed to work on minimal inputs with generic variables such as location coordinates and time stamps. This feature allows implementation in environments without additional information aside from GPS data.} Given trip segments in SHP format with digital road/pedestrian networks, the product will generate alternative routes.}\\
 \end{tabular}
 \begin{tabular}{l r}
 {\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
@@ -464,7 +469,7 @@ The plan for the project is to re-implement the features of the original GERT to
 \end{tabular}
 \newline
 \begin{tabular}{l p{11.5cm}}
-     {\bf Description:} & The product shall handle run-time errors and generate descriptive error messages to the user when the user's input is invalid (not in CSV and SHP format, or data input cannot be processed by the product).  \\
+     {\bf Description:} & The product shall \textcolor{red}{\sout{handle run-time errors and}} generate descriptive error messages to the user when the user's input is invalid (not in CSV and SHP format, or data input cannot be processed by the product).  \\
     {\bf Rationale:} & It is necessary for the product to help the user understand the cause of error.\\
     {\bf Organizer:} & Software Engineer\\
     {\bf Fit Criterion:} & If there is a run-time error occurred, a descriptive message about the error will be shown to the user.\\
@@ -482,6 +487,60 @@ The plan for the project is to re-implement the features of the original GERT to
      {\bf Plan to Complete by}: & January 6, 2023\\
 \end{tabular}
 \end{boxed}
+
+\textcolor{red}{
+\begin{boxed}
+\begin{tabular}{l r r}
+\refstepcounter{reqnum} \reqthereqnum \label{Req11} & {\bf Req. Type}: &  Functional\\
+\end{tabular}
+\newline
+\begin{tabular}{l p{11.5cm}}
+    {\bf Description:} & The product shall classify the segments partitioned from GPS trajectories into stationary activity (stop) episodes and travel (moving) episodes.  \\
+    {\bf Rationale:} & The requirement is needed to fully capture the valuable information from the perspective of activity analysis.\\
+    {\bf Organizer:} & Software Engineer\\
+    {\bf Fit Criterion:} & The segments will be classified as stationary activity (stop) episodes or travel (moving) episodes.\\
+\end{tabular}
+\begin{tabular}{l r}
+{\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
+\end{tabular}
+\begin{tabular}{l r r}
+    {\bf Priority}: 4 & {\bf Dependencies}: \reqref{Req4} & {\bf Conflicts}: None \\
+\end{tabular}
+\begin{tabular}{l l}
+     {\bf Supporting Materials}:& 
+     \beref{BE1}, \beref{BE2} \\ 
+     {\bf History}: & Created October 5, 2022\\
+     {\bf Plan to Complete by}: & January 24, 2023\\
+\end{tabular}
+\end{boxed}
+}
+
+\textcolor{red}{
+\begin{boxed}
+\begin{tabular}{l r r}
+\refstepcounter{reqnum} \reqthereqnum \label{Req12} & {\bf Req. Type}: &  Functional\\
+\end{tabular}
+\newline
+\begin{tabular}{l p{11.5cm}}
+    {\bf Description:} & The product shall assign values to RCA variables in CSV format for each of the alternative routes generated based on the provided road network attributes.  \\
+    {\bf Rationale:} & CSV is a cross-platform data format; thus, it makes it easy to manipulate GERT’s outputs in other applications. \\
+    {\bf Organizer:} & Software Engineer\\
+    {\bf Fit Criterion:} & Given the generated alternative routes, the product will assign the corresponding values to RCA variables in CSV format.\\
+\end{tabular}
+\begin{tabular}{l r}
+{\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
+\end{tabular}
+\begin{tabular}{l r r}
+    {\bf Priority}: 6 & {\bf Dependencies}:  \reqref{Req6} & {\bf Conflicts}: None \\
+\end{tabular}
+\begin{tabular}{l l}
+     {\bf Supporting Materials}:& 
+     \beref{BE1}, \beref{BE2} \\ 
+     {\bf History}: & Created October 5, 2022\\
+     {\bf Plan to Complete by}: & February 6, 2023\\
+\end{tabular}
+\end{boxed}
+}
 
 \section{Non-functional Requirements}
 
@@ -880,6 +939,7 @@ graduate attribute of Lifelong Learning.  Please answer the following questions:
     \begin{itemize}
         \item Mengtong - This is a good approach since the online videos and webinars are quite helpful for understanding how things work, especially when they demonstrate the process of using RStudio to accomplish their tasks. It is also easier to learn new things when there is a video to follow.
     \end{itemize}
+
 \end{itemize}
 
 \section{Changes to Volere Template}
