@@ -2,6 +2,7 @@
 
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage[normalem]{ulem}
 
 \title{Development Plan\\\progname}
 
@@ -26,6 +27,7 @@ Sept 25 & Mengtong Shi & Coding Standard\\
 Sept 25 & Zabrain Ali & Workflow Plan\\
 Sept 25 & Mike Li & POC Demonstration Plan\\
 Sept 25 & Linqi Jiang & Project Scheduling\\
+Nov 13 & Zabrain Ali & Modified POC Demonstration Plan \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -64,7 +66,7 @@ The team plans to utilize GitHub branches and pull requests, and through those, 
 \begin{itemize}
     \item Jasper Leung - Scrum Master, Developer
     \item Hongzhao Tan - Developer
-    \item Mengtong Shi - Developer
+    \item Mengtong Shi - Developer\textcolor{red}{, LaTeX Specialist}
     \item Zabrain Ali - Developer
     \item Mike Li - Developer
     \item Linqi Jiang - Developer
@@ -79,7 +81,7 @@ The team plans to utilize GitHub branches and pull requests, and through those, 
 
 \section{Proof of Concept Demonstration Plan}
 
-The main risk for the success of this project is that ArcGIS might have a functionality that is too complex, or not replicable with free Python tools. Since we are replacing ArcGIS functionality with free tools to make GERT free of licensing ArcGIS, any ArcGIS function that is irreplaceable would require licensing. Another risk would be if it would take too long to replace all the ArcGIS functions with free libraries and tools. As long as there exists a single function using ArcGIS in GERT, whether it's from the function being too complex to replace, or if it's because we did not have enough time to replace it, a license needs to be bought, and the success of this project would be compromised. If during the Proof of Concept Demonstration, we demonstrate that all ArcGIS functionality can be replicated with free tools and libraries, and find a reasonable number of functions that require ArcGIS in GERT, we can convince ourselves that we can overcome the risks.
+The main risk for the success of this project is that ArcGIS might have a functionality that is too complex, or not replicable with free Python tools. Since we are replacing ArcGIS functionality with free tools to make GERT free of licensing ArcGIS, any ArcGIS function that is irreplaceable would require licensing. Another risk would be if it would take too long to replace all the ArcGIS functions with free libraries and tools. As long as there exists a single function using ArcGIS in GERT, whether it's from the function being too complex to replace, or if it's because we did not have enough time to replace it, a license needs to be bought, and the success of this project would be compromised. If during the Proof of Concept Demonstration, we demonstrate that \textcolor{red}{\sout{all ArcGIS functionality}} \textcolor{red}{a few methods in the source code} can be replicated with free tools and libraries, and find a reasonable number of functions that require ArcGIS in GERT, we can convince ourselves that we can overcome the risks.
 
 \section{Technology}
 
