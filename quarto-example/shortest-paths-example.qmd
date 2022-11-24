@@ -1,0 +1,384 @@
+---
+title: "Shortest Paths Example"
+author: "AP"
+format: html
+jupyter: python3
+execute: 
+  cache: true
+---
+
+## Setup
+
+Import the modules used in this notebook.
+```{python}
+import geopandas as gpd
+import igraph as ig
+import itertools
+#import momepy
+import matplotlib.pyplot as plt
+#import networkx as nx
+import numpy as np
+import osmnx as ox
+import pandas as pd
+import pyrosm
+import random
+from scipy.spatial import cKDTree
+import timeit
+```
+
+## Data inputs
+
+### Zones
+
+::: {.callout-note}
+The zoning system in this notebook is used to illustrate how to "snap" a point that is _not_ on the network to the network. This might be important for matching the start/end of episodes to elements of the network, or more generally for matching points in a GPS trace to the network. Besides that, the zoning system may or may not be relevant.
+:::
+
+Read zonal system:
+```{python}
+zones = gpd.read_file("data/sample-zones/tts06_83_region.shp")
+```
+
+### Network
+
+File path for an OSM dataset of Hamilton that I obtained the OSM pbf file from [BBBike](https://extract.bbbike.org/) on November 22, 2022:
+```{python}
+fp = "data/sample-osm/planet_-80.265,43.283_-79.276,43.734.osm.pbf"
+```
+
+Initialize the osm object using a bounding box corresponding to the Hamilton CMA:
+```{python}
+osm = pyrosm.OSM(fp)
+```
+
+Extract the network from the OSM object. It is possible to extract "driving", "all", "walking", etc.
+```{python}
+nodes, edges = osm.get_network(network_type = "driving", nodes = True)
+```
+
+Check the coordinate reference system of the objects (crs):
+```{python}
+nodes.crs
+edges.crs
+zones.crs
+```
+
+The elements of the network (edges and nodes) are in EPSG 4019 (lat-long) and need to be projected. The zones are in UTM Zone 17N (EPSG: 26917):
+```{python}
+edges = edges.to_crs("EPSG:26917")
+nodes = nodes.to_crs("EPSG:26917")
+```
+
+Plot the network and zoning system:
+```{python}
+fig, ax = plt.subplots()
+ax.set_aspect('equal')
+# Edges
+edges.plot(ax=ax, color = "red")
+# Zones
+#zones.plot(ax=ax, color = "white", edgecolor = 'black', linestyle = "solid")
+# Show plot
+plt.show()
+```
+
+Find the bounding box for the sample network:
+```{python}
+bbox_edges = edges.unary_union.bounds
+```
+
+Select zones using a smaller version of the bounding box so that the network reasonably covers the zones:
+```{python}
+zones = zones.cx[(bbox_edges[0] + 6000):(bbox_edges[2] - 6000), (bbox_edges[1] + 6000):(bbox_edges[3] - 6000)]
+```
+
+Plot again:
+```{python}
+fig, ax = plt.subplots()
+ax.set_aspect('equal')
+# Edges
+edges.plot(ax=ax, color = "red")
+# Zones
+zones.plot(ax=ax, color = "white", edgecolor = 'black', linestyle = "solid")
+# Show plot
+plt.show()
+```
+
+### Data Preparation
+
+Check the contents of the tables with the nodes and edges. In particular, we wish to see if there are columns with the speed and/or class of edge to calculate travel times on the network.
+
+We begin by checking the types of the columns:
+```{python}
+edges.dtypes
+```
+
+What is in the column "maxspeed"?
+```{python}
+edges["maxspeed"].unique()
+```
+
+"None" seems to indicate missing values.
+```{python}
+edges.loc[edges['maxspeed'] == "None"]["highway"].head(30)
+```
+
+It seems that "None"'s are missing values, so we probably cannot use this column for the speed. Instead, check the types of edges (column "highway"):
+```{python}
+edges["highway"].unique()
+```
+
+See @tbl-osm-speed-values. 
+
+Consult the [OSM wiki](https://wiki.openstreetmap.org/wiki/Key:highway) for the definitions of OSM values for the key "highway", and [Toronto's Road Classification](https://www.toronto.ca/wp-content/uploads/2018/01/950a-Road-Classification_Summary-Document.pdf) for likely equivalents in Ontario.
+
+Set the speeds of the following road types to a very small number:
+'services', 'pedestrian', 'turning_loop', 'track', 'rest_area', 'path', 'raceway', 'footway', 'cycleway', 'closed'.
+
+
+| OSM value                                                | Equivalent         | Speed      |
+|:---------------------------------------------------------|--------------------|------------|
+| 'motorway', 'primary', 'secondary'                       | Expressway         | 100 km/h   |
+| 'motorway_link', 'primary_link', 'secondary_link'        | Expressway         | 80 km/h    |
+| 'tertiary', 'trunk'                                      | Major Arterials    | 60 km/h    |
+| 'tertiary_link', 'trunk_link'                            | Major Arterials    | 50 km/h    |
+| 'residential', 'living_street', 'unclassified', 'road'   | Local              | 40 km/h    |
+
+: OSM highway values and proposed equivalent speeds {#tbl-osm-speed-values}
+
+Drop edges that are not part of the regular road network:
+```{python}
+edges = edges.drop(edges[(edges.highway == "service") | (edges.highway == "services") | (edges.highway == "pedestrian") | (edges.highway == "path") | (edges.highway == "footway") | (edges.highway == "cycleway") | (edges.highway == "raceway") | (edges.highway == "track") | (edges.highway == "turning_loop") | (edges.highway == "rest_area") | (edges.highway == "closed") | (edges.highway == "bus_stop") | (edges.highway == "steps")].index)
+```       
+
+Initialize the speeds:
+```{python}
+edges = edges.assign(speed = 0.0)
+```
+
+Assign speeds depending on the highway value of the link:
+```{python}
+edges.loc[(edges["highway"] == "motorway") | (edges['highway'] == "primary") | (edges['highway'] == "secondary"), "speed"] = 100
+edges.loc[(edges["highway"] == "motorway_link") | (edges['highway'] == "primary_link") | (edges['highway'] == "secondary_link"), "speed"] = 80
+edges.loc[(edges["highway"] == "tertiary") | (edges['highway'] == "trunk"), "speed"] = 60
+edges.loc[(edges["highway"] == "tertiary_link") | (edges['highway'] == "trunk_link"), "speed"] = 50
+edges.loc[(edges["highway"] == "residential") | (edges['highway'] == "living_street") | (edges['highway'] == "unclassified")| (edges['highway'] == "road"), "speed"] = 40
+```
+
+Summary of speeds (there should not be any zeros):
+```{python}
+edges["speed"].describe()
+```
+
+Calculate the free flow travel time in **minutes** from the length of the link and the speed. The length of the link is in m and the speed is in km/h:
+```{python}
+
+edges["weight"] = 60 * (edges.length/1000)/edges.speed
+```
+
+Obtain a summary to make sure that there are no funny values for the weights (like inf or NAN):
+```{python}
+edges.weight.describe()
+```
+
+Convert the GeoDataFrames with the elements of the network to a {igraph} object:
+```{python}
+graph = osm.to_graph(nodes, edges, graph_type="igraph")
+```
+
+**IMPORTANT:** Some nodes will vanish after dropping some edges. Find which nodes are vertices in the graph:
+```{python}
+node_vertices = graph.vs["id"]
+node_vertices = nodes[nodes.id.isin(node_vertices)].reset_index()
+```
+
+**IMPORTANT:** The ids of the edges are not unique, but correspond instead to a group of segments that together make a street or a road; see:
+```{python}
+edges.id
+```
+
+These ids cannot be used to uniquely identify individual segments. The segments can be identified uniquely with their origin node and destination node (whose ids are unique).
+
+Once we converted the GeoDataFrame to a graph we can retrieve the origin and destination nodes of the segments along with their index in the graph.
+
+## Find nodes in network that are closest to zone centroids
+
+Retrieve the zone centroids:
+```{python}
+zone_centroids = zones.centroid
+zone_centroids = gpd.GeoDataFrame(zones.GTA06, geometry = zone_centroids)
+```
+
+Plot the nodes (black) and the zonal centroids (red):
+```{python}
+fig, ax = plt.subplots()
+ax.set_aspect("equal")
+
+# network nodes
+nodes.plot(ax = ax, color = "black", markersize = 0.1)
+
+# Centroids
+zone_centroids.plot(ax = ax, color = "red", markersize = 5)
+
+# Show plot
+plt.show();
+```
+
+Define a function for finding the nearest points between two point geometries:
+```{python}
+def ckdnearest(gdA, gdB):
+    nA = np.array(list(gdA.geometry.apply(lambda x: (x.x, x.y))))
+    nB = np.array(list(gdB.geometry.apply(lambda x: (x.x, x.y))))
+    btree = cKDTree(nB)
+    dist, idx = btree.query(nA, k=1)
+    gdf = pd.concat(
+        [gdA.reset_index(drop=True), gdB.loc[idx, gdB.columns != 'geometry'].reset_index(drop=True),
+         pd.Series(dist, name='dist')], axis=1)
+    return gdf
+
+```
+
+Find network nodes closest to zone centroids:
+```{python}
+centroid_nodes = ckdnearest(zone_centroids, node_vertices)
+centroid_nodes
+```
+
+Verify that the ids of the centroid nodes appear in the nodes GeoDataFrame:
+```{python}
+ids1 = sorted(centroid_nodes.id)
+ids2 = sorted(nodes.id[nodes.id.isin(centroid_nodes.id)])
+```
+
+Note that there might be some duplicated centroid nodes; this can happen when two or more zonal centroids are closest to the same node:
+```{python}
+len(centroid_nodes.id)
+len(centroid_nodes.id.unique())
+```
+
+## Shortest paths calculations
+
+Vertex sequence with centroid nodes (vertices):
+```{python}
+od_vertices = graph.vs.select(id_in=list(centroid_nodes.id.unique()))
+```
+
+Verify that the number of od_vertices is the same as the number of unique nodes:
+```{python}
+ids3 = od_vertices["id"]
+len(ids3)
+```
+
+Plot the nodes:
+```{python}
+fig, ax = plt.subplots()
+ax.set_aspect('equal')
+# Network
+edges.plot(ax = ax, color = "lightgray", linewidth = 1)
+# Zones
+zones.plot(ax=ax, color = "white", edgecolor = 'black', linestyle = "solid")
+# Zone centroids
+zone_centroids.plot(ax=ax, marker = "o", color = "black", markersize = 8)
+# Network nodes in graph
+nodes[nodes.id.isin(ids3)].plot(ax=ax, marker = "*", color = "red", markersize = 4)# Show plot
+
+plt.show()
+```
+
+Shortest path (choose a few origins and destinations at random):
+```{python}
+origins = graph.vs.select(id_in=random.choices(ids3, k = 4))
+destinations = graph.vs.select(id_in=random.choices(ids3, k = 4))
+
+start_time = timeit.default_timer()
+
+shortest_paths = []
+for i in range(len(origins)):
+    for j in range(len(destinations)):
+      # code you want to evaluate
+      next_ = graph.get_shortest_paths(origins[i], to=destinations[j], weights=graph.es["weight"], output="epath")
+      shortest_paths.append(next_)
+
+elapsed = timeit.default_timer() - start_time
+elapsed
+```
+
+## Origin-destination table
+
+Define a function to expand a grid to create a table with all pairs of origin-destinations for which we calculated the shortest paths above:
+```{python}
+def expand_grid(data_dict):
+    rows = itertools.product(*data_dict.values())
+    return pd.DataFrame.from_records(rows, columns=data_dict.keys())
+```
+
+Create a data frame with the origin-destination pairs; the variables are the node ids:
+```{python}
+od = expand_grid(
+    {'o_path': origins["id"],
+     'd_path': destinations["id"]})
+```
+
+## Detailed paths
+
+The results of the shortest paths is a list of lists. The length of the list is the number of origin-destination pairs that where analyzed:
+```{python}
+len(shortest_paths)
+```
+
+For example, consider the following origin and destination pair; the values are the ids of the origin and destination nodes:
+```{python}
+od.o_path[1]
+od.d_path[1]
+```
+
+This is the list of links that correspond to the shortest path for this origin-destination pair:
+```{python}
+shortest_paths[1]
+```
+
+The elements of the list are the identifiers of the links that are part of the shortest path. 
+
+Each path is identified by its origin and destination. The path may consist of several segments
+
+| Path      | segment | origin | destination |
+|-----------|:-------:|:------:|:-----------:|
+| "01"      | 1       |    0   |   1         |
+| "02"      | 1       |    0   |   1         |
+| "02"      | 2       |    1   |   2         |
+| ...       | ...     |   ...  |  ...        |
+| "06"      | 1       |    0   |   1         |
+| "06"      | 2       |    1   |  11         |
+| "06"      | 3       |   11   |  10         |
+| "06"      | 4       |   10   |   6         |
+
+: Typical table with shortest paths {#tbl-shortest-paths}
+
+
+```{python}
+# Choose od pair:
+i = 15
+shortest_path_ = graph.es.select(shortest_paths[i][0])
+```
+
+Extract chosen shortest path:
+```{python}
+shortest_path_ = pd.DataFrame({'o_path' : od.o_path[i], 'd_path' : od.d_path[i], "id" : id, 'u' : shortest_path_["u"], 'v' : shortest_path_["v"], "geometry" : shortest_path_["geometry"]})
+```
+
+Convert to GeoDataFrame:
+```{python}
+shortest_path_ = gpd.GeoDataFrame(shortest_path_)
+```
+
+Plot:
+```{python}
+fig, ax = plt.subplots()
+ax.set_aspect('equal')
+# Edges
+edges.plot(ax=ax, color = "lightgray")
+# Shortest path
+shortest_path_.plot(ax=ax, color = "Red")
+# Show plot
+plt.show()
+```
+
