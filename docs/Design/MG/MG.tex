@@ -35,7 +35,7 @@
 
 \title{Module Guide for \progname{}} 
 \author{\authname}
-\date{\today}
+\date{January 18, 2023}
 
 \maketitle
 
@@ -46,8 +46,9 @@
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-Date 1 & 1.0 & Notes\\
-Date 2 & 1.1 & Notes\\
+January 13, 2023 & 1.0 & Edited Abbreviations and Acronyms, Introduction, Anticipated and Unlikely Changes, Module Hierarchy\\
+January 14, 2023 & 1.1 & Edited Connection Between Requirements and Design and Module Decomposition\\
+January 18, 2023 & 1.2 & Edited Traceability Matrix and Use Hierarchy Between Modules\\
 \bottomrule
 \end{tabularx}
 
@@ -74,7 +75,11 @@ This section records information for easy reference.
   SRS & Software Requirements Specification\\
   \progname & Explanation of program name\\
   UC & Unlikely Change \\
-  \wss{etc.} & \wss{...}\\
+  OSM & OpenStreetMap \\
+  2D & two-dimensional\\
+  GIS & geographic information system\\
+  SHP & shapefile: a geospatial vector data format for GIS software\\
+%   \wss{etc.} & \wss{...}\\
   \bottomrule
 \end{tabular}\\
 
@@ -125,7 +130,7 @@ potential readers of this document are as follows:
   important for a maintainer to update the relevant sections of the document
   after changes have been made.
 \item Designers: Once the module guide has been written, it can be used to
-  check for consistency, feasibility and flexibility. Designers can verify the
+  check for consistency, feasibility, and flexibility. Designers can verify the
   system in various ways, such as consistency among modules, feasibility of the
   decomposition, and flexibility of the design.
 \end{itemize}
@@ -150,33 +155,22 @@ unlikely changes are listed in Section \ref{SecUchange}.
 
 \subsection{Anticipated Changes} \label{SecAchange}
 
-Anticipated changes are the source of the information that is to be hidden
-inside the modules. Ideally, changing one of the anticipated changes will only
-require changing the one module that hides the associated decision. The approach
-adapted here is called design for
-change.
-
 \begin{description}
 \item[\refstepcounter{acnum} \actheacnum \label{acHardware}:] The specific
   hardware on which the software is running.
-\item[\refstepcounter{acnum} \actheacnum \label{acInput}:] The format of the
-  initial input data.
-\item ...
+\item[\refstepcounter{acnum} \actheacnum \label{acRCSG}:]  The implementation for the methods for generating route choice set.
+\item[\refstepcounter{acnum} \actheacnum \label{acRCAVG}:]  The implementation for the methods for generating route choice analysis variable.
+\item[\refstepcounter{acnum} \actheacnum \label{acGOAM}:] The specific algorithms that are used for geometric object analysis and manipulation.
+\item[\refstepcounter{acnum} \actheacnum \label{acNA}:] The specific algorithms that are used for network analysis.
 \end{description}
 
 \subsection{Unlikely Changes} \label{SecUchange}
 
-The module design should be as general as possible. However, a general system is
-more complex. Sometimes this complexity is not necessary. Fixing some design
-decisions at the system architecture stage can simplify the software design. If
-these decision should later need to be changed, then many parts of the design
-will potentially need to be modified. Hence, it is not intended that these
-decisions will be changed.
-
 \begin{description}
-\item[\refstepcounter{ucnum} \uctheucnum \label{ucIO}:] Input/Output devices
-  (Input: File and/or Keyboard, Output: File, Memory, and/or Screen).
-\item ...
+\item[\refstepcounter{ucnum} \uctheucnum \label{ucGPD}:] An unlikely change for the module design is the implementation being designed around the open-source free library GeoPandas
+\item [\refstepcounter{ucnum} \uctheucnum \label{ucGDF}:] An unlikely change for the module design is building the modules based on the GeoDataFrame object which is a panadas.DataFrame that has a column with geometry
+\item [\refstepcounter{ucnum} \uctheucnum \label{ucP}:] An unlikely change for the module design is to use the geojsonio package to transfer the geopandas dataframe to geojson format which will then be converted to a json string to display the GPS points
+\item [\refstepcounter{ucnum} \uctheucnum \label{ucOSMNDR}:] An unlikely change for the module design is use pyrosm to create the GeoDataFrame for driving network and buildings from OpenStreetMap PBF files
 \end{description}
 
 \section{Module Hierarchy} \label{SecMH}
@@ -188,7 +182,19 @@ actually be implemented.
 
 \begin{description}
 \item [\refstepcounter{mnum} \mthemnum \label{mHH}:] Hardware-Hiding Module
-\item ...
+\item [\refstepcounter{mnum} \mthemnum \label{mGP}:] GPS Data Preprocessing Module 
+\item [\refstepcounter{mnum} \mthemnum \label{mMD}:] GPS Data Mode Detection Module 
+\item [\refstepcounter{mnum} \mthemnum \label{mTSALE}:] Trip Segments and Activity Locations Extraction Module
+\item [\refstepcounter{mnum} \mthemnum \label{mRCS}:] Route Choice Set Generator Module
+\item [\refstepcounter{mnum} \mthemnum \label{mRCAV}:] Route Choice Analysis Variables Generator Module
+\item [\refstepcounter{mnum} \mthemnum \label{mALI}:] Activity Locations Identification Module
+\item [\refstepcounter{mnum} \mthemnum \label{mMF}:] Main Function Module
+\item [\refstepcounter{mnum} \mthemnum \label{mDFDS}:] Dataframe Data Structure Module
+\item [\refstepcounter{mnum} \mthemnum \label{mGDFDS}:] GeoDataframe Data Structure Module
+\item [\refstepcounter{mnum} \mthemnum \label{mGOAM}:] Geometric Object Analysis and Manipulation Module
+\item [\refstepcounter{mnum} \mthemnum \label{mNA}:] Network Analysis Module
+\item [\refstepcounter{mnum} \mthemnum \label{mOSMNDR}:] OSM Network Dataset Reader Module
+\item [\refstepcounter{mnum} \mthemnum \label{mP}:] Plotting Module
 \end{description}
 
 
@@ -202,19 +208,23 @@ actually be implemented.
 {Hardware-Hiding Module} & ~ \\
 \midrule
 
-\multirow{7}{0.3\textwidth}{Behaviour-Hiding Module} & ?\\
-& ?\\
-& ?\\
-& ?\\
-& ?\\
-& ?\\
-& ?\\ 
-& ?\\
+\multirow{7}{0.3\textwidth}{Behaviour-Hiding Module}
+& GPS Data Preprocessing Module\\
+& GPS Data Mode Detection Module \\
+& Trip Segments and Activity Locations Extraction Module\\
+& Route Choice Set Generator Module\\
+& Route Choice Analysis Variables Generator Module\\
+& Activity Locations Identification Module\\
+& Main Function Module\\ 
 \midrule
 
-\multirow{3}{0.3\textwidth}{Software Decision Module} & {?}\\
-& ?\\
-& ?\\
+\multirow{3}{0.3\textwidth}{Software Decision Module}
+& Dataframe Data Structure Module\\
+& GeoDataframe Data Structure Module\\
+& Geometric Object Analysis and Manipulation Module\\
+& Network Analysis Module\\
+& OSM Network Dataset Reader Module\\
+& Plotting Module\\
 \bottomrule
 
 \end{tabular}
@@ -225,17 +235,8 @@ actually be implemented.
 \section{Connection Between Requirements and Design} \label{SecConnection}
 
 The design of the system is intended to satisfy the requirements developed in
-the SRS. In this stage, the system is decomposed into modules. The connection
-between requirements and modules is listed in Table \ref{TblRT}.
-
-\wss{The intention of this section is to document decisions that are made
-  ``between'' the requirements and the design.  To satisfy some requirements,
-  design decisions need to be made.  Rather than make these decisions implicit,
-  they are explicitly recorded here.  For instance, if a program has security
-  requirements, a specific design decision may be made to satisfy those
-  requirements with a password.  In scientific examples, the choice of algorithm
-could potentially go here, if that is a decision that is exposed by the
-interface.}
+the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}. In this stage, the system is decomposed into modules. The connection
+between requirements and modules is listed in Table~\ref{TblRT}.
 
 \section{Module Decomposition} \label{SecMD}
 
@@ -269,25 +270,73 @@ to be implemented.
 \begin{description}
 \item[Secrets:]The contents of the required behaviours.
 \item[Services:]Includes programs that provide externally visible behaviour of
-  the system as specified in the software requirements specification (SRS)
+  the system as specified in the software requirements specification (\href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS})
   documents. This module serves as a communication layer between the
   hardware-hiding module and the software decision module. The programs in this
-  module will need to change if there are changes in the SRS.
+  module will need to change if there are changes in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}.
 \item[Implemented By:] --
 \end{description}
 
-\subsubsection{Input Format Module (\mref{mInput})}
+\subsubsection{GPS Data Preprocessing Module (\mref{mGP})}
 
 \begin{description}
-\item[Secrets:]The format and structure of the input data.
-\item[Services:]Converts the input data into the data structure used by the
-  input parameters module.
-\item[Implemented By:] [Your Program Name Here]
-\item[Type of Module:] [Record, Library, Abstract Object, or Abstract Data Type]
-  [Information to include for leaf modules in the decomposition by secrets tree.]
+\item[Secrets:]The algorithms and functions for prerpocessing the raw GPS data.
+\item[Services:]Removes invalid data from the raw GPS data from user's input.
+\item[Implemented By:] PyERT
+\item[Type of Module:] Library
 \end{description}
 
-\subsubsection{Etc.}
+\subsubsection{GPS Data Mode Detection Module (\mref{mMD})}
+\begin{description}
+\item[Secrets:]The algorithms and functions detecting the modes(e.g. drive, walk, stop) of GPS data.
+\item[Services:]Classifies the valid GPS data into travel or stop episodes.
+\item[Implemented By:] PyERT
+\item[Type of Module:] Library
+\end{description}
+
+\subsubsection{Trip Segments and Activity Locations Extraction Module (\mref{mTSALE})}
+
+\begin{description}
+\item[Secrets:]The algorithms and functions for extracting trip segments and activity locations from GPS data
+\item[Services:]Extracts trip segments(GPS points in travel episodes generated by \mref{mMD}) and activity locations (GPS points in the stop episodes generated by \mref{mMD}).
+\item[Implemented By:] PyERT
+\item[Type of Module:] Library
+\end{description}
+
+\subsubsection{Route Choice Set Generator Module (\mref{mRCS})}
+
+\begin{description}
+\item[Secrets:]The algorithms and functions for generating route choice sets from given trip segments.
+\item[Services:]Generates route choice sets with the trip segments extracted by \mref{mTSALE} and transportation network dataset from user's input.
+\item[Implemented By:] PyERT
+\item[Type of Module:] Library
+\end{description}
+
+\subsubsection{Route Choice Analysis Variables Generator Module (\mref{mRCAV})}
+
+\begin{description}
+\item[Secrets:]The algorithms and functions for generating route choice analysis variables from given route choice.
+\item[Services:]Generates route choice analysis variables including the number of each type of turns, the length of route by meters, the name of street for the longest leg and the length of the longest leg by meters, for the route choice generated by \mref{mRCS}, with the data of the route choice and the transportation network dataset from user's input.
+\item[Implemented By:] PyERT
+\item[Type of Module:] Library
+\end{description}
+
+\subsubsection{Activity Locations Identification Module (\mref{mALI})}
+
+\begin{description}
+\item[Secrets:]The algorithms and functions for appending information for extracted activity locations.
+\item[Services:]Appends information for activity locations extracted by \mref{mTSALE}, if such information has been provided by the transportation network dataset from user's input.
+\item[Implemented By:] PyERT
+\item[Type of Module:] Library
+\end{description}
+
+\subsubsection{Main Function Module (\mref{mMF})}
+
+\begin{description}
+\item[Secrets:] The function for coordinating the running of the system.
+\item[Services:] Provides the main function of the system.
+\item[Implemented By:] PyERT
+\end{description}
 
 
 \subsection{Software Decision Module}
@@ -295,7 +344,7 @@ to be implemented.
 \begin{description}
 \item[Secrets:] The design decision based on mathematical theorems, physical
   facts, or programming considerations. The secrets of this module are
-  \emph{not} described in the SRS.
+  \emph{not} described in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}.
 \item[Services:] Includes data structure and algorithms used in the system that
   do not provide direct interaction with the user. 
   % Changes in these modules are more likely to be motivated by a desire to
@@ -303,12 +352,58 @@ to be implemented.
 \item[Implemented By:] --
 \end{description}
 
-\subsubsection{Etc.}
+\subsubsection{Dataframe Data Structure Module (\mref{mDFDS})}
+
+\begin{description}
+\item[Secrets:]The data structure for a Pandas Dataframe data type.
+\item[Services:] Provides 2D array(or can be seen as a table with rows and columns where values on the same column are of the same data type) manipulation, including building a 2D array, access or change the value of a specific row, column or entry, etc.
+\item[Implemented By:] Pandas
+\end{description}
+
+\subsubsection{GeoDataframe Data Structure Module (\mref{mGDFDS})}
+
+\begin{description}
+\item[Secrets:]The data structure for a GeoPandas GeoDataframe data type, which is a type of specialized Pandas Dataframe with a 'geometry' column that contains geometric objects of types POINT, LINESTRING, MULTILINGSTRING, POLYGON, or etc.
+\item[Services:] Provides the 2D array manipulations that are provided by Pandas Dataframe, simple methods that can be used to manipulate geometric objects, methods to read and generate SHP files, methods to convert GeoDataframe to JSON string, etc.
+\item[Implemented By:] GeoPandas
+\end{description}
+
+\subsubsection{Geometric Object Analysis and Manipulation Module (\mref{mGOAM})}
+
+\begin{description}
+\item[Secrets:]The algorithms to manipulate and analyze geometric objects (e.g. POINT, LINGSTRING, MULTILINESTRING, POLYGON, etc.). It is part of the Geopandas package (see \mref{mGDFDS}), but also can be imported and used separately.
+\item[Services:] Provides methods to manipulate and analyze geometric objects, such as accessing the coordinates of a geometric object, calculating the distance between two geometric objects, etc..
+\item[Implemented By:] Shapely
+\end{description}
+
+\subsubsection{Network Analysis Module (\mref{mNA})}
+
+\begin{description}
+\item[Secrets:] The algorithms and functions to analyze transportation network dataset. See related \href{https://geoffboeing.com/publications/osmnx-complex-street-networks/}{journal article} \citep{OSMnxArticle} for details. 
+\item[Services:] Provides methods to analyze transportation network dataset, such as accessing the coordinates of a streets and building, finding the shortest route on transportation network between two points given their coordinates, etc..
+\item[Implemented By:] OSMnx
+\end{description}
+
+\subsubsection{OSM Network Dataset Reader Module (\mref{mOSMNDR})}
+
+\begin{description}
+\item[Secrets:]The algorithm to read network dataset from OSM in Protocolbuffer Binary (.pbf) format.
+\item[Services:] Provides methods to extract transportation network data, buildings' information data or etc, from network dataset from OSM in Protocolbuffer Binary (.pbf) format.
+\item[Implemented By:] pyrosm
+\end{description}
+
+\subsubsection{Plotting Module (\mref{mP})}
+
+\begin{description}
+\item[Secrets:]The algorithms for visualizing data of GeoJSON format.
+\item[Services:] Provides methods to visualize GeoJSON data on geojson.io.
+\item[Implemented By:] geojsonio
+\end{description}
 
 \section{Traceability Matrix} \label{SecTM}
 
 This section shows two traceability matrices: between the modules and the
-requirements and between the modules and the anticipated changes.
+requirements and between the modules and the anticipated changes. See detail description for the requirements of the system in \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}.
 
 % the table should use mref, the requirements should be named, use something
 % like fref
@@ -318,17 +413,38 @@ requirements and between the modules and the anticipated changes.
 \toprule
 \textbf{Req.} & \textbf{Modules}\\
 \midrule
-R1 & \mref{mHH}, \mref{mInput}, \mref{mParams}, \mref{mControl}\\
-R2 & \mref{mInput}, \mref{mParams}\\
-R3 & \mref{mVerify}\\
-R4 & \mref{mOutput}, \mref{mControl}\\
-R5 & \mref{mOutput}, \mref{mODEs}, \mref{mControl}, \mref{mSeqDS}, \mref{mSolver}, \mref{mPlot}\\
-R6 & \mref{mOutput}, \mref{mODEs}, \mref{mControl}, \mref{mSeqDS}, \mref{mSolver}, \mref{mPlot}\\
-R7 & \mref{mOutput}, \mref{mEnergy}, \mref{mControl}, \mref{mSeqDS}, \mref{mPlot}\\
-R8 & \mref{mOutput}, \mref{mEnergy}, \mref{mControl}, \mref{mSeqDS}, \mref{mPlot}\\
-R9 & \mref{mVerifyOut}\\
-R10 & \mref{mOutput}, \mref{mODEs}, \mref{mControl}\\
-R11 & \mref{mOutput}, \mref{mODEs}, \mref{mEnergy}, \mref{mControl}\\
+Req \#1 & \mref{mHH}, \mref{mMF}, \mref{mDFDS}, \mref{mGDFDS}\\
+Req \#2 & \mref{mGP}, \mref{mDFDS}\\
+Req \#3 & \mref{mGP}, \mref{mDFDS}\\
+Req \#4 & \mref{mMD}, \mref{mDFDS}\\
+Req \#5 & \mref{mMD}, \mref{mDFDS}\\
+Req \#6 & \mref{mTSALE}, \mref{mDFDS}, \mref{mGDFDS}\\
+Req \#7 & \mref{mTSALE}, \mref{mDFDS}, \mref{mGDFDS}\\
+Req \#8 & \mref{mHH}, \mref{mMF},  \mref{mRCS}, \mref{mGDFDS}, \mref{mGOAM}, \mref{mNA}, \mref{mOSMNDR}\\
+Req \#9 & \mref{mHH}, \mref{mMF},  \mref{mALI}, \mref{mGDFDS}, \mref{mOSMNDR}\\
+Req \#10 & \mref{mHH}, \mref{mMF}\\
+Req \#11 & \mref{mMD}, \mref{mDFDS}\\
+Req \#12 & \mref{mHH}, \mref{mMF},  \mref{mRCAV}, \mref{mGDFDS}, \mref{mGOAM}, \mref{mNA}, \mref{mOSMNDR}\\
+LF1 & \mref{mHH}, \mref{mMF}\\
+LF2 & \mref{mHH}, \mref{mMF}\\
+UH1 & \mref{mHH}, \mref{mMF}, \mref{mGP}, \mref{mMD}, \mref{mTSALE}, \mref{mRCS}, \mref{mRCAV}, \mref{mALI}\\
+UH2 & \mref{mHH}, \mref{mMF}\\
+UH3 & \mref{mHH}, \mref{mMF}, \mref{mGP}, \mref{mMD}, \mref{mTSALE}, \mref{mRCS}, \mref{mRCAV}, \mref{mALI}\\
+PR1 & \mref{mHH}, \mref{mMF}\\
+PR2 & \mref{mHH}, \mref{mMF}\\
+PR3 & \mref{mDFDS}, \mref{mGDFDS}, \mref{mGOAM}, \mref{mNA}, \mref{mOSMNDR}, \mref{mP}\\
+OE1 & \mref{mHH}, \mref{mMF}, \mref{mGP}, \mref{mMD}, \mref{mTSALE}, \mref{mRCS}, \mref{mRCAV}, \mref{mALI}, \mref{mDFDS}, \mref{mGDFDS}, \mref{mGOAM}, \mref{mNA}, \mref{mOSMNDR}, \mref{mP}\\
+OE2 & \mref{mDFDS}, \mref{mGDFDS}, \mref{mGOAM}, \mref{mNA}, \mref{mOSMNDR}, \mref{mP}\\
+OE3 & \mref{mDFDS}, \mref{mGDFDS}, \mref{mGOAM}, \mref{mNA}, \mref{mOSMNDR}, \mref{mP}\\
+MS1 & \mref{mMF}, \mref{mGP}, \mref{mMD}, \mref{mTSALE}, \mref{mRCS}, \mref{mRCAV}, \mref{mALI}\\
+MS3 & \mref{mHH}, \mref{mMF}, \mref{mGP}, \mref{mMD},  \mref{mTSALE}, \mref{mRCS}, \mref{mRCAV}, \mref{mALI}\\
+SR1 & \mref{mMF}, \mref{mGP}, \mref{mMD},  \mref{mTSALE}, \mref{mRCS}, \mref{mRCAV}, \mref{mALI}, \mref{mDFDS}, \mref{mGDFDS}, \mref{mGOAM}, \mref{mNA}, \mref{mOSMNDR}, \mref{mP}\\
+SR2 & \mref{mMF}, \mref{mGP}, \mref{mMD},  \mref{mTSALE}, \mref{mRCS}, \mref{mRCAV}, \mref{mALI}, \mref{mDFDS}, \mref{mGDFDS}, \mref{mGOAM}, \mref{mNA}, \mref{mOSMNDR}, \mref{mP}\\
+SR3 & \mref{mMF}, \mref{mGP}, \mref{mMD}, \mref{mTSALE}, \mref{mRCS}, \mref{mRCAV}, \mref{mALI}\\
+LR1 & \mref{mDFDS}, \mref{mGDFDS}, \mref{mGOAM}, \mref{mNA}, \mref{mOSMNDR}, \mref{mP}\\
+
+
+
 \bottomrule
 \end{tabular}
 \caption{Trace Between Requirements and Modules}
@@ -342,17 +458,10 @@ R11 & \mref{mOutput}, \mref{mODEs}, \mref{mEnergy}, \mref{mControl}\\
 \textbf{AC} & \textbf{Modules}\\
 \midrule
 \acref{acHardware} & \mref{mHH}\\
-\acref{acInput} & \mref{mInput}\\
-\acref{acParams} & \mref{mParams}\\
-\acref{acVerify} & \mref{mVerify}\\
-\acref{acOutput} & \mref{mOutput}\\
-\acref{acVerifyOut} & \mref{mVerifyOut}\\
-\acref{acODEs} & \mref{mODEs}\\
-\acref{acEnergy} & \mref{mEnergy}\\
-\acref{acControl} & \mref{mControl}\\
-\acref{acSeqDS} & \mref{mSeqDS}\\
-\acref{acSolver} & \mref{mSolver}\\
-\acref{acPlot} & \mref{mPlot}\\
+\acref{acRCSG} & \mref{mRCS}\\
+\acref{acRCAVG} & \mref{mRCAV}\\
+\acref{acGOAM} & \mref{mGOAM}\\
+\acref{acNA} & \mref{mNA}\\
 \bottomrule
 \end{tabular}
 \caption{Trace Between Anticipated Changes and Modules}
@@ -375,24 +484,17 @@ because they use modules from the lower levels.
 \begin{figure}[H]
 \centering
 %\includegraphics[width=0.7\textwidth]{UsesHierarchy.png}
-\caption{Use hierarchy among modules}
-\label{FigUH}
+ \centering
+\includegraphics[scale=0.60]{UseHierarchy.png}
+\caption{\bf Use Hierarchy Diagram}
 \end{figure}
 
 %\section*{References}
-
+\newpage
 \bibliographystyle {plainnat}
-\bibliography{../../../refs/References}
+% \bibliography{../../../refs/References}
+\bibliography{MG}
 
 \newpage{}
-\section*{Appendix --- Reflection}
-
-The information in this section will be used to evaluate the team members on the
-graduate attribute of Lifelong Learning.  Please answer the following questions:
-
-\begin{enumerate}
-  \item 
-  \item 
-\end{enumerate}
 
 \end{document}

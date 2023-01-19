@@ -42,7 +42,7 @@ urlcolor=cyan          % color of external links
 
 \author{\authname}
 
-\date{\today}
+\date{January 18, 2023}
 
 \maketitle
 
@@ -53,8 +53,9 @@ urlcolor=cyan          % color of external links
 \begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
 \toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
 \midrule
-Date 1 & 1.0 & Notes\\
-Date 2 & 1.1 & Notes\\
+January 16, 2023 & 1.0 & Edited Abbreviations and Acronyms, Introduction and Notation \\
+January 17, 2023 & 1.1 & Edited Module Decomposition\\
+January 18, 2023 & 1.2 & Edited MIS of all Modules \\
 \bottomrule
 \end{tabularx}
 
@@ -62,9 +63,30 @@ Date 2 & 1.1 & Notes\\
 
 \section{Symbols, Abbreviations and Acronyms}
 
-See SRS Documentation at \wss{give url}
+See SRS Documentation at \url{https://github.com/paezha/PyERT-BLACK/tree/main/docs/SRS}.\\\\
+%\wss{Also add any additional symbols, abbreviations or acronyms}
+\begin{tabular}{l l} 
+  \toprule		
+  \textbf{symbol} & \textbf{description}\\
+  \midrule 
+  EPSG & European Petroleum Survey Group\\
+  CRS & Coordinate-Reference System \\
+  CSV & Comma-Separated Values\\
+  MG & Module Guide \\
+  SRS & Software Requirements Specification\\
+  \progname & Explanation of program name\\
+  OSM & OpenStreetMap: a free, open geographic database \\
+  PBF format & Protocolbuffer Binary Format\\
+  GDB file & Geodatabase: a collection of files in a folder on disc\\
+   & that hold related geospatial data\\
+  2D & two-dimensional\\
+  SHP & shapefile: a geospatial vector data format for GIS software\\
+  URL & Uniform Resource Locator \\
+%   \wss{etc.} & \wss{...}\\
+  \bottomrule
+\end{tabular}\\
 
-\wss{Also add any additional symbols, abbreviations or acronyms}
+\newpage
 
 \newpage
 
@@ -76,17 +98,17 @@ See SRS Documentation at \wss{give url}
 
 \section{Introduction}
 
-The following document details the Module Interface Specifications for
-\wss{Fill in your project name and description}
+The following document details the Module Interface Specifications for the project PyERT. The project aims to re-implement the functionalities of GERT~\citep{DALUMPINES2018121} which uses ArcGIS Pro packages, with
+open-source packages and libraries, and remove any use of ArcGIS in GERT. The same as the original GERT toolkit, the purpose of the product system is to match GPS trajectories to transportation network for further analysis to the GPS data. 
 
 Complementary documents include the System Requirement Specifications
 and Module Guide.  The full documentation and implementation can be
-found at \url{...}.  \wss{provide the url for your repo}
+found at \url{https://github.com/paezha/PyERT-BLACK}.
 
 \section{Notation}
 
-\wss{You should describe your notation.  You can use what is below as
-  a starting point.}
+%\wss{You should describe your notation.  You can use what is below as
+ % a starting point.}
 
 The structure of the MIS for modules comes from \citet{HoffmanAndStrooper1995},
 with the addition that template modules have been adapted from
@@ -104,10 +126,15 @@ The following table summarizes the primitive data types used by \progname.
 \toprule 
 \textbf{Data Type} & \textbf{Notation} & \textbf{Description}\\ 
 \midrule
-character & char & a single symbol or digit\\
-integer & $\mathbb{Z}$ & a number without a fractional component in (-$\infty$, $\infty$) \\
-natural number & $\mathbb{N}$ & a number without a fractional component in [1, $\infty$) \\
-real & $\mathbb{R}$ & any number in (-$\infty$, $\infty$)\\
+character & char & A single symbol or digit\\
+integer & $\mathbb{Z}$ & A number without a fractional component in (-$\infty$, $\infty$) \\
+natural number & $\mathbb{N}$ & A number without a fractional component in [1, $\infty$) \\
+real & $\mathbb{R}$ & Any number in (-$\infty$, $\infty$)\\
+DataFrame & df & Tuple that the value for each field is a sequence. Sequences of differet fields could be of different data types but their lengths will be the same.\\
+GeoDataFrame & gdf & A special type of df where there will be always a field of ‘geometry’ which is a sequence of geometric data type (e.g. Point, LineString, etc.)\\\
+Point & point & A geometric data type that describes a point, which will be a sequence of $\mathbb{R}$, the length of the sequence will be always 2 \\ 
+LineString & ls & A geometric data type that describes a line segment, which will be a sequence of sequences of $\mathbb{R}$, the length of the inner sequences will be always 2\\
+Polygon & polygon & A geometric data type that describes a shape, will be a sequence of of sequences of $\mathbb{R}$, where the first and last inner sequences are the same (connecting to make a closed shape), the length of the inner sequences will be always 2 \\
 \bottomrule
 \end{tabular} 
 \end{center}
@@ -120,6 +147,8 @@ different types. In addition, \progname \ uses functions, which
 are defined by the data types of their inputs and outputs. Local functions are
 described by giving their type signature followed by their specification.
 
+\newpage
+
 \section{Module Decomposition}
 
 The following table is taken directly from the Module Guide document for this project.
@@ -131,21 +160,26 @@ The following table is taken directly from the Module Guide document for this pr
 \textbf{Level 1} & \textbf{Level 2}\\
 \midrule
 
-{Hardware-Hiding} & ~ \\
+{Hardware-Hiding Module} & ~ \\
 \midrule
 
-\multirow{7}{0.3\textwidth}{Behaviour-Hiding} & Input Parameters\\
-& Output Format\\
-& Output Verification\\
-& Temperature ODEs\\
-& Energy Equations\\ 
-& Control Module\\
-& Specification Parameters Module\\
+\multirow{7}{0.3\textwidth}{Behaviour-Hiding Module}
+& GPS Data Preprocessing Module\\
+& GPS Data Mode Detection Module \\
+& Trip Segments and Activity Locations Extraction Module\\
+& Route Choice Set Generator Module\\
+& Route Choice Analysis Variables Generator Module\\
+& Activity Locations Identification Module\\
+& Main Function Module\\ 
 \midrule
 
-\multirow{3}{0.3\textwidth}{Software Decision} & {Sequence Data Structure}\\
-& ODE Solver\\
-& Plotting\\
+\multirow{3}{0.3\textwidth}{Software Decision Module}
+& Dataframe Data Structure Module\\
+& GeoDataframe Data Structure Module\\
+& Geometric Object Analysis and Manipulation Module\\
+& Network Analysis Module\\
+& OSM Network Dataset Reader Module\\
+& Plotting Module\\
 \bottomrule
 
 \end{tabular}
@@ -154,34 +188,44 @@ The following table is taken directly from the Module Guide document for this pr
 \end{table}
 
 \newpage
-~\newpage
 
-\section{MIS of \wss{Module Name}} \label{Module} \wss{Use labels for
-  cross-referencing}
-
-\wss{You can reference SRS labels, such as R\ref{R_Inputs}.}
-
-\wss{It is also possible to use \LaTeX for hypperlinks to external documents.}
+\section{MIS of GPS Data Preprocessing Module} \label{GPSPreprocess}
 
 \subsection{Module}
 
-\wss{Short name for the module}
+GPSPreprocess
 
 \subsection{Uses}
 
+N/A
 
 \subsection{Syntax}
 
 \subsubsection{Exported Constants}
 
+None
+
 \subsubsection{Exported Access Programs}
 
 \begin{center}
-\begin{tabular}{p{2cm} p{4cm} p{4cm} p{2cm}}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
 \hline
-\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
 \hline
-\wss{accessProg} & - & - & - \\
+GPSPreprocess & data: df of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, latitude: seq of $\mathbb{R}$, longitude: seq of $\mathbb{R}$, Speed\_kmh: seq of $\mathbb{R}$) &  & \\
+\hline
+getData &  & processedData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of point) & ~\\
+\hline
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+filterData & data: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of point) &  & ~\\
+\hline
+smoothData & data: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of point) &  & ~\\
 \hline
 \end{tabular}
 \end{center}
@@ -190,52 +234,548 @@ The following table is taken directly from the Module Guide document for this pr
 
 \subsubsection{State Variables}
 
-\wss{Not all modules will have state variables.  State variables give the module
-  a memory.}
+processedData:  gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of point)
 
 \subsubsection{Environment Variables}
 
-\wss{This section is not necessary for all modules.  Its purpose is to capture
-  when the module has external interaction with the environment, such as for a
-  device driver, screen interface, keyboard, file, etc.}
+None
 
 \subsubsection{Assumptions}
 
-\wss{Try to minimize assumptions and anticipate programmer errors via
-  exceptions, but for practical purposes assumptions are sometimes appropriate.}
+None
 
 \subsubsection{Access Routine Semantics}
 
-\noindent \wss{accessProg}():
+\noindent GPSPreprocess(data):
 \begin{itemize}
-\item transition: \wss{if appropriate} 
-\item output: \wss{if appropriate} 
-\item exception: \wss{if appropriate} 
+\item transition: filters and smooths given DataFrame and converts it to a GeoDataFrame
+\item output: $out := self$
+\item exception: None
 \end{itemize}
 
-\wss{A module without environment variables or state variables is unlikely to
-  have a state transition.  In this case a state transition can only occur if
-  the module is changing the state of another module.}
+\noindent getData():
+\begin{itemize}
+\item output: $out := preprocessedData$
+\item exception: None
+\end{itemize}
 
-\wss{Modules rarely have both a transition and an output.  In most cases you
-  will have one or the other.}
+\noindent filterData(data):
+\begin{itemize}
+\item transition: $data := (\forall x, y : data | x \neq y)$
+\item exception: None
+\end{itemize}
+
+\noindent smoothData(data):
+\begin{itemize}
+\item transition: $data := (\forall row : data | row.speed < 50)$
+\item exception: None
+\end{itemize}
 
 \subsubsection{Local Functions}
 
-\wss{As appropriate} \wss{These functions are for the purpose of specification.
-  They are not necessarily something that is going to be implemented
-  explicitly.  Even if they are implemented, they are not exported; they only
-  have local scope.}
+None
+\newpage
+
+\section{MIS of GPS Data Mode Detection Module} \label{ModeDetection} 
+
+\subsection{Module}
+
+ModeDetection
+
+\subsection{Uses}
+
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+detectModes & processedData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of point) & & \\
+\hline
+getEpisodeData & & episodeData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, Mode: seq of String, geometry: seq of point) & \\
+\hline
+
+\end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+
+episodeData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, Mode: seq of String, geometry: seq of point
+
+\subsubsection{Environment Variables}
+
+None
+
+\subsubsection{Assumptions}
+
+None
+
+\subsubsection{Access Routine Semantics}
+
+\noindent detectModes(processedData):
+\begin{itemize}
+\item transition: Read a processedData GeoDataFrame produced by the GPSPreprocsser module, then partition the given points into segments, then classify these episodes by mode (walk, car, bus, etc.). Store these episodes into the episodeData GeoDataFrame (a state variable).
+\item exception: None
+\end{itemize}
+
+\noindent getEpisodeData():
+\begin{itemize}
+
+\item output: A GeoDataFrame object containing the classified GPS Episodes.  It consists of recordID (represented by a sequence of integers), serialID (represented by a sequence of integers), LocalTime (represented by a sequence of strings), Speed\_kmh (represented by a sequence of real numbers), Mode(represented by a sequence of Strings), and geometry (represented by a sequence of Points).
+\item exception: None
+\end{itemize}
+
+\subsubsection{Local Functions}
+
+None
+  
+\newpage
+
+\section{MIS of Trip Segments and Activity Locations Extraction Module} \label{Extractor} 
+\subsection{Module}
+
+Extractor
+
+\subsection{Uses}
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+None
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+extractTripSegments & episodeData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Mode: seq of String, geometry: seq of point) &  & \\
+\hline
+getTripSegments &  & tripSegmentsData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Mode: seq of string, geometry: seq of point) & \\
+\hline
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+extractActivityLocations & episodeData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, Mode: seq of String, geometry: seq of point) & &\\
+\hline
+getActivityLocations &  & extractedData : gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Mode: seq of string, geometry: seq of point) & \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+tripSegments: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Mode: seq of string, geometry: seq of point
+\\
+activityLocations: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Mode: seq of string, geometry: seq of point)
+
+\subsubsection{Environment Variables}
+
+None
+
+\subsubsection{Assumptions}
+
+None
+
+\subsubsection{Access Routine Semantics}
+
+\noindent extractTripSegments(episodeData):
+\begin{itemize}
+\item transition: Read the episodeData GeoDataFrame generated by the ModeDetection module, and extract trip segments (sequences of data points in a travel episode) from this GeoDataFrame. Store these trip segments into the tripSegments GeoDataFrame (a state variable).
+\item exception: None
+\end{itemize}
+
+\noindent getTripSegments():
+\begin{itemize}
+\item output: A GeoDataFrame object containing the trip segments data.  It consists of recordID (represented by a sequence of integers), serialID (represented by a sequence of integers), LocalTime (represented by a sequence of strings), Speed\_kmh (represented by a sequence of real numbers), Mode(represented by a sequence of Strings), and geometry (represented by a sequence of Points).
+\item exception: None
+\end{itemize}
+
+
+\noindent extractActivityLocations(episodeData):
+\begin{itemize}
+\item transition: Read the episodeData GeoDataFrame generated by the ModeDetection module, and extract activity locations (stops or endpoints of trip segments) from this GeoDataFrame. Store these trip segments into the tripSegments GeoDataFrame (a state variable).
+\item exception: None
+\end{itemize}
+
+\noindent getActivityLocations():
+\begin{itemize}
+\item output: A GeoDataFrame object containing the activity location data.  It consists of recordID (represented by a sequence of integers), serialID (represented by a sequence of integers), LocalTime (represented by a sequence of strings), Speed\_kmh (represented by a sequence of real numbers), Mode(represented by a sequence of Strings), and geometry (represented by a sequence of Points).
+\item exception: None
+\end{itemize}
+
+\subsubsection{Local Functions}
+
+None
+
+\newpage
+
+\section{MIS of Route Choice Set Generator Module} \label{RCSGenerator}
+
+\subsection{Module}
+RCSGenerator
+
+\subsection{Uses}
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+None
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+mapPointToNetwork & networkData: gdf of (streetName: sequence of string, geometry: sequence of ls) & pointOnNet: gdf of (streetGeometry: sequence of ls, streetName: sequence of string, geometry: sequence of point) & - \\
+ & points: sequence of point &&\\
+\hline
+detectGap & points: sequence of point & gapPoints: sequence of sequence of point & - \\
+\hline
+fillInGap & gapPoints: sequence of sequence of point & filledGap: sequence of ls & - \\
+\hline
+findStreetIntersect & allExistStreets: sequence of ls & intersections: gdf of (street1Geo: sequence of ls, street2Geo: sequence of ls, geometry: sequence of point) & - \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+connectPoints & pointOnNet: gdf of (streetGeometry: sequence of ls, streetName: sequence of string, geometry: sequence of point] ) & route: ls & -\\
+ & intersections: gdf of (street1Geo: sequence of ls, street2Geo: sequence of ls, geometry: sequence of point) & & \\
+ & filledGap: sequence of ls & &  \\
+\hline
+RouteChoiceGen & trip: gdf of (SerialID: sequence of $\mathbb{N}$, RecordID: sequence of $\mathbb{N}$, TimeStart: sequence of string, Mode: sequence of string, geometry: sequence of point) & routeChoice: gdf of (SerialID: sequence of $\mathbb{N}$, geometry: sequence of ls)& - \\
+& networkData: gdf of (streetName: sequence of string, geometry: sequence of ls)& & \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+None
+
+\subsubsection{Environment Variables}
+None
+
+\subsubsection{Assumptions}
+None
+
+\subsubsection{Access Routine Semantics}
+
+\noindent mapPointToNetwork(networkData, points):
+\begin{itemize}
+\item output: a GeoDataframe object with the input points mapped onto the input network. It consists of streetGeometry (represented by a sequence of LineString), streetName (represented by a sequence of string), and geometry (represented by a sequence of Point).
+\item exception: none
+\end{itemize}
+
+\noindent detectGap(points):
+\begin{itemize}
+\item output: a sequence of all the gap points among the given points, which is a sequence of sequences [2] of point objects.
+\item exception: none
+\end{itemize}
+
+\noindent fillInGap(gapPoints):
+\begin{itemize}
+\item output: a sequence of LineString objects that represent all the filled gaps given the gap points.
+\item exception: none
+\end{itemize}
+
+\noindent findStreetIntersect(allExistStreets):
+\begin{itemize}
+\item output:  a GeoDataframe object consists of street1Geo (represented by a sequence of LineString), street2Geo (represented by a sequence of LineString), and geometry (represented by a sequence of Point), where the Point in geometry is an intersection point between the LineStrings in street1Geo and street2Geo.
+\item exception: none
+\end{itemize}
+
+\noindent connectPoints(pointOnNet, intersections, filledGap):
+\begin{itemize}
+\item output: a LineString object which connects all of the Point objects in pointOnNet, any Point object in intersections that involves, and the LineString objects in filledGap.
+\item exception: none
+\end{itemize}
+
+\noindent RouteChoiceGen(trip, networkData):
+\begin{itemize}
+\item output: a GeoDataframe object consists of SerialID (represented by a sequence of $\mathbb{N}$), and geometry (represented by a sequence of LineString). The GeoDataframe object will be generated by using mapPointToNetwork, detectGap, fillInGap, findStreetIntersect and connectPoints fucntions
+\item exception: none
+\end{itemize}
+
+\subsubsection{Local Functions}
+None
+
+\newpage
+
+\section{MIS of Route Choice Analysis Variables Generator Module} \label{RCAVarGenerator} 
+
+\subsection{Module}
+RCAVarGenerator
+
+\subsection{Uses}
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+None
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+routelength & route: sequence of sequence[2] of $\mathbb{R}$ & length: $\mathbb{R}$ & - \\
+\hline
+countTurns & route: sequence of sequence[2] of $\mathbb{R}$ & numOfTurnsByType: tuple of ( left : $\mathbb{N}$ , right : $\mathbb{N}$,total : $\mathbb{N}$ )& - \\
+\hline
+mapLegToStreet & route: sequence of sequence[2] of $\mathbb{R}$ & streetOnRoute: gdf of (streetName: sequence of \textit{string}, geometry: sequence of ls),& - \\
+ & networkData: gdf of (Name: sequence of \textit{string}, geometry: sequence of ls)& numOfRoad : $\mathbb{N}$ & \\
+\hline
+longestLeg & streetOnRoute: gdf of (streetName: sequence of \textit{string}, geometry: sequence of ls)  & longestLegInfo:tuple of ( legStreet : \textit{string} , leglength : $\mathbb{R}$) & - \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+RCAVarGen & route: (SerialID: sequence of $\mathbb{N}$, geometry: sequence of ls) & RCA:(SerialID: sequence of $\mathbb{N}$, distancemeter: sequence of $\mathbb{R}$, numOfRoads: sequence of $\mathbb{N}$, & \\
+ & networkData: gdf of (streetName: sequence of string, geometry: sequence of ls)& numOflturns: sequence of $\mathbb{N}$, numOfrturns: sequence of $\mathbb{N}$, streetLongestLeg: sequence of string, lengthLongestLeg: sequence of $\mathbb{R}$, geometry: sequence of ls) &\\
+\hline
+
+\end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+
+None
+\subsubsection{Environment Variables}
+
+None
+
+\subsubsection{Assumptions}
+
+None
+
+\subsubsection{Access Routine Semantics}
+
+\noindent routelength(route):
+\begin{itemize}
+\item output: An $\mathbb{N}$ that represents the length of the input route in meters.
+\item exception: none
+\end{itemize}
+
+\noindent countTurns(route):
+\begin{itemize}
+\item output: a tuple of (left : $\mathbb{N}$ , right : $\mathbb{N}$,total : $\mathbb{N}$) that represents the number of left turns, right turns and total turns of the input route.
+\item exception: none
+\end{itemize}
+
+\noindent mapLegToStreet(networkData, route):
+\begin{itemize}
+\item output: streetOnRoute := a GeoDataframe object consists of streetName (represented by a sequence of string) and geometry (represented by a sequence of LineStrings.\\
+numOfRoad := An $\mathbb{N}$ that counts the number of unique steets the input route has been on.
+\item exception: none
+\end{itemize}
+
+\noindent longestLeg(streetOnRoute):
+\begin{itemize}
+\item output:  a tuple of (legStreet : string , legLength : $\mathbb{R}$) that contains the streetName that the longest leg belongs to, length of the longest leg in meters.
+\item exception: none
+\end{itemize}
+
+\noindent RCAVarGen(networkData, route):
+\begin{itemize}
+\item output: a GeoDataframe object consists of SerialID (represented by a sequence of $\mathbb{N}$), and geometry (represented by a sequence of LineString), distance of the route (represented by sequence of $\mathbb{R}$), number of roads(represented by sequence of $\mathbb{R}$), number of turns (represented by sequence of $\mathbb{R}$), streetLongestLeg (represented by sequence of string), length of the longest leg ( represented by  $\mathbb{R}$). The GeoDataframe object will be generated by using 
+routelength, countTurns, mapLegToStreet and longestLeg functions.
+\end{itemize}
+
+\subsubsection{Local Functions}
+None
+
+\newpage
+
+\section{MIS of Activity Locations Identification Module} \label{ALIM} %\wss{Use labels for cross-referencing}
+
+\subsection{Module}
+
+{ALIM}
+
+\subsection{Uses}
+
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+None
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{longtable}{| l | >{\raggedright}p{5cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+identifyLU & AL\_gdf: gdf of (SerialID: sequence of $\mathbb{N}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of point), \newline \newline LU\_gdf: gdf of (house\_number: sequence of $\mathbb{N}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of polygon, lu\_code: sequence of $\mathbb{N}$, lu\_classification: sequence of string) & ALlu\_gdf: gdf of (SerialID: sequence of $\mathbb{N}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of point, house\_number: sequence of $\mathbb{N}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of polygon, lu\_match: sequence of string, lu\_code: sequence of $\mathbb{N}$, lu\_classification: sequence of string) &\\
+\hline
+identifyPAL & AL\_gdf: gdf of (SerialID: sequence of $\mathbb{N}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of point), \newline \newline PAL\_gdf: gdf of (house\_number: sequence of $\mathbb{N}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of polygon, pal\_id: sequence of $\mathbb{N}$, pal\_classification: sequence of string) & ALpal\_gdf: gdf of (SerialID: sequence of $\mathbb{N}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of point, house\_number: sequence of $\mathbb{N}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of polygon, pal\_match: sequence of string, pal\_id: sequence of $\mathbb{N}$, pal\_classification: sequence of string) &\\
+\hline
+createActLocInfo & ALlu\_gdf: gdf of (SerialID: sequence of $\mathbb{N}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of point, house\_number: sequence of $\mathbb{N}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of polygon, lu\_match: sequence of string, lu\_code: sequence of $\mathbb{N}$, lu\_classification: sequence of string) \newline \newline ALpal\_gdf: gdf of (SerialID: sequence of $\mathbb{N}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of point, house\_number: sequence of $\mathbb{N}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of polygon, pal\_match: sequence of string, pal\_id: sequence of $\mathbb{N}$, pal\_classification: sequence of string) & ALinfo\_gdf: gdf of (SerialID: sequence of $\mathbb{N}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of point, house\_number: sequence of $\mathbb{N}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of polygon, lu\_match: sequence of string, lu\_code: sequence of $\mathbb{N}$, lu\_classification: sequence of string, pal\_match: sequence of string, pal\_id: sequence of $\mathbb{N}$, pal\_classification: sequence of string) &\\
+\hline
+\end{longtable}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+
+None
+
+\subsubsection{Environment Variables}
+
+None
+
+\subsubsection{Assumptions}
+
+None
+
+\subsubsection{Access Routine Semantics}
+
+identifyLU(AL\_gdf, LU\_gdf):
+\begin{itemize}
+\item output: A GeoDataFrame of Activity Locations with appending information to the object based on the inputted LU GeoDataFrame that corresponds with an existing SerialID of Activity Locations if it exists. This includes the lu\_match which states if the SerialID matches the LU, lu\_code and lu\_classification:
+\item exception: None
+\end{itemize}
+
+identifyPAL(AL\_gdf, PAL\_gdf):
+\begin{itemize}
+\item output: A GeoDataFrame of Activity Locations with appending information to the object based on the inputted PAL GeoDataFrame that corresponds with an existing SerialID of Activity Locations if it exists. This includes  pal\_match which states if the SerialID matches the PAL, pal\_id and pal\_classification
+\item exception: None
+\end{itemize}
+
+createActLocInfo(ALlu\_gdf, ALpal\_gdf):
+\begin{itemize}
+\item output: A GeoDataFrame of Activity Location Information with appending information to the object based on the inputted identified Activity Location GeoDataFrame with LU additional information and identified Activity Location GeoDataFrame with PAL additional information 
+\item exception: None
+\end{itemize}
+
+\subsubsection{Local Functions}
+None
+
+\newpage
+
+\section{MIS of Main Function Module} \label{Main} %\wss{Use labels for cross-referencing}
+
+%\wss{You can reference SRS labels, such as R\ref{R_Inputs}.}
+
+%\wss{It is also possible to use \LaTeX for hyperlinks to external documents.}
+
+\subsection{Module}
+Main
+
+\subsection{Uses}
+GPSPreprocess (Section \ref{GPSPreprocess}),
+ModeDetection (Section \ref{ModeDetection}), 
+Extractor (Section \ref{Extractor}), 
+RCSGenerator (Section \ref{RCSGenerator}), 
+RCAVarGenerator (Section \ref{RCAVarGenerator}), 
+ALIM (Section \ref{ALIM})
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+EPSGNumEarth: $\mathbb{N}$
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| l | l | l | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+main & - & - & FildNotFoundError, FileTypeError, InvalidEPSGNum\\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+programProgress: $\mathbb{R}$
+
+\subsubsection{Environment Variables}
+consoleWin: 2D sequence of pixels displayed on the screen\\
+gpsDataFile: A text file in CSV format\\
+networkDatasetFile: A file/folder that contains the data for the transportation network dataset\\
+outputFolder: A virtual location in computer for files or other folders/directories\\
+
+\subsubsection{Assumptions} None
+
+\subsubsection{Access Routine Semantics}
+
+\noindent main():
+\begin{itemize}
+\item transition: Modify consoleWin to display text prompts asking user to input the file paths for the gpsDataFile, networkDatasetFile and outputFolder, asking user to input the EPSG CRS number ($\mathbb{N}$), informing the user which stage of map matching the running program is currently on, showing error/warning to user if exception appears, display the current progress based on the programProgress state variable, and displaying URLs that user can copy to visualize the map-matching result on browser.\\
+Modify outputFolder to generate files that the program will output under the file path of outputFolder.
+\item output: None 
+\item exception: exc := a file path gpsDataFile OR networkDatasetFile cannot be found $\Rightarrow$  FileNotFoundError \\
+  exc := the format of gpsDataFile OR networkDatasetFile is incorrect $\Rightarrow$  FileTypeError\\
+  exc := the EPSG CRS number from user input cannot be used $\Rightarrow$  InvalidEPSGNum\\
+\end{itemize}
+
+%\wss{A module without environment variables or state variables is unlikely to
+%  have a state transition.  In this case a state transition can only occur if
+%    the module is changing the state of another module.}
+
+%\wss{Modules rarely have both a transition and an output.  In most cases you
+%  will have one or the other.}
+
+\subsubsection{Local Functions} None
+
+%\wss{As appropriate} \wss{These functions are for the purpose of specification.
+%  They are not necessarily something that is going to be implemented
+%  explicitly.  Even if they are implemented, they are not exported; they only
+%  have local scope.}
+
 
 \newpage
 
 \bibliographystyle {plainnat}
-\bibliography {../../../refs/References}
+% \bibliography {../../../refs/References}
+\bibliography{MIS.bib}
 
 \newpage
 
 \section{Appendix} \label{Appendix}
-
-\wss{Extra information if required}
+N/A
+%\wss{Extra information if required}
 
 \end{document}
