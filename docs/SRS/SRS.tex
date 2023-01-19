@@ -46,7 +46,7 @@
 
 \title{Software Requirements Specification for \progname: PyERT} 
 \author{\authname}
-\date{November 2, 2022}
+\date{November 14, 2022}
 	
 \maketitle
 
@@ -62,6 +62,7 @@
 \midrule
 05/10/2022 & 1.0 & Initial Software Requirements Specification\\
 02/11/2022 & 1.1 & Modified Functional Requirements and Naming Conventions\\
+14/11/2022 & 1.2 & Modified Functional Requirements\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -116,7 +117,7 @@ This document describes the requirements for PyERT. The template for the Softwar
 \caption{\bf Naming Conventions and Terminology}
 \end{table}
 
-\subsection{The Purpose of the Project}
+    \subsection{The Purpose of the Project}
 This project aims to re-implement the features in GERT~\citep{DALUMPINES2018121} that use ArcGIS Pro packages with
 open-source packages and libraries, and remove any use of ArcGIS in the project. Using open-source packages and libraries instead of ArcGIS will make GERT tools accessible. The changes that were made to GERT when replacing ArcGIS will be documented, as having detailed documentation for the modified GERT will ensure that existing users of GERT will be able to transition from using the ArcGIS-free version easily and understand the changes made, and will also be helpful for new users. The current project structure will be modified to be more organized and readable, because most of the code for the current project is stored in a single file, making it hard to read. Organizing the code and potentially splitting up the code into separate modules would be helpful for any users trying to use the code.
 
@@ -419,8 +420,8 @@ The plan for the project is to re-implement the features of the original GERT to
 \end{tabular}
 \newline
 \begin{tabular}{l p{11.5cm}}
-    {\bf Description:} & The product shall generate alternative routes for trip segments in SHP format with digital road/pedestrian networks \textcolor{red}{\sout{and assign values to RCA variables for each of the alternative routes in CSV format based on road network attributes that are provided}}.  \\
-    {\bf Rationale:} & \textcolor{red}{\sout{Both are} SHP is a} cross-platform data format\textcolor{red}{\sout{s for spreadsheet and GIS applications, respectively};} thus, it makes it easy to manipulate GERT’s outputs in other applications. \\
+    {\bf Description:} & The product shall generate \textcolor{red}{\sout{alternative} one} route\textcolor{red}{\sout{s}} for each trip segments in SHP format with digital road/pedestrian networks \textcolor{red}{\sout{and assign values to RCA variables for each of the alternative routes in CSV format based on road network attributes that are provided}}.  \\
+    {\bf Rationale:} & \textcolor{red}{\sout{Both are} SHP is a} cross-platform data format\textcolor{red}{\sout{s}} for \textcolor{red}{\sout{spreadsheet and}} GIS applications\textcolor{red}{\sout{, respectively};} thus, it makes it easy to manipulate GERT’s outputs in other applications. \\
     {\bf Organizer:} & Software Engineer\\
     {\bf Fit Criterion:} &  \textcolor{red}{\sout{GERT is designed to work on minimal inputs with generic variables such as location coordinates and time stamps. This feature allows implementation in environments without additional information aside from GPS data.} Given trip segments in SHP format with digital road/pedestrian networks, the product will generate alternative routes.}\\
 \end{tabular}
@@ -523,7 +524,7 @@ The plan for the project is to re-implement the features of the original GERT to
 \newline
 \begin{tabular}{l p{11.5cm}}
     {\bf Description:} & The product shall assign values to RCA variables in CSV format for each of the alternative routes generated based on the provided road network attributes.  \\
-    {\bf Rationale:} & CSV is a cross-platform data format; thus, it makes it easy to manipulate GERT’s outputs in other applications. \\
+    {\bf Rationale:} & CSV is a cross-platform data format for spreadsheet applications; thus, it makes it easy to manipulate GERT’s outputs in other applications. \\
     {\bf Organizer:} & Software Engineer\\
     {\bf Fit Criterion:} & Given the generated alternative routes, the product will assign the corresponding values to RCA variables in CSV format.\\
 \end{tabular}
