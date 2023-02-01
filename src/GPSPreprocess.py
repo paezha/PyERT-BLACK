@@ -29,7 +29,7 @@ class GPSPreprocess:
 
 # Remove all rows where 'Speed_kmh' > 180.0
     def smoothData(self, data):
-        # Remove all rows that have a value of greater than 50.0 for the column 'Speed_kmh'
+        # Remove all rows that have a value of greater than 180.0 for the column 'Speed_kmh'
         smoothedData = data.drop(data[data.Speed_kmh > 180.0].index)
 
         # Reset index of GeoDataFrame
