@@ -10,6 +10,9 @@ Description: Implements methods that are used to generate map-matched route or s
 
 Version History:
 2023-01-31 (RouteSolver.py)
+
+2023-02-07 (RouteSolver.py) Update implementation of RouteChoiceGen and detectAndFillGap functions, to let the output of RouteChoiceGen
+include the IDs of edges in the network dataset that the route generated has passed through
 """
 
 import geopandas as gpd
@@ -42,6 +45,8 @@ def RouteChoiceGen(trip, networkGraph, networkEdges, networkNodes):
     uniqueSerials = list(trip['SerialID'].value_counts().index)
     # Initialize lists to contain generated routes
     routes = []
+    # Initialize list of lists that contains IDs of edges each of the routes has on
+    edgesRoutePassed = []
     for serialID in uniqueSerials:
         # extract trip segments with each unique serial ID
         currSerialPoints = trip[trip['SerialID'] == serialID]
@@ -52,7 +57,7 @@ def RouteChoiceGen(trip, networkGraph, networkEdges, networkNodes):
         pointsOnNet = pointsOnNet.set_crs(epsg=networkEPSG)
         
         # Detecting gaps between the points and fill the gaps
-        pointsOnNet, filledGaps = detectAndFillGap(pointsOnNet, networkGraph, networkNodes)
+        pointsOnNet, filledGaps = detectAndFillGap(pointsOnNet, networkGraph, networkNodes, networkEdges)
 
         # Then project to the global geographic CRS with EPSG number 4326 
         # for future visualizing the matched points
@@ -64,7 +69,15 @@ def RouteChoiceGen(trip, networkGraph, networkEdges, networkNodes):
         # Connecting the matched points and the filled gaps to generate full route for the trip segment
         routes.append(connectPointsAndFilledGaps(pointOnNetGeoCRS, filledGapsGeoCRS))
 
+        # Get all IDs of unique edges the route generated for current trip segment has passed through
+        tmpEdgeIDsSet = set(pointOnNetGeoCRS['nearEdgeID'].value_counts().index)
+        for i in range(len(filledGaps)):
+            tmpSet = set(filledGaps.loc[i]['EdgesGapPassed'])
+            tmpEdgeIDsSet = tmpEdgeIDsSet.union(tmpSet)
+        edgesRoutePassed.append(tmpEdgeIDsSet)
+
     tempDf = pd.DataFrame({'SerialID': uniqueSerials,
+                           'edgesRoutePassed': edgesRoutePassed,
                            'geometry': routes})
     routesGdf = gpd.GeoDataFrame(tempDf, geometry='geometry')
     return routesGdf
@@ -138,7 +151,7 @@ def mapPointToNetwork(points, networkPG, networkPE):
     pointsOnNetGdf = gpd.GeoDataFrame(tempDf, geometry='geometry')
     return pointsOnNetGdf
 
-def detectAndFillGap(points, networkPG, networkPN):
+def detectAndFillGap(points, networkPG, networkPN, networkPE):
     """
     Detects gaps from GPS points in trip trajectory 
     and returns a Geodataframe where each row contains a route 
@@ -155,6 +168,8 @@ def detectAndFillGap(points, networkPG, networkPN):
     gapsOrigEpsID = []
     # The shortest routes that fill the gaps
     filledGapsLine = []
+    # The Edges on the network the filled gaps has passed
+    edgesGapsPassed = []
     # For each pair of adjacent matched points, check if there is a gap between them and fill the gap if found
     for i in range(1,len(points)):
         # Gap exists when the two adjacent points are not on the same edge in the network dataset 
@@ -180,6 +195,24 @@ def detectAndFillGap(points, networkPG, networkPN):
             shortestRouteGeo = [(networkPN.loc[nodeID]['geometry'].x, networkPN.loc[nodeID]['geometry'].y) 
                                 for nodeID in shortestRoute]
             #print(shortestRouteGeo)
+
+            # Get the IDs of edges in the network that the filled gap has passed through
+            epsIDList = []
+            recordIDList = []
+            for node in shortestRouteGeo:
+                epsIDList.append(points.loc[i-1]['SerialID'])
+                recordIDList.append(points.loc[i-1]['RecordID'])
+                
+            shortestRouteNodes = [networkPN.loc[nodeID]['geometry'] for nodeID in shortestRoute]
+            gapPointsDf = pd.DataFrame({'SerialID': epsIDList,
+                                        'RecordID': recordIDList,
+                                        'geometry': shortestRouteNodes})
+            gapPointsGdf = gpd.GeoDataFrame(gapPointsDf, geometry='geometry')
+            networkEPSG = networkPE.crs.to_epsg()
+            gapPointsGdf = gapPointsGdf.set_crs(epsg=networkEPSG)
+            gapPointsOnNet = mapPointToNetwork(gapPointsGdf, networkPG, networkPE)
+            edgesGapsPassed.append(list(gapPointsOnNet['nearEdgeID'].value_counts().index))
+            
             # Connect the coordinates of the nodes on the shortest route into one LineString
             filledGapsLine.append(LineString(shortestRouteGeo))
             
@@ -187,17 +220,18 @@ def detectAndFillGap(points, networkPG, networkPN):
             # if yes, change the overlapped points' coordinates to the end of the filled gap
             # Loops from the current point until the first following point that does not overlap with the filled gap
             for j in range(i, len(points)):
-                print(list(filledGapsLine[-1].coords))
-                print(filledGapsLine[-1].distance(points.loc[j]['geometry']))
+                #print(list(filledGapsLine[-1].coords))
+                #print(filledGapsLine[-1].distance(points.loc[j]['geometry']))
                 if filledGapsLine[-1].distance(points.loc[j]['geometry']) < 1e-8:
                     points.at[j,'geometry'] = Point(shortestRouteGeo[-1])
-                    print((points.loc[j]['geometry'].x,points.loc[j]['geometry'].y))
+                    #print((points.loc[j]['geometry'].x,points.loc[j]['geometry'].y))
                 else:
                     break
 
     # Create a dataframe for the filled gaps 
     tempDf = pd.DataFrame({'SerialID': gapsOrigEpsID,
                            'OrigPointRecordID': gapsOrigRecordID,
+                           'EdgesGapPassed': edgesGapsPassed,
                            'geometry': filledGapsLine})
     # Convert the dataframe into a geodataframe
     filledGapsGdf = gpd.GeoDataFrame(tempDf, geometry='geometry')
