@@ -4,7 +4,7 @@ Source Name: RouteSolver.py
 Creator: Hongzhao Tan (tanh10@mcmaster.ca)
 Requirements: Python 3.8 or later
 Date Created: Jan 31, 2023
-Last Revised: Jan 31, 2023
+Last Revised: Feb 09, 2023
 Description: Implements methods that are used to generate map-matched route or shortest path from GPS trajectory. A GPS trajectory
              consists of streams of points recorded by a GPS device that captures movement at a given period.
 
@@ -13,6 +13,9 @@ Version History:
 
 2023-02-07 (RouteSolver.py) Update implementation of RouteChoiceGen and detectAndFillGap functions, to let the output of RouteChoiceGen
 include the IDs of edges in the network dataset that the route generated has passed through
+
+2023-02-09 (RouteSolver.py) Separate the local function for finding the IDs of edges a filled gap has passed through out from the
+implementation of detectAndFillGap function as a new function filledGapEdges
 """
 
 import geopandas as gpd
@@ -196,22 +199,9 @@ def detectAndFillGap(points, networkPG, networkPN, networkPE):
                                 for nodeID in shortestRoute]
             #print(shortestRouteGeo)
 
-            # Get the IDs of edges in the network that the filled gap has passed through
-            epsIDList = []
-            recordIDList = []
-            for node in shortestRouteGeo:
-                epsIDList.append(points.loc[i-1]['SerialID'])
-                recordIDList.append(points.loc[i-1]['RecordID'])
-                
-            shortestRouteNodes = [networkPN.loc[nodeID]['geometry'] for nodeID in shortestRoute]
-            gapPointsDf = pd.DataFrame({'SerialID': epsIDList,
-                                        'RecordID': recordIDList,
-                                        'geometry': shortestRouteNodes})
-            gapPointsGdf = gpd.GeoDataFrame(gapPointsDf, geometry='geometry')
-            networkEPSG = networkPE.crs.to_epsg()
-            gapPointsGdf = gapPointsGdf.set_crs(epsg=networkEPSG)
-            gapPointsOnNet = mapPointToNetwork(gapPointsGdf, networkPG, networkPE)
-            edgesGapsPassed.append(list(gapPointsOnNet['nearEdgeID'].value_counts().index))
+            # Get the IDs of edges in the network that the filled gap has passed through and add them into the list edgesGapsPassed
+            edgesGapsPassed.append(filledGapEdges(points.loc[i-1]['SerialID'], points.loc[i-1]['RecordID'], 
+                                                  shortestRoute, networkPG, networkPN, networkPE))
             
             # Connect the coordinates of the nodes on the shortest route into one LineString
             filledGapsLine.append(LineString(shortestRouteGeo))
@@ -238,6 +228,37 @@ def detectAndFillGap(points, networkPG, networkPN, networkPE):
     # Because the coordinates of some points in the input could be changed after filling the gaps, 
     # we also need to return the points
     return points, filledGapsGdf
+
+
+def filledGapEdges(origPointSerialID, origPointRecordID, filledGapRoute, networkPG, networkPN, networkPE):
+    """
+    Returns a list which contains the IDs of edges in the network that the route which fills the gap has passed through
+
+    Parameters:
+    origPointSerialID = The serial ID of the origin point of the gap
+    origPointRecordID = The record ID of the origin point of the gap
+    filledGapRoute = The shortest route that was found to fill the gap detected
+    networkPG = A Directed Graph object that is projected and contains the data of the transportation network
+    networkPN = A Geodataframe that contains the data of the nodes in the Directed Graph networkPG
+    networkPE = A Geodataframe that contains the data of the edges in the Directed Graph networkPG
+    """
+    serialIDList = []
+    recordIDList = []
+    for node in filledGapRoute:
+        serialIDList.append(origPointSerialID)
+        recordIDList.append(origPointRecordID)
+                
+    shortestRouteNodes = [networkPN.loc[nodeID]['geometry'] for nodeID in filledGapRoute]
+    gapPointsDf = pd.DataFrame({'SerialID': serialIDList,
+                                'RecordID': recordIDList,
+                                'geometry': shortestRouteNodes})
+    gapPointsGdf = gpd.GeoDataFrame(gapPointsDf, geometry='geometry')
+    networkEPSG = networkPE.crs.to_epsg()
+    gapPointsGdf = gapPointsGdf.set_crs(epsg=networkEPSG)
+    gapPointsOnNet = mapPointToNetwork(gapPointsGdf, networkPG, networkPE)
+
+    return list(gapPointsOnNet['nearEdgeID'].value_counts().index)
+    
 
 def connectPointsAndFilledGaps(points, filledGaps):
     """
