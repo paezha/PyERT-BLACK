@@ -22,29 +22,29 @@ def var_gen():
     return
 
 
-def find_nearest_street(networkPE, edgesRoutePassed, Coord):
-    point_on_route = Point(Coord[0], Coord[1])
-    nearest_dist = networkPE.loc[edgesRoutePassed[0]
+def find_nearest_street(network_pe, edges_route_passed, coord):
+    point_on_route = Point(coord[0], coord[1])
+    nearest_dist = network_pe.loc[edges_route_passed[0]
                                  ]['geometry'].distance(point_on_route)
-    nearest_street = networkPE.loc[edgesRoutePassed[0]]['name']
-    for edge_id in edgesRoutePassed[1:]:
-        edge_geo = networkPE.loc[edge_id]['geometry']
+    nearest_street = network_pe.loc[edges_route_passed[0]]['name']
+    for edge_id in edges_route_passed[1:]:
+        edge_geo = network_pe.loc[edge_id]['geometry']
         curr_dist = edge_geo.distance(point_on_route)
-        # print(networkPE.loc[edge_id]['name'])
+        # print(network_pe.loc[edge_id]['name'])
         # print(curr_dist)
         if curr_dist < nearest_dist:
             nearest_dist = curr_dist
-            nearest_street = networkPE.loc[edge_id]['name']
+            nearest_street = network_pe.loc[edge_id]['name']
 
     return nearest_street
 
 
-def count_turns(networkPE, edgesRoutePassed, routeCoord):
+def count_turns(network_pe, edges_route_passed, route_coord):
     num_left_turn = 0
     num_right_turn = 0
-    for j in range(1, len(routeCoord)-1):
-        line_segment1 = (routeCoord[j], routeCoord[j-1])
-        line_segment2 = (routeCoord[j], routeCoord[j+1])
+    for j in range(1, len(route_coord)-1):
+        line_segment1 = (route_coord[j], route_coord[j-1])
+        line_segment2 = (route_coord[j], route_coord[j+1])
         # print(straightLine1)
         # print(straightLine2)
 
@@ -73,58 +73,57 @@ def count_turns(networkPE, edgesRoutePassed, routeCoord):
         if abs(180-angle_deg) > 30:
             print(angle_deg)
             start_street = find_nearest_street(
-                networkPE, edgesRoutePassed, routeCoord[j-1])
+                network_pe, edges_route_passed, route_coord[j-1])
             print(start_street)
             end_street = find_nearest_street(
-                networkPE, edgesRoutePassed, routeCoord[j+1])
+                network_pe, edges_route_passed, route_coord[j+1])
             print(end_street)
             # If the two line segments of the angle are going from one street to another
             # Meaning a Turn is found. Then use cross product to determine the direction of the turn(Left/Right)
             if (start_street != end_street):
-                pointDiffA = (routeCoord[j+1][0] - routeCoord[j-1]
-                              [0], routeCoord[j+1][1] - routeCoord[j-1][1])
-                pointDiffB = (
-                    routeCoord[j][0] - routeCoord[j-1][0], routeCoord[j][1] - routeCoord[j-1][1])
-                crossProd = pointDiffA[0] * pointDiffB[1] - \
-                    pointDiffB[0] * pointDiffA[1]
-                if crossProd < 0:
+                point_diff1 = (route_coord[j+1][0] - route_coord[j-1]
+                              [0], route_coord[j+1][1] - route_coord[j-1][1])
+                point_diff2 = (
+                    route_coord[j][0] - route_coord[j-1][0], route_coord[j][1] - route_coord[j-1][1])
+                cross_prod = point_diff1[0] * point_diff2[1] - \
+                    point_diff2[0] * point_diff1[1]
+                if cross_prod < 0:
                     print('Left Turn')
                     num_left_turn += 1
-                elif crossProd > 0:
+                elif cross_prod > 0:
                     print('Right Turn')
                     num_right_turn += 1
-            # print()
 
     return {'left': num_left_turn, 'right': num_right_turn, 'total': (num_left_turn+num_right_turn)}
 
 
-def longest_leg(networkPE, edgesRoutePassed, routeCoord):
+def longest_leg(network_pe, edges_route_passed, route_coord):
     leg_len_dict = {}
     curr_street = find_nearest_street(
-        networkPE, edgesRoutePassed, routeCoord[0])
-    lastPoint = routeCoord[0]
+        network_pe, edges_route_passed, route_coord[0])
+    # lastPoint = route_coord[0]
     leg_len_dict[curr_street] = 0
-    for i in range(1, len(routeCoord)):
-        lineSegLen = Point(routeCoord[i-1]).distance(Point(routeCoord[i]))
-        leg_len_dict[curr_street] += lineSegLen
+    for i in range(1, len(route_coord)):
+        line_seg_len = Point(route_coord[i-1]).distance(Point(route_coord[i]))
+        leg_len_dict[curr_street] += line_seg_len
         point_street = find_nearest_street(
-            networkPE, edgesRoutePassed, routeCoord[i])
+            network_pe, edges_route_passed, route_coord[i])
 
         if curr_street != point_street:
             if point_street not in leg_len_dict:
                 leg_len_dict[point_street] = 0
             # else:
-            #    leg_len_dict[point_street] += lineSegLen
+            #    leg_len_dict[point_street] += line_seg_len
 
             curr_street = point_street
     print(leg_len_dict)
 
-    longLegStreet = curr_street
-    longLegLen = leg_len_dict[curr_street]
+    long_leg_street = curr_street
+    long_leg_len = leg_len_dict[curr_street]
     for street in leg_len_dict:
-        currLegLen = leg_len_dict[street]
-        if longLegLen < currLegLen:
-            longLegStreet = street
-            longLegLen = currLegLen
+        curr_leg_len = leg_len_dict[street]
+        if long_leg_len < curr_leg_len:
+            long_leg_street = street
+            long_leg_len = curr_leg_len
 
-    return {'legStreet': longLegStreet, 'legLength': longLegLen}
+    return {'legStreet': long_leg_street, 'legLength': long_leg_len}
