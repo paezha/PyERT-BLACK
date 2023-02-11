@@ -45,8 +45,6 @@ def count_turns(network_pe, edges_route_passed, route_coord):
     for j in range(1, len(route_coord)-1):
         line_segment1 = (route_coord[j], route_coord[j-1])
         line_segment2 = (route_coord[j], route_coord[j+1])
-        # print(straightLine1)
-        # print(straightLine2)
 
         # Using Dot Product to determine the angle between two line segments
         # Convert to vector form
