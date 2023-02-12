@@ -1,5 +1,5 @@
 import geopandas as gpd
-
+from math import cos, sin, radians, sqrt, asin
 
 class Extractor:
     def __init__(self, episode_data=None):
@@ -10,6 +10,26 @@ class Extractor:
     def extract_trip_segments(self, episode_data):
         options = ['Walk', 'Drive']
         return episode_data[episode_data["MODES"].isin(options)]
+    
+    def distance(self, p1, p2):
+        
+        # convert from degrees to radian
+        lon1 = radians(p1.x)
+        lon2 = radians(p2.x)
+        lat1 = radians(p1.y)
+        lat2 = radians(p2.y)
+        
+        # Haversine formula
+        dlon = lon2 - lon1
+        dlat = lat2 - lat1
+        a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    
+        c = 2 * asin(sqrt(a))
+        
+        # radius of earth in meters
+        r = 6378137
+
+        return c * r
 
     # Processes trip segments to make the distance between adjacent points >= 5m
     def relax_trip(self):
@@ -24,7 +44,7 @@ class Extractor:
             # do not want to drop last row even if it violates the min distance
             if (index == self.trip_segments.shape[0]):
                 break
-            if (start.distance(point) < min_dist):
+            if (self.distance(start, point) < min_dist):
                 dropped.append(index)
             else:
                 start = point
