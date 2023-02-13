@@ -4,7 +4,7 @@ Source Name: route_solver.py
 Creator: Hongzhao Tan (tanh10@mcmaster.ca)
 Requirements: Python 3.8 or later
 Date Created: Jan 31, 2023
-Last Revised: Feb 12, 2023
+Last Revised: Feb 13, 2023
 Description: Implements methods that are used to generate map-matched route or shortest path from GPS trajectory. A GPS trajectory
              consists of streams of points recorded by a GPS device that captures movement at a given period.
 
@@ -18,6 +18,9 @@ include the IDs of edges in the network dataset that the route generated has pas
 implementation of detect_and_fill_gap function as a new function filled_gap_edges
 
 2023-02-12 (route_solver.py) change naming style to snake_case
+
+2023-02-13 (route_solver.py) updated map_point_to_network function to identify if the last point of a trip trajectory is on an intersection 
+point of two or more streets.
 """
 
 import geopandas as gpd
@@ -125,6 +128,14 @@ def map_point_to_network(points, network_pg, network_pe):
             # current GPS point could be crossing an interesction of two streets
             if ((network_pe.loc[near_edges_id[i-1]]['name'] == network_pe.loc[near_edges_id[i+1]]['name']) and
                 (network_pe.loc[near_edges_id[i]]['name'] != network_pe.loc[near_edges_id[i+1]]['name'])):
+                near_edges_id[i] = near_edges_id[i-1]
+        
+        # if the last GPS point is on a different street from the second last GPS point, 
+        # check the distance between the edges they are on, 
+        # if the distance is not greater than 10 meters, the last GPS point could be on a interesction of two streets
+        if i == (len(near_edges_id)-1):
+            if ((network_pe.loc[near_edges_id[i]]['name'] != network_pe.loc[near_edges_id[i-1]]['name']) and 
+                (network_pe.loc[near_edges_id[i]]['geometry'].distance(network_pe.loc[near_edges_id[i-1]]['geometry']) <= 10)):
                 near_edges_id[i] = near_edges_id[i-1]
         
         # Get the coordinates of the nearest edge of current GPS point 
