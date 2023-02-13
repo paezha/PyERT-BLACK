@@ -29,7 +29,7 @@ def var_gen(route, network_graph, network_edges):
     variables generated for the route choice
 
     Parameters:
-    route = A route choice
+    route = A GeoDataframe that represents a route choice
     network_graph = A Directed Graph object that is projected and contains the data of the transportation network
     network_edges = A Geodataframe that contains the data of the edges in the Directed Graph
     """
@@ -123,13 +123,13 @@ turns, right turns and total turns of the input route.
         # If an angle greater than 30 degrees is found,
         # Check if the two line segments of the angle are going from one street to another.
         if abs(180-angle_deg) > 30:
-            print(angle_deg)
+            # print(angle_deg)
             start_street = find_nearest_street(
                 network_pe, edges_route_passed, route_coord[j-1])
-            print(start_street)
+            # print(start_street)
             end_street = find_nearest_street(
                 network_pe, edges_route_passed, route_coord[j+1])
-            print(end_street)
+            # print(end_street)
             # If the two line segments of the angle are going from one street to another
             # Meaning a Turn is found. Then use cross product to determine the direction of the turn(Left/Right)
             if (start_street != end_street):
@@ -140,10 +140,10 @@ turns, right turns and total turns of the input route.
                 cross_prod = point_diff1[0] * point_diff2[1] - \
                     point_diff2[0] * point_diff1[1]
                 if cross_prod < 0:
-                    print('Left Turn')
+                    # print('Left Turn')
                     num_left_turn += 1
                 elif cross_prod > 0:
-                    print('Right Turn')
+                    # print('Right Turn')
                     num_right_turn += 1
 
     return {'left': num_left_turn, 'right': num_right_turn, 'total': (num_left_turn+num_right_turn)}
@@ -176,7 +176,7 @@ def longest_leg(network_pe, edges_route_passed, route_coord):
             #    leg_len_dict[point_street] += line_seg_len
 
             curr_street = point_street
-    print(leg_len_dict)
+    # print(leg_len_dict)
 
     long_leg_street = curr_street
     long_leg_len = leg_len_dict[curr_street]
