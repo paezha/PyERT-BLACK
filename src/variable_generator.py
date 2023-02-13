@@ -14,40 +14,60 @@ Version History:
 
 2023-02-11 (variable_generator.py) Edited comments
 
-2023-02-12 (variable_generator.py) Updated main
+2023-02-12 (variable_generator.py) Updated var_gen
 
-2023-02-13 (variable_generator.py) Updated main & comments
+2023-02-13 (variable_generator.py) Updated var_gen & comments
 """
 
 import math
 from shapely.geometry import Point, LineString
-import route_solver as rs
 
 
-def var_gen(route, network_graph, network_edges, network_nodes):
+def var_gen(route, network_graph, network_edges):
+    """
+    Returns a GeoDataframe that contains route choice analysis
+    variables generated for the route choice
+
+    Parameters:
+    route = A route choice
+    network_graph = A Directed Graph object that is projected and contains the data of the transportation network
+    network_edges = A Geodataframe that contains the data of the edges in the Directed Graph
+    """
     # Project the route to the same CRS as the network dataset
     network_epsg = network_graph.graph['crs'].to_epsg()
     route_gdf_proj = route.to_crs(epsg=network_epsg)
 
     for i in range(len(route_gdf_proj)):
         curr_route_coord = list(route_gdf_proj.loc[i]['geometry'].coords)
-        # route length
+
+        # Get the length of the input route in meters
         route_dist_length = route_gdf_proj.loc[i]['geometry'].length
         edges_route_passed = list(route_gdf_proj.loc[i]['edgesRoutePassed'])
         # print("Length of matched Route Choice is: " +
         #       str(round(route_dist_length, 2)) + " meters")
 
+        # Count the number of turns
         num_of_turns = count_turns(
             network_edges, edges_route_passed, curr_route_coord)
         # print(num_of_turns)
 
+        # Get information about the longest leg
         longest_leg_info = longest_leg(
             network_edges, edges_route_passed, curr_route_coord)
         # print(longest_leg_info)
+
     return
 
 
 def find_nearest_street(network_pe, edges_route_passed, coord):
+    """
+
+
+    Parameters:
+    network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
+    edges_route_passed = 
+    coord = 
+    """
     point_on_route = Point(coord[0], coord[1])
     nearest_dist = network_pe.loc[edges_route_passed[0]
                                   ]['geometry'].distance(point_on_route)
@@ -65,6 +85,15 @@ def find_nearest_street(network_pe, edges_route_passed, coord):
 
 
 def count_turns(network_pe, edges_route_passed, route_coord):
+    """
+    Returns the number of left
+turns, right turns and total turns of the input route.
+
+    Parameters:
+    network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
+    edges_route_passed = The edges that the route passed
+    route_coord = 
+    """
     num_left_turn = 0
     num_right_turn = 0
     for j in range(1, len(route_coord)-1):
@@ -121,6 +150,14 @@ def count_turns(network_pe, edges_route_passed, route_coord):
 
 
 def longest_leg(network_pe, edges_route_passed, route_coord):
+    """
+
+
+    Parameters:
+    network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
+    edges_route_passed = 
+    route_coord = 
+    """
     leg_len_dict = {}
     curr_street = find_nearest_street(
         network_pe, edges_route_passed, route_coord[0])
