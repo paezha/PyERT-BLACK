@@ -8,24 +8,49 @@ Last Revised: Feb 10, 2023
 Description: 
 
 Version History:
-2023-02-05 (variable_generator.py)
+2023-02-01 (variable_generator.py)
 
-2023-02-10 (variable_generator.py)
+2023-02-10 (variable_generator.py) Changed naming style to snake_case
+
+2023-02-11 (variable_generator.py) Edited comments
+
+2023-02-12 (variable_generator.py) Updated main
+
+2023-02-13 (variable_generator.py) Updated main & comments
 """
 
 import math
 from shapely.geometry import Point, LineString
-import RouteSolver as rs
+import route_solver as rs
 
 
-def var_gen():
+def var_gen(route, network_graph, network_edges, network_nodes):
+    # Project the route to the same CRS as the network dataset
+    network_epsg = network_graph.graph['crs'].to_epsg()
+    route_gdf_proj = route.to_crs(epsg=network_epsg)
+
+    for i in range(len(route_gdf_proj)):
+        curr_route_coord = list(route_gdf_proj.loc[i]['geometry'].coords)
+        # route length
+        route_dist_length = route_gdf_proj.loc[i]['geometry'].length
+        edges_route_passed = list(route_gdf_proj.loc[i]['edgesRoutePassed'])
+        # print("Length of matched Route Choice is: " +
+        #       str(round(route_dist_length, 2)) + " meters")
+
+        num_of_turns = count_turns(
+            network_edges, edges_route_passed, curr_route_coord)
+        # print(num_of_turns)
+
+        longest_leg_info = longest_leg(
+            network_edges, edges_route_passed, curr_route_coord)
+        # print(longest_leg_info)
     return
 
 
 def find_nearest_street(network_pe, edges_route_passed, coord):
     point_on_route = Point(coord[0], coord[1])
     nearest_dist = network_pe.loc[edges_route_passed[0]
-                                 ]['geometry'].distance(point_on_route)
+                                  ]['geometry'].distance(point_on_route)
     nearest_street = network_pe.loc[edges_route_passed[0]]['name']
     for edge_id in edges_route_passed[1:]:
         edge_geo = network_pe.loc[edge_id]['geometry']
@@ -80,7 +105,7 @@ def count_turns(network_pe, edges_route_passed, route_coord):
             # Meaning a Turn is found. Then use cross product to determine the direction of the turn(Left/Right)
             if (start_street != end_street):
                 point_diff1 = (route_coord[j+1][0] - route_coord[j-1]
-                              [0], route_coord[j+1][1] - route_coord[j-1][1])
+                               [0], route_coord[j+1][1] - route_coord[j-1][1])
                 point_diff2 = (
                     route_coord[j][0] - route_coord[j-1][0], route_coord[j][1] - route_coord[j-1][1])
                 cross_prod = point_diff1[0] * point_diff2[1] - \
