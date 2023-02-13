@@ -21,6 +21,8 @@ implementation of detect_and_fill_gap function as a new function filled_gap_edge
 
 2023-02-13 (route_solver.py) updated map_point_to_network function to identify if the last point of a trip trajectory is on an intersection 
 point of two or more streets.
+
+2023-02-13 (route_solver.py) Update comments & naming
 """
 
 import geopandas as gpd
@@ -31,7 +33,7 @@ from shapely.geometry import Point, LineString
 
 def route_choice_gen(trip, network_graph, network_edges, network_nodes):
     """
-    Returns a Geodataframe where each row contais a route 
+    Returns a Geodataframe where each row contains a route 
     by matching GPS trip trajectories onto the transportation network
 
     Parameters: 
@@ -80,8 +82,8 @@ def route_choice_gen(trip, network_graph, network_edges, network_nodes):
         # Get all IDs of unique edges the route generated for current trip segment has passed through
         tmp_edge_ids_set = set(point_on_net_geo_crs['nearEdgeID'].value_counts().index)
         for i in range(len(filled_gaps)):
-            tmpSet = set(filled_gaps.loc[i]['EdgesGapPassed'])
-            tmp_edge_ids_set = tmp_edge_ids_set.union(tmpSet)
+            tmp_set = set(filled_gaps.loc[i]['EdgesGapPassed'])
+            tmp_edge_ids_set = tmp_edge_ids_set.union(tmp_set)
         edges_route_passed.append(tmp_edge_ids_set)
 
     temp_df = pd.DataFrame({'SerialID': unique_serials,
