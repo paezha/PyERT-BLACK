@@ -1,5 +1,5 @@
 import geopandas as gpd
-from math import cos, sin, radians, sqrt, asin
+from math import cos, sin, radians, sqrt, asin, floor
 import re
 import datetime
 
@@ -28,38 +28,66 @@ class ModeDetection:
 
         return c * r
 
-    # gets seconds travelled at each minute segment
-    def get_seconds(self, data):
+    # gets seconds travelled at each minute segment and acceleration
+    def calc_time_acc(self, data):
         seconds = []
+        acc = []
         zeros = []
+        marker = []
         segment_time = 0
+        last_index = len(data.index) - 1
         for index, row in data.iterrows():
             curr_min = row["LocalTime"][-2:]
             # since no time can be determined on stops, approximation is made
             if (index == 0):
                 start_min = curr_min
             # if no zeros in segment, no need to do anything
-            elif (curr_min != start_min and zeros):
-                avg_stop_time = (max(59.99, segment_time) -
-                                 segment_time) / len(zeros)
-                for i in zeros:
-                    seconds[i] = avg_stop_time
+            elif (curr_min != start_min):
+                if (zeros):
+                    avg_stop_time = (max(59.99, segment_time) -
+                                     segment_time) / len(zeros)
+                    for i in zeros:
+                        seconds[i] = avg_stop_time
+                        next_speed = data[i + 1:i +
+                                          2]['Speed_kmh'].iloc[0] * 5 / 18
+                        if (avg_stop_time != 0):
+                            acc[i] = next_speed / avg_stop_time
+
                 start_min = curr_min
                 segment_time = 0
                 zeros = []
+                marker.append(index)
 
-            speed = row['Speed_kmh']
-            if (speed == 0):
+            cur_speed = row['Speed_kmh'] * 5 / 18
+            if (cur_speed == 0):
                 seconds.append(0)
+                acc.append(0)
                 zeros.append(index)
                 continue
             cur = row['geometry']
             next = data[index + 1:index + 2]['geometry']
-            time = self.distance(cur, next) / (speed * 5 / 18)
+            time = self.distance(cur, next) / (cur_speed)
             seconds.append(time)
             segment_time = segment_time + time
+            if (index == last_index):
+                acc.append(0)
+            else:
+                next_speed = data[index + 1:index +
+                                  2]['Speed_kmh'].iloc[0] * 5 / 18
+                acc.append(abs(cur_speed - next_speed) / time)
 
-        return seconds
+        # summing consecutive seconds in each minute segment
+        sum = 0
+        mark = marker.pop(0)
+        for i in range(len(seconds)):
+            if (i == mark):
+                sum = 0
+                if (marker):
+                    mark = marker.pop(0)
+            sum += seconds[i]
+            seconds[i] = sum
+
+        return [seconds, acc]
 
     def detect_modes(self, processed_data):
         stage_points = {}
@@ -73,8 +101,7 @@ class ModeDetection:
         last_car_index = -1
         last = len(processed_data.index) - 1
 
-        # add seconds column to dataframe
-        processed_data["seconds"] = self.get_seconds(processed_data)
+        [seconds, acc] = self.calc_time_acc(processed_data)
 
         for index, row in processed_data.iterrows():
             speed = float(row['Speed_kmh'])
@@ -87,13 +114,16 @@ class ModeDetection:
 
             pattern = '(\\d+)\\/(\\d+)\\/(\\d+)\\s(\\d+):(\\d\\d)'
             match = re.search(pattern, row['LocalTime'])
+            # inaccuracies in distance and speed can cause impossible times
+            second = min(floor(seconds[index]), 59)
+            microseconds = floor((seconds[index] - second) * 10**6)
             cur_time = datetime.datetime(
                 year=int(
                     match.groups()[2]), month=int(
                     match.groups()[0]), day=int(
                     match.groups()[1]), hour=int(
                     match.groups()[3]), minute=int(
-                        match.groups()[4]), second=row['seconds'])
+                    match.groups()[4]), microsecond=microseconds, second=second)
             if index == 0:
                 cur_mode = new_mode
                 prev_time = cur_time
