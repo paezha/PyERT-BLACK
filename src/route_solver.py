@@ -4,7 +4,7 @@ Source Name: route_solver.py
 Creator: Hongzhao Tan (tanh10@mcmaster.ca)
 Requirements: Python 3.8 or later
 Date Created: Jan 31, 2023
-Last Revised: Feb 12, 2023
+Last Revised: Feb 13, 2023
 Description: Implements methods that are used to generate map-matched route or shortest path from GPS trajectory. A GPS trajectory
              consists of streams of points recorded by a GPS device that captures movement at a given period.
 
