@@ -19,6 +19,8 @@ Version History:
 2023-02-13 (variable_generator.py) Updated var_gen & comments
 
 2023-02-14 (variable_generator.py) Updated var_gen
+
+2023-02-14 (variable_generator.py) Updated var_gen to output number of left and right turns
 """
 
 import math
@@ -39,24 +41,16 @@ def var_gen(route, network_edges):
     network_edges = A Geodataframe that contains the data of
                     the edges in the Directed Graph
     """
-    for col_name in ['SerialID', 'edgesRoutePassed', 'geometry']:
-        if col_name not in list(route.columns):
-            raise Exception(
-                "Necessary column missing in the input trip dataframe")
-    if str(route['geometry'].dtypes) != 'geometry':
-        raise Exception(
-            "geometry column of the input trip dataframe is not of 'geometry' data type")
 
     serial_id = list(route['SerialID'].value_counts().index)
 
     # Project the route to the same CRS as the network dataset
     # network_epsg = network_graph.graph['crs'].to_epsg()
     # route_gdf_proj = route.to_crs(epsg=network_epsg)
-    network_epsg = network_epsg = network_edges.crs.to_epsg()
+    network_epsg = network_edges.crs.to_epsg()
     route_gdf_proj = route.to_crs(epsg=network_epsg)
     RCA = []
     distance = []
-    num_t = []
     num_r = []
     street_name = []
     length = []
@@ -64,7 +58,8 @@ def var_gen(route, network_edges):
 
     rca = list(route['geometry'].value_counts().index)
     distance = []
-    num_t = []
+    num_lt = []
+    num_rt = []
     num_r = []
     street_name = []
     length = []
@@ -82,10 +77,9 @@ def var_gen(route, network_edges):
         num_of_t = count_turns(
             network_edges, edges_route_passed, curr_route_coord)
         # print(num_of_turns)
-        
-        num_t.append(num_of_t['total'])
 
-        num_t.append(num_of_t['total'])
+        num_lt.append(num_of_t['left'])
+        num_rt.append(num_of_t['right'])
 
         # Get information about the longest leg
         longest_leg_info = longest_leg(
@@ -97,7 +91,8 @@ def var_gen(route, network_edges):
 
     temp_df = pd.DataFrame({'SerialID': serial_id,
                             'Distance': distance,
-                            'Number of turns': num_t,
+                            'Number of LTurns': num_lt,
+                            'Number of RTurns': num_rt,
                             'Number of Roads': num_r,
                             'streetLongestLeg': street_name,
                             'lengthLongestLeg': length,
@@ -144,6 +139,11 @@ def count_turns(network_pe, edges_route_passed, route_coord):
         magnitude2 = (vector2[0]*vector2[0] + vector2[1]*vector2[1])**0.5
         # Calculate cosine value
         cos_val = dot_prod/(magnitude1*magnitude2)
+        # set cos_val to 1 or -1 if cos_val is not in the [-1,1] value range
+        if cos_val > 1:
+            cos_val = 1
+        elif cos_val < -1:
+            cos_val = -1
         # Calculate angle in radians then convert to degrees
         angle_rad = math.acos(cos_val)
         angle_deg = math.degrees(angle_rad) % 360
@@ -162,8 +162,9 @@ def count_turns(network_pe, edges_route_passed, route_coord):
                 network_pe, edges_route_passed, route_coord[j+1])
             print(end_street)
             # If the two line segments of the angle are going from one street to another
-            # Meaning a Turn is found. Then use cross product to determine the direction of the turn(Left/Right)
-            if (start_street != end_street):
+            # Meaning a Turn is found. Then use cross product
+            # to determine the direction of the turn(Left/Right)
+            if start_street != end_street:
                 point_diff1 = (route_coord[j+1][0] - route_coord[j-1]
                               [0], route_coord[j+1][1] - route_coord[j-1][1])
                 point_diff2 = (
@@ -203,13 +204,12 @@ def longest_leg(network_pe, edges_route_passed, route_coord):
 
     long_leg_street = curr_street
     long_leg_len = leg_len_dict[curr_street]
-    streetCount = 0
+    street_count = 0
     for street in leg_len_dict:
         curr_leg_len = leg_len_dict[street]
         if long_leg_len < curr_leg_len:
             long_leg_street = street
             long_leg_len = curr_leg_len
-        streetCount += 1
-     
+        street_count += 1
 
-    return {'legStreet': long_leg_street, 'legLength': long_leg_len,'numOfStreets': streetCount}
+    return {'legStreet': long_leg_street, 'legLength': long_leg_len,'numOfStreets': street_count}
