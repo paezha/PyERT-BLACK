@@ -18,13 +18,17 @@ Version History:
 2023-02-12 (variable_generator.py) Updated var_gen
 
 2023-02-13 (variable_generator.py) Updated var_gen & comments
+
+2023-02-14 (variable_generator.py) Updated var_gen
 """
 
 import math
-from shapely.geometry import Point, LineString
+import geopandas as gpd
+import pandas as pd
+from shapely.geometry import Point
 
 
-def var_gen(route, network_graph, network_edges):
+def var_gen(route, network_edges):
     """
     Returns a GeoDataframe that contains route choice analysis
     variables generated for the route choice
@@ -36,9 +40,28 @@ def var_gen(route, network_graph, network_edges):
     network_edges = A Geodataframe that contains the data of
                     the edges in the Directed Graph
     """
+    for col_name in ['SerialID', 'edgesRoutePassed', 'geometry']:
+        if col_name not in list(route.columns):
+            raise Exception(
+                "Necessary column missing in the input trip dataframe")
+    if str(route['geometry'].dtypes) != 'geometry':
+        raise Exception(
+            "geometry column of the input trip dataframe is not of 'geometry' data type")
+
+    serial_id = list(route['SerialID'].value_counts().index)
+
     # Project the route to the same CRS as the network dataset
-    network_epsg = network_graph.graph['crs'].to_epsg()
+    # network_epsg = network_graph.graph['crs'].to_epsg()
+    # route_gdf_proj = route.to_crs(epsg=network_epsg)
+    network_epsg = network_epsg = network_edges.crs.to_epsg()
     route_gdf_proj = route.to_crs(epsg=network_epsg)
+
+    rca = list(route['geometry'].value_counts().index)
+    distance = []
+    num_t = []
+    num_r = []
+    street_name = []
+    length = []
 
     for i in range(len(route_gdf_proj)):
         curr_route_coord = list(route_gdf_proj.loc[i]['geometry'].coords)
@@ -50,16 +73,30 @@ def var_gen(route, network_graph, network_edges):
         #       str(round(route_dist_length, 2)) + " meters")
 
         # Count the number of turns
-        num_of_turns = count_turns(
+        num_of_t = count_turns(
             network_edges, edges_route_passed, curr_route_coord)
         # print(num_of_turns)
+
+        num_t.append(num_of_t['total'])
 
         # Get information about the longest leg
         longest_leg_info = longest_leg(
             network_edges, edges_route_passed, curr_route_coord)
         # print(longest_leg_info)
+        street_name.append(longest_leg_info['legStreet'])
+        length.append(longest_leg_info['legLength'])
+        num_r.append(longest_leg_info['numOfStreets'])
 
-    return
+    temp_df = pd.DataFrame({'SerialID': serial_id,
+                            'Distance': distance,
+                            'Number of turns': num_t,
+                            'Number of Roads': num_r,
+                            'streetLongestLeg': street_name,
+                            'lengthLongestLeg': length,
+                            'geometry': rca})
+    rca_gdf = gpd.GeoDataFrame(temp_df, geometry='geometry')
+
+    return rca_gdf
 
 
 def find_nearest_street(network_pe, edges_route_passed, coord):
