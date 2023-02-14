@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import sys
 
-import GPSPreprocess as gpsp
+from src import GPSPreprocess as gpsp
 
 sample_gps_file_path = os.getcwd().split("PyERT-BLACK")[0] + 'PyERT-BLACK/quarto-example/data/sample-gps'
 
