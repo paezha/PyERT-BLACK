@@ -5,24 +5,30 @@ Creator: Hongzhao Tan (tanh10@mcmaster.ca)
 Requirements: Python 3.8 or later
 Date Created: Jan 31, 2023
 Last Revised: Feb 13, 2023
-Description: Implements methods that are used to generate map-matched route or shortest path from GPS trajectory. A GPS trajectory
-             consists of streams of points recorded by a GPS device that captures movement at a given period.
+Description: Implements methods that are used to generate map-matched route 
+or shortest path from GPS trajectory. A GPS trajectory consists of streams of points recorded 
+by a GPS device that captures movement at a given period.
 
 Version History:
 2023-01-31 (RouteSolver.py)
 
-2023-02-07 (RouteSolver.py) Update implementation of route_choice_gen and detect_and_fill_gap functions, to let the output of route_choice_gen
+2023-02-07 (RouteSolver.py) Update implementation of route_choice_gen 
+and detect_and_fill_gap functions, to let the output of route_choice_gen 
 include the IDs of edges in the network dataset that the route generated has passed through
 
-2023-02-09 (RouteSolver.py) Separate the local function for finding the IDs of edges a filled gap has passed through out from the
-implementation of detect_and_fill_gap function as a new function filled_gap_edges
+2023-02-09 (RouteSolver.py) Separate the local function for finding the IDs of edges a filled gap 
+has passed through out from the implementation of detect_and_fill_gap function as a new function 
+filled_gap_edges
 
 2023-02-12 (route_solver.py) change naming style to snake_case
 
-2023-02-13 (route_solver.py) updated map_point_to_network function to identify if the last point of a trip trajectory is on an intersection 
+2023-02-13 (route_solver.py) updated map_point_to_network function 
+to identify if the last point of a trip trajectory is on an intersection 
 point of two or more streets.
 
 2023-02-13 (route_solver.py) Update comments & naming
+
+2023-02-14 (route_solver.py) fix bugs and update comments & naming
 """
 
 import geopandas as gpd
@@ -46,15 +52,6 @@ def route_choice_gen(trip, network_graph, network_edges, network_nodes):
     network_nodes = A Geodataframe that contains the data of the nodes 
                     in the Directed Graph network_graph
     """
-    # Check if the trip Geodataframe contains the required columns
-    # and the required columns are of the required data types
-    for col_name in ['RecordID', 'SerialID', 'geometry']:
-        if col_name not in list(trip.columns):
-            raise Exception(
-                "Necessary column missing in the input trip dataframe")
-    if str(trip['geometry'].dtypes) != 'geometry':
-        raise Exception(
-            "geometry column of the input trip dataframe is not of 'geometry' data type")
 
     network_epsg = network_graph.graph['crs'].to_epsg()
     # Find unique serial IDs extract trip segments with each unique serial ID
@@ -84,11 +81,13 @@ def route_choice_gen(trip, network_graph, network_edges, network_nodes):
         filled_gaps = filled_gaps.set_crs(epsg=network_epsg)
         filled_gaps_geocrs = filled_gaps.to_crs(epsg=4326)
 
-        # Connecting the matched points and the filled gaps to generate full route for the trip segment
+        # Connecting the matched points and the filled gaps
+        # to generate full route for the trip segment
         routes.append(connect_points_and_filled_gaps(
             point_on_net_geo_crs, filled_gaps_geocrs))
 
-        # Get all IDs of unique edges the route generated for current trip segment has passed through
+        # Get all IDs of unique edges the route generated
+        # for current trip segment has passed through
         tmp_edge_ids_set = set(
             point_on_net_geo_crs['nearEdgeID'].value_counts().index)
         for i in range(len(filled_gaps)):
@@ -109,7 +108,8 @@ def map_point_to_network(points, network_pg, network_pe):
 
     Parameters: 
     points = A Geodataframe that contains the data of GPS points of a trip trajectory 
-    network_pg = A Directed Graph object that is projected and contains the data of the transportation network
+    network_pg = A Directed Graph object that is projected 
+    and contains the data of the transportation network
     network_pe = A Geodataframe that contains the data of the edges in the Directed Graph network_pg
     """
     # Coordinates of points after matching
@@ -118,7 +118,8 @@ def map_point_to_network(points, network_pg, network_pe):
     near_edges_id = []
     # The edge names of the edges that each of the matched points is on
     near_edges_name = []
-    # Coordinates of the leg(a straight line segment in an edge) that each of the matched points is on
+    # Coordinates of the leg(a straight line segment in an edge)
+    # that each of the matched points is on
     near_legs_geo = []
 
     # Project the sample GPS points to the same CRS as the network dataset
@@ -135,10 +136,10 @@ def map_point_to_network(points, network_pg, network_pe):
 
     # For the each sample GPS point, find the nearest leg on its nearest edges,
     # and find the nearest point on the nearest leg to the sample GPS point
-    for i in range(len(near_edges_id)):
-        if (i >= 1) and (i < (len(near_edges_id)-1)):
-            # If current GPS point is on a different street from the following and the former GPS points
-            # and the following and the former GPS points are on the same street
+    for i, edge in enumerate(near_edges_id):
+        if 1 <= i < (len(near_edges_id)-1):
+            # If current GPS point is on a different street from the following 
+            # and the following and former GPS points are on the same street
             # current GPS point could be crossing an interesction of two streets
             if ((network_pe.loc[near_edges_id[i-1]]['name'] == network_pe.loc[near_edges_id[i+1]]['name']) and
                     (network_pe.loc[near_edges_id[i]]['name'] != network_pe.loc[near_edges_id[i+1]]['name'])):
@@ -146,7 +147,8 @@ def map_point_to_network(points, network_pg, network_pe):
 
         # if the last GPS point is on a different street from the second last GPS point,
         # check the distance between the edges they are on,
-        # if the distance is not greater than 10 meters, the last GPS point could be on a interesction of two streets
+        # if the distance is not greater than 10 meters,
+        # the last GPS point could be on a interesction of two streets
         if i == (len(near_edges_id)-1):
             if ((network_pe.loc[near_edges_id[i]]['name'] != network_pe.loc[near_edges_id[i-1]]['name']) and
                     (network_pe.loc[near_edges_id[i]]['geometry'].distance(network_pe.loc[near_edges_id[i-1]]['geometry']) <= 10)):
@@ -166,7 +168,7 @@ def map_point_to_network(points, network_pg, network_pe):
             if curr_dist < near_leg_dist:
                 near_leg = curr_leg
         # find the nearest point on the nearest leg to the sample GPS point
-        point_on_net.append(near_leg.interpolate(near_leg.project(point)))
+        point_on_net.append(near_leg.interpolate(near_leg.project(list(points['geometry'])[i])))
         near_legs_geo.append(near_leg)
 
     # Create a dataframe for the points after matching
@@ -190,7 +192,8 @@ def detect_and_fill_gap(points, network_pg, network_pn, network_pe):
 
     Parameters: 
     points = A Geodataframe that contains the data of GPS points of a trip trajectory
-    network_pg = A Directed Graph object that is projected and contains the data of the transportation network
+    network_pg = A Directed Graph object that is projected 
+    and contains the data of the transportation network
     network_pn = A Geodataframe that contains the data of the nodes in the Directed Graph network_pg
     """
     # The track IDs of the start points of the gaps
@@ -201,19 +204,22 @@ def detect_and_fill_gap(points, network_pg, network_pn, network_pe):
     filled_gaps_line = []
     # The Edges on the network the filled gaps has passed
     edges_gaps_passed = []
-    # For each pair of adjacent matched points, check if there is a gap between them and fill the gap if found
+    # For each pair of adjacent matched points, check if there is a gap between them
+    # and fill the gap if found
     for i in range(1, len(points)):
         # Gap exists when the two adjacent points are not on the same edge in the network dataset
         # and the distance between them exceeds 50 meters.
-        if ((points.loc[i-1]['nearEdgeID'] != points.loc[i]['nearEdgeID']) and
-                (points.loc[i-1]['geometry'].distance(points.loc[i]['geometry'])) > 50):
+        if (((points.loc[i-1]['nearEdgeID'] != points.loc[i]['nearEdgeID']) and
+                (points.loc[i-1]['geometry'].distance(points.loc[i]['geometry'])) > 50) or
+            (points.loc[i-1]['nearEdgeName'] != points.loc[i]['nearEdgeName'])):
             #print((points.loc[i-1]['RecordID'], points.loc[i]['RecordID']))
             # print(points.loc[i-1]['geometry'].distance(points.loc[i]['geometry']))
             # Get the track ID and episode ID of the start point of the gap
             gaps_orig_record_id.append(points.loc[i-1]['RecordID'])
             gaps_orig_eps_id.append(points.loc[i-1]['SerialID'])
 
-            # Find the two nodes in the network dataset that are nearest to the start and end points of the gap respectively
+            # Find the two nodes in the network dataset that are nearest to the start
+            # and end points of the gap respectively
             start_node = ox.distance.nearest_nodes(
                 network_pg, points.loc[i-1]['geometry'].x, points.loc[i-1]['geometry'].y)
             end_node = ox.distance.nearest_nodes(
@@ -225,20 +231,30 @@ def detect_and_fill_gap(points, network_pg, network_pn, network_pe):
                                                        weight='length')
             # print(shortest_route)
             # Get the coordinates of the nodes on the shortest route
-            shortest_route_geo = [(network_pn.loc[nodeID]['geometry'].x, network_pn.loc[nodeID]['geometry'].y)
-                                  for nodeID in shortest_route]
+            shortest_route_geo = [(network_pn.loc[nodeID]['geometry'].x,
+                                    network_pn.loc[nodeID]['geometry'].y)
+                                    for nodeID in shortest_route]
+            if len(shortest_route_geo) == 1:
+                shortest_route_geo.insert(0,(points.loc[i-1]['geometry'].x,
+                                                points.loc[i-1]['geometry'].y))
+                shortest_route_geo.append((points.loc[i]['geometry'].x,points.loc[i]['geometry'].y))
             # print(shortest_route_geo)
-
-            # Get the IDs of edges in the network that the filled gap has passed through and add them into the list edges_gaps_passed
-            edges_gaps_passed.append(filled_gap_edges(points.loc[i-1]['SerialID'], points.loc[i-1]['RecordID'],
-                                                      shortest_route, network_pg, network_pn, network_pe))
+            # Turning coordinates on shortest route to Point objects
+            shortest_route_points = [Point(point_geo) for point_geo in shortest_route_geo]
+            # Get the IDs of edges in the network that the filled gap has passed through
+            # and add them into the list edges_gaps_passed
+            shortest_route_edges = filled_gap_edges(points.loc[i-1]['SerialID'],
+                                                    points.loc[i-1]['RecordID'],
+                                                    shortest_route_points, network_pg, network_pe)
+            edges_gaps_passed.append(shortest_route_edges)
 
             # Connect the coordinates of the nodes on the shortest route into one LineString
             filled_gaps_line.append(LineString(shortest_route_geo))
 
             # Check to see if the filled gap went over following points,
             # if yes, change the overlapped points' coordinates to the end of the filled gap
-            # Loops from the current point until the first following point that does not overlap with the filled gap
+            # Loops from the current point until the first following point
+            # that does not overlap with the filled gap
             for j in range(i, len(points)):
                 # print(list(filled_gaps_line[-1].coords))
                 # print(filled_gaps_line[-1].distance(points.loc[j]['geometry']))
@@ -254,44 +270,41 @@ def detect_and_fill_gap(points, network_pg, network_pn, network_pe):
                             'EdgesGapPassed': edges_gaps_passed,
                             'geometry': filled_gaps_line})
     # Convert the dataframe into a geodataframe
-    filled_gapsGdf = gpd.GeoDataFrame(temp_df, geometry='geometry')
+    filled_gaps_gdf = gpd.GeoDataFrame(temp_df, geometry='geometry')
     # Because the coordinates of some points in the input could be changed after filling the gaps,
     # we also need to return the points
-    return points, filled_gapsGdf
+    return points, filled_gaps_gdf
 
-# v0.3 added
-
-
-def filled_gap_edges(orig_point_serial_id, orig_point_record_id, filled_gap_route, network_pg, network_pn, network_pe):
+def filled_gap_edges(orig_point_serial_id, orig_point_record_id,
+                        gap_route_points, network_pg, network_pe):
     """
-    Returns a list which contains the IDs of edges in the network that the route which fills the gap has passed through
+    Returns a list which contains the IDs of edges in the network that the 
+    route which fills the gap has passed through
 
     Parameters:
     orig_point_serial_id = The serial ID of the origin point of the gap
     orig_point_record_id = The record ID of the origin point of the gap
     filled_gap_route = The shortest route that was found to fill the gap detected
-    network_pg = A Directed Graph object that is projected and contains the data of the transportation network
+    network_pg = A Directed Graph object that is projected 
+    and contains the data of the transportation network
     network_pn = A Geodataframe that contains the data of the nodes in the Directed Graph network_pg
     network_pe = A Geodataframe that contains the data of the edges in the Directed Graph network_pg
     """
     serial_id_list = []
     record_id_list = []
-    for node in filled_gap_route:
+    for node in gap_route_points:
         serial_id_list.append(orig_point_serial_id)
         record_id_list.append(orig_point_record_id)
 
-    shortest_route_nodes = [network_pn.loc[nodeID]['geometry']
-                            for nodeID in filled_gap_route]
     gap_points_df = pd.DataFrame({'SerialID': serial_id_list,
                                   'RecordID': record_id_list,
-                                  'geometry': shortest_route_nodes})
+                                  'geometry': gap_route_points})
     gap_points_gdf = gpd.GeoDataFrame(gap_points_df, geometry='geometry')
     network_epsg = network_pe.crs.to_epsg()
     gap_points_gdf = gap_points_gdf.set_crs(epsg=network_epsg)
-    gappoints_on_net = map_point_to_network(
-        gap_points_gdf, network_pg, network_pe)
+    gap_points_on_net = map_point_to_network(gap_points_gdf, network_pg, network_pe)
 
-    return list(gappoints_on_net['nearEdgeID'].value_counts().index)
+    return list(gap_points_on_net['nearEdgeID'].value_counts().index)
 
 
 def connect_points_and_filled_gaps(points, filled_gaps):
@@ -306,10 +319,12 @@ def connect_points_and_filled_gaps(points, filled_gaps):
     # Coordinates of the points on the route
     route_points = []
     for i in range(len(points)):
-        # Check if the 'SerialID','RecordID' combination of the current row exists in the Geodataframe for filled gaps
+        # Check if the 'SerialID','RecordID' combination of the current row
+        # exists in the Geodataframe for filled gaps
         if np.any(np.all(points.loc[i][['SerialID', 'RecordID']].values == filled_gaps[['SerialID', 'OrigPointRecordID']].values,
                          axis=1)):
-            # Find the row of Geodataframe for filled gaps, and get the coordinates of the LineString on the row
+            # Find the row of Geodataframe for filled gaps,
+            # and get the coordinates of the LineString on the row
             gap_row = filled_gaps[(filled_gaps['SerialID'] == points.loc[i]['SerialID']) &
                                   (filled_gaps['OrigPointRecordID'] == points.loc[i]['RecordID'])]
             # Add coordinates for the filled gap into route_points
@@ -322,7 +337,8 @@ def connect_points_and_filled_gaps(points, filled_gaps):
                 route_points.append(coord)
 
         else:
-            # if the point of the current row does not overlap on the last point in route_points add its coordinates into route_points
+            # if the point of the current row does not overlap on the last point
+            # in route_points add its coordinates into route_points
             if (len(route_points) > 0 and
                     (points.loc[i]['geometry'].x, points.loc[i]['geometry'].y) != route_points[-1]):
                 route_points.append(
