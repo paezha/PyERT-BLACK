@@ -1,11 +1,12 @@
 """
-Module Name: RCA Variables Generator (module for generating data for route choice modeling)
+Module Name: RCA Variables Generator (module for generating route choice analysis variables)
 Source Name: variable_generator.py
 Creator: Mengtong Shi (shim17@mcmaster.ca)
 Requirements: Python 3.8 or later
 Date Created: Feb 05, 2023
 Last Revised: Feb 10, 2023
-Description: 
+Description: Implements methods that are used to generate route choice analysis variables from
+             the given route choice
 
 Version History:
 2023-02-01 (variable_generator.py)
