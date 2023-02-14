@@ -18,8 +18,62 @@ from shapely.geometry import Point, LineString
 import RouteSolver as rs
 
 
-def var_gen():
-    return
+def var_gen(route,network_pe):
+    for col_name in ['SerialID','edgesRoutePassed','geometry']:
+        if col_name not in list(route.columns):
+            raise Exception("Necessary column missing in the input trip dataframe")
+    if str(route['geometry'].dtypes) != 'geometry':
+        raise Exception("geometry column of the input trip dataframe is not of 'geometry' data type")
+        
+    seriaL_id = list(route['SerialID'].value_counts().index)
+    network_epsg = network_epsg = network_pe.crs.to_epsg()
+    route_gdf_proj = route.to_crs(epsg=network_epsg)
+    RCA = []
+    distance = []
+    num_t = []
+    num_r = []
+    street_name = []
+    length = []
+
+
+    for i in range(len(route_gdf_proj)):
+        curr_route_coord = list(route_gdf_proj.loc[i]['geometry'].coords)
+
+        # Get the length of the input route in meters
+        route_dist_length = route_gdf_proj.loc[i]['geometry'].length
+        edges_route_passed = list(route_gdf_proj.loc[i]['edgesRoutePassed'])
+        # print("Length of matched Route Choice is: " +
+        #       str(round(route_dist_length, 2)) + " meters")
+
+        # Count the number of turns
+        num_of_t = count_turns(
+            network_edges, edges_route_passed, curr_route_coord)
+        # print(num_of_turns)
+        
+        num_t.append(num_of_t['total'])
+
+        # Get information about the longest leg
+        longest_leg_info = longest_leg(
+            network_edges, edges_route_passed, curr_route_coord)
+        # print(longest_leg_info)
+        street_name.append(longest_leg_info['legStreet'])
+        length.append(longest_leg_info['legLength'])
+        num_r.append(longest_leg_info['numOfStreets'])
+        
+    
+    
+    
+    
+    temp_df = pd.DataFrame({'SerialID': serials_id,
+                            'Distance': distance,
+                            'Number of turns': num_t,
+                            'Number of Roads':num_r,
+                            'streetLongestLeg':street_name,
+                            'lengthLongestLeg':length,
+                            'geometry': RCA})
+    RCA_gdf = gpd.GeoDataFrame(temp_df, geometry='geometry')
+   
+    return RCA_pdf
 
 
 def find_nearest_street(network_pe, edges_route_passed, coord):
@@ -118,10 +172,13 @@ def longest_leg(network_pe, edges_route_passed, route_coord):
 
     long_leg_street = curr_street
     long_leg_len = leg_len_dict[curr_street]
+    streetCount = 0
     for street in leg_len_dict:
         curr_leg_len = leg_len_dict[street]
         if long_leg_len < curr_leg_len:
             long_leg_street = street
             long_leg_len = curr_leg_len
+        streetCount += 1
+     
 
-    return {'legStreet': long_leg_street, 'legLength': long_leg_len}
+    return {'legStreet': long_leg_street, 'legLength': long_leg_len,'numOfStreets': streetCount}
