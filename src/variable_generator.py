@@ -30,8 +30,10 @@ def var_gen(route, network_graph, network_edges):
 
     Parameters:
     route = A GeoDataframe that represents a route choice
-    network_graph = A Directed Graph object that is projected and contains the data of the transportation network
-    network_edges = A Geodataframe that contains the data of the edges in the Directed Graph
+    network_graph = A Directed Graph object that is projected and
+                    contains the data of the transportation network
+    network_edges = A Geodataframe that contains the data of
+                    the edges in the Directed Graph
     """
     # Project the route to the same CRS as the network dataset
     network_epsg = network_graph.graph['crs'].to_epsg()
@@ -61,12 +63,12 @@ def var_gen(route, network_graph, network_edges):
 
 def find_nearest_street(network_pe, edges_route_passed, coord):
     """
-
+    Returns a string which is the name of the nearest street to a point
 
     Parameters:
     network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
-    edges_route_passed = 
-    coord = 
+    edges_route_passed = A list of the edges passed by the route
+    coord = A pair of coordinates for the point
     """
     point_on_route = Point(coord[0], coord[1])
     nearest_dist = network_pe.loc[edges_route_passed[0]
@@ -86,19 +88,21 @@ def find_nearest_street(network_pe, edges_route_passed, coord):
 
 def count_turns(network_pe, edges_route_passed, route_coord):
     """
-    Returns the number of left
-turns, right turns and total turns of the input route.
+    Returns a dictionary that contains the number of left turns,
+    right turns and total turns of the input route.
 
     Parameters:
     network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
-    edges_route_passed = The edges that the route passed
-    route_coord = 
+    edges_route_passed = A list of the edges passed by the route
+    route_coord = A list of coordinates for the points on the route
     """
     num_left_turn = 0
     num_right_turn = 0
     for j in range(1, len(route_coord)-1):
         line_segment1 = (route_coord[j], route_coord[j-1])
         line_segment2 = (route_coord[j], route_coord[j+1])
+        # print(line_segment1)
+        # print(line_segment2)
 
         # Using Dot Product to determine the angle between two line segments
         # Convert to vector form
@@ -151,12 +155,13 @@ turns, right turns and total turns of the input route.
 
 def longest_leg(network_pe, edges_route_passed, route_coord):
     """
-
+    Returns a dictionary that contains information about the longest
+    leg in 
 
     Parameters:
     network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
-    edges_route_passed = 
-    route_coord = 
+    edges_route_passed = A list of the edges passed by the route
+    route_coord = A list of coordinates for the points on the route
     """
     leg_len_dict = {}
     curr_street = find_nearest_street(
