@@ -90,7 +90,7 @@ def find_nearest_street(network_pe, edges_route_passed, coord):
 def count_turns(network_pe, edges_route_passed, route_coord):
     """
     Returns a dictionary that contains the number of left turns,
-    right turns and total turns of the input route.
+    right turns and total turns of the input route
 
     Parameters:
     network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
@@ -157,7 +157,7 @@ def count_turns(network_pe, edges_route_passed, route_coord):
 def longest_leg(network_pe, edges_route_passed, route_coord):
     """
     Returns a dictionary that contains information about the longest
-    leg in 
+    leg in the route
 
     Parameters:
     network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
