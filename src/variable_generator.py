@@ -54,7 +54,7 @@ def var_gen(route, network_edges):
     num_lt = []
     # The number of right turns
     num_rt = []
-    # The dnumber of roads
+    # The number of roads
     num_r = []
     # The longest street name
     street_name = []
