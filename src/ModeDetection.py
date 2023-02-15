@@ -257,10 +257,10 @@ class ModeDetection:
                 modes.append(stage_points[key]['mode'])
                 geometry.append(target.geometry)
 
-        data = {'EPISODEID': serial_ids,
-                'RECORDID': record_ids,
-                'TIMESTART': start_times,
-                'MODES': modes,
+        data = {'SerialID': serial_ids,
+                'RecordID': record_ids,
+                'TimeStart': start_times,
+                'Modes': modes,
                 'geometry': geometry}
 
         return gpd.GeoDataFrame(data)
