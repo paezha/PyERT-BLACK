@@ -91,14 +91,16 @@ class ModeDetection:
 
     def detect_modes(self, processed_data):
         stage_points = {}
-        pattern = '(\\d+)\\/(\\d+)\\/(\\d+)\\s(\\d+):(\\d+)'
         prev_time = 0
         episode_len = 0
+        episode_lens = []
         temp_episode_len = 0
+        temp_stop_episode_len = 0
         start_index = 0
         ep_id = 0
-        valid_stop = False
-        last_car_index = -1
+        last_drive_index = -1
+        valid_stop = True
+        last_walk_index = -1
         last = len(processed_data.index) - 1
 
         [seconds, acc] = self.calc_time_acc(processed_data)
@@ -110,7 +112,7 @@ class ModeDetection:
                 if (speed > 0.36):
                     valid_stop = False
             elif (speed > 10.008):
-                new_mode = 'car'
+                new_mode = 'Drive'
 
             pattern = '(\\d+)\\/(\\d+)\\/(\\d+)\\s(\\d+):(\\d\\d)'
             match = re.search(pattern, row['LocalTime'])
@@ -130,78 +132,88 @@ class ModeDetection:
             time_difference = (cur_time - prev_time).total_seconds()
             prev_time = cur_time
             episode_len += time_difference
+            episode_lens.append(episode_len)
 
-            if (time_difference > 120):
+            if (time_difference >= 120):
+                if (len(episode_lens) > 2 and ((cur_mode == 'Drive' and episode_lens[index - 2] >= 120) or (
+                        cur_mode == 'Walk' and episode_lens[index - 2] >= 60) or (cur_mode == 'Stop' and episode_lens[index - 2] >= 120))):
+                    ep_id += 1
+                    stage_points[ep_id] = {}
+                    stage_points[ep_id]['start'] = start_index
+                    stage_points[ep_id]['end'] = index - 2
+                    stage_points[ep_id]['mode'] = cur_mode
+                else:
+                    if ep_id != 0:
+                        stage_points[ep_id]['end'] = index - 2
+
                 ep_id += 1
                 stage_points[ep_id] = {}
-                stage_points[ep_id]['start'] = start_index
+                stage_points[ep_id]['start'] = index - 1
                 stage_points[ep_id]['end'] = index
-                if cur_mode == 'walk/stop' and valid_stop:
-                    stage_points[ep_id]['mode'] = 'stop'
-                elif cur_mode == 'walk/stop' and valid_stop == False:
-                    stage_points[ep_id]['mode'] = 'walk'
-                else:
-                    stage_points[ep_id]['mode'] = 'car'
+                stage_points[ep_id]['mode'] = 'Stop'
 
                 episode_len = 0
                 start_index = index + 1
-                cur_mode = new_mode
+                cur_mode = 'Stop'
             elif (index == last):
-                if (cur_mode == 'car' and episode_len > 120):
+                if ((cur_mode == 'Drive' and episode_len >= 120) or (
+                        cur_mode == 'Walk' and episode_len >= 60) or (cur_mode == 'Stop' and episode_len >= 120)):
                     ep_id += 1
                     stage_points[ep_id] = {}
                     stage_points[ep_id]['start'] = start_index
                     stage_points[ep_id]['end'] = index
-                    stage_points[ep_id]['mode'] = 'car'
-                elif (cur_mode == 'walk/stop' and episode_len > 60 and valid_stop == False):
-                    ep_id += 1
-                    stage_points[ep_id] = {}
-                    stage_points[ep_id]['start'] = start_index
-                    stage_points[ep_id]['end'] = index
-                    stage_points[ep_id]['mode'] = 'walk'
-                elif (cur_mode == 'walk/stop' and episode_len > 60 and valid_stop):
-                    ep_id += 1
-                    stage_points[ep_id] = {}
-                    stage_points[ep_id]['start'] = start_index
-                    stage_points[ep_id]['end'] = index
-                    stage_points[ep_id]['mode'] = 'stop'
+                    stage_points[ep_id]['mode'] = cur_mode
             else:
                 if (new_mode != cur_mode):
-                    # currently, no invalid car episodes
-                    if (new_mode == 'walk/stop') and cur_mode == 'car':
-                        if (last_car_index < 0):
-                            last_car_index = index - 1
+                    if (new_mode != 'Drive' and cur_mode ==
+                            'Drive'):  # currently, no invalid drive episodes
+                        if (last_drive_index < 0):
+                            last_drive_index = index - 1
                             temp_episode_len = 0
 
+                        if (speed >= 0.36):
+                            valid_stop = False
+
                         temp_episode_len += time_difference
-                        # print('temp_episode_len: ' + str(temp_episode_len))
-                        if (temp_episode_len > 60):
+                        if ((not valid_stop and temp_episode_len >= 120)
+                                or (valid_stop and temp_episode_len >= 60)):
                             ep_id += 1
                             stage_points[ep_id] = {}
                             stage_points[ep_id]['start'] = start_index
-                            stage_points[ep_id]['end'] = last_car_index
-                            stage_points[ep_id]['mode'] = 'car'
-                            start_index = last_car_index + 1
-                            last_car_index = -1
+                            stage_points[ep_id]['end'] = last_drive_index
+                            stage_points[ep_id]['mode'] = 'Drive'
+                            start_index = last_drive_index + 1
+                            last_drive_index = -1
                             episode_len = temp_episode_len
                             cur_mode = new_mode
-                    elif new_mode == "car" and (cur_mode == 'walk/stop'):
-                        if ((episode_len > 60 and valid_stop)):  # valid stop
-                            # print(f'valid episode ep_len: {episode_len} cur_mode: {cur_mode} new_mode: {new_mode}')
+                            valid_stop = True
+
+                    elif (new_mode == 'Stop' and cur_mode == 'Walk'):
+                        if (last_walk_index < 0):
+                            last_walk_index = index - 1
+                            temp_stop_episode_len = 0
+
+                        temp_stop_episode_len += time_difference
+                        if (temp_stop_episode_len >= 120):
+                            ep_id += 1
+                            stage_points[ep_id] = {}
+                            stage_points[ep_id]['start'] = start_index
+                            stage_points[ep_id]['end'] = last_walk_index
+                            stage_points[ep_id]['mode'] = 'Walk'
+                            start_index = last_walk_index + 1
+                            last_walk_index = -1
+                            episode_len = temp_stop_episode_len
+                            cur_mode = new_mode
+
+                    elif ((new_mode != 'Walk' and cur_mode == 'Walk') or (new_mode != 'Stop' and cur_mode == 'Stop')):
+                        if ((cur_mode == 'Walk' and episode_len >= 60) or (
+                                cur_mode == 'Stop' and episode_len >= 120)):
                             ep_id += 1
                             stage_points[ep_id] = {}
                             stage_points[ep_id]['start'] = start_index
                             stage_points[ep_id]['end'] = index - 1
-                            stage_points[ep_id]['mode'] = 'stop'
-                        elif ((episode_len > 60 and not valid_stop)):  # invalid stop, valid walk
-                            # print(f'valid episode ep_len: {episode_len} cur_mode: {cur_mode} new_mode: {new_mode}')
-                            ep_id += 1
-                            stage_points[ep_id] = {}
-                            stage_points[ep_id]['start'] = start_index
-                            stage_points[ep_id]['end'] = index - 1
-                            stage_points[ep_id]['mode'] = 'walk'
+                            stage_points[ep_id]['mode'] = cur_mode
                         else:
-                            # print(f'invalid episode')
                             if (ep_id == 0):
                                 stage_points[ep_id] = {}
                                 stage_points[ep_id]['start'] = start_index
@@ -213,11 +225,14 @@ class ModeDetection:
                         start_index = index
                         episode_len = 0
                         cur_mode = new_mode
-                        valid_stop = True
                 else:
                     if temp_episode_len > 0:
-                        last_car_index = -1
+                        last_drive_index = -1
                         temp_episode_len = 0
+                        valid_stop = True
+                    if temp_stop_episode_len > 0:
+                        last_walk_index = -1
+                        temp_stop_episode_len = 0
 
         serial_ids = []
         record_ids = []
@@ -227,20 +242,19 @@ class ModeDetection:
 
         invalid_first_stage = False
 
-        for value in stage_points.values():
-            # print(f"start: {value['start']} end: {value['end']} mode: {value['mode']}")
-            if value['mode'] == 'invalid':
+        for key in stage_points:
+            if stage_points[key]['mode'] == 'invalid':
                 invalid_first_stage = True
-                target = processed_data.iloc[value['start']]
+                target = processed_data.iloc[stage_points[key]['start']]
             else:
-                if not invalid_first_stage:
-                    target = processed_data.iloc[value['start']]
+                if (not invalid_first_stage):
+                    target = processed_data.iloc[stage_points[key]['start']]
                 else:
                     invalid_first_stage = False
                 serial_ids.append(target.SerialID)
                 record_ids.append(target.RecordID)
                 start_times.append(target.LocalTime)
-                modes.append(value['mode'])
+                modes.append(stage_points[key]['mode'])
                 geometry.append(target.geometry)
 
         data = {'EPISODEID': serial_ids,

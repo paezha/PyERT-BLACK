@@ -38,7 +38,7 @@ class Extractor:
         min_dist = 5
         for index,row in self.trip_segments.iterrows():
             point = row["geometry"] 
-            if (index == 0):
+            if (not start):
                 start = point
                 continue
             # do not want to drop last row even if it violates the min distance
