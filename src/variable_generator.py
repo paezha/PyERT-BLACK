@@ -1,14 +1,15 @@
 """
-Module Name: RCA Variables Generator (module for generating data for route choice modeling)
+Module Name: RCA Variables Generator (module for generating route choice analysis variables)
 Source Name: variable_generator.py
 Creator: Mengtong Shi (shim17@mcmaster.ca)
 Requirements: Python 3.8 or later
-Date Created: Feb 05, 2023
-Last Revised: Feb 10, 2023
-Description:
+Date Created: Feb 01, 2023
+Last Revised: Feb 15, 2023
+Description: Implements methods that are used to generate route choice analysis variables from
+             the given route choice
 
 Version History:
-2023-02-05 (variable_generator.py)
+2023-02-01 (variable_generator.py)
 
 2023-02-10 (variable_generator.py) Changed naming style to snake_case
 
@@ -21,6 +22,8 @@ Version History:
 2023-02-14 (variable_generator.py) Updated var_gen
 
 2023-02-14 (variable_generator.py) Updated var_gen to output number of left and right turns
+
+2023-02-15 (variable_generator.py) Updated var_gen
 """
 
 import math
@@ -39,7 +42,6 @@ def var_gen(route, network_edges):
     network_edges = A Geodataframe that contains the data of
                     the edges in the Directed Graph
     """
-
     # Project the route to the same CRS as the network dataset
     network_epsg = network_edges.crs.to_epsg()
     route_gdf_proj = route.to_crs(epsg=network_epsg)
@@ -87,9 +89,9 @@ def var_gen(route, network_edges):
         num_r.append(longest_leg_info['numOfStreets'])
 
     temp_df = pd.DataFrame({'SerialID': serial_id,
-                            'distancemeter:': distance,
-                            'numOflturns:': num_lt,
-                            'numOflturns:': num_rt,
+                            'distanceMeter:': distance,
+                            'numOfLturns:': num_lt,
+                            'numOfRturns:': num_rt,
                             'numOfRoads': num_r,
                             'streetLongestLeg': street_name,
                             'lengthLongestLeg': length,
@@ -100,9 +102,17 @@ def var_gen(route, network_edges):
 
 
 def find_nearest_street(network_pe, edges_route_passed, coord):
+    """
+    Returns a string which is the name of the nearest street to a point
+
+    Parameters:
+    network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
+    edges_route_passed = A list of the edges passed by the route
+    coord = A pair of coordinates for the point
+    """
     point_on_route = Point(coord[0], coord[1])
     nearest_dist = network_pe.loc[edges_route_passed[0]
-    ]['geometry'].distance(point_on_route)
+                                  ]['geometry'].distance(point_on_route)
     nearest_street = network_pe.loc[edges_route_passed[0]]['name']
     for edge_id in edges_route_passed[1:]:
         edge_geo = network_pe.loc[edge_id]['geometry']
@@ -117,6 +127,15 @@ def find_nearest_street(network_pe, edges_route_passed, coord):
 
 
 def count_turns(network_pe, edges_route_passed, route_coord):
+    """
+    Returns a dictionary that contains the number of left turns,
+    right turns and total turns of the input route
+
+    Parameters:
+    network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
+    edges_route_passed = A list of the edges passed by the route
+    route_coord = A list of coordinates for the points on the route
+    """
     num_left_turn = 0
     num_right_turn = 0
     for j in range(1, len(route_coord) - 1):
@@ -163,11 +182,11 @@ def count_turns(network_pe, edges_route_passed, route_coord):
             # to determine the direction of the turn(Left/Right)
             if start_street != end_street:
                 point_diff1 = (route_coord[j + 1][0] - route_coord[j - 1]
-                [0], route_coord[j + 1][1] - route_coord[j - 1][1])
+                               [0], route_coord[j + 1][1] - route_coord[j - 1][1])
                 point_diff2 = (
                     route_coord[j][0] - route_coord[j - 1][0], route_coord[j][1] - route_coord[j - 1][1])
                 cross_prod = point_diff1[0] * point_diff2[1] - \
-                             point_diff2[0] * point_diff1[1]
+                    point_diff2[0] * point_diff1[1]
                 if cross_prod < 0:
                     print('Left Turn')
                     num_left_turn += 1
@@ -179,13 +198,23 @@ def count_turns(network_pe, edges_route_passed, route_coord):
 
 
 def longest_leg(network_pe, edges_route_passed, route_coord):
+    """
+    Returns a dictionary that contains information about the longest
+    leg in the route
+
+    Parameters:
+    network_pe = A Geodataframe that contains the data of the edges in the Directed Graph
+    edges_route_passed = A list of the edges passed by the route
+    route_coord = A list of coordinates for the points on the route
+    """
     leg_len_dict = {}
     curr_street = find_nearest_street(
         network_pe, edges_route_passed, route_coord[0])
     # lastPoint = route_coord[0]
     leg_len_dict[curr_street] = 0
     for i in range(1, len(route_coord)):
-        line_seg_len = Point(route_coord[i - 1]).distance(Point(route_coord[i]))
+        line_seg_len = Point(
+            route_coord[i - 1]).distance(Point(route_coord[i]))
         leg_len_dict[curr_street] += line_seg_len
         point_street = find_nearest_street(
             network_pe, edges_route_passed, route_coord[i])
