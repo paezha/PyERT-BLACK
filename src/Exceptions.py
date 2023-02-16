@@ -26,3 +26,9 @@ class InvalidGPSDataException(Exception):
     """Raised when the read GPS data is missing information"""
     print("Invalid GPS Data Exception:\n")
     pass
+
+
+class NetworkModeError(Exception):
+    """Raised when the input mode is one of 'drive', 'walk' or 'all'"""
+    print("Network Mode Error Exception:\n")
+    pass
