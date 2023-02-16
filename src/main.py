@@ -188,6 +188,10 @@ def main():
     except InvalidInputException:
         print(output_dir_path.rsplit('/', 1)[0] + ": is not a folder\n")
         return None
+
+    num_points = int(
+        input("Enter the number of points from the dataset to process. "))
+
     # Preprocess GPS data
     print('Preprocessing input GPS data...')
     gps_data_df = pd.read_csv(gps_data_path)
@@ -218,8 +222,8 @@ def main():
     print('Extracting trip and stop segments...')
     extractor = Extractor.Extractor(eps_data_gdf, gps_data_df)
     trip_gdf = extractor.get_trip_segments()
-    trip_gdf = trip_gdf.set_crs(epsg=4326)
-    # trip_gdf = trip_gdf.loc[:100].set_crs(epsg=4326)
+    # trip_gdf = trip_gdf.set_crs(epsg=4326)
+    trip_gdf = trip_gdf.loc[:num_points].set_crs(epsg=4326)
 
     aloc_gdf = extractor.get_activity_locations()
 
