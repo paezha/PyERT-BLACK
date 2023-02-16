@@ -11,7 +11,9 @@ import Extractor
 import route_solver as rs
 import variable_generator
 import activity_locations_identification as al_identifier
-from Exceptions import NetworkModeError, InvalidFileFormatException, InvalidFilePathException, InvalidInputException, InvalidDataException, InvalidGPSDataException, OutofBoundException, NetworkBoundError
+from Exceptions import NetworkModeError, InvalidFileFormatException, InvalidFilePathException, \
+    InvalidInputException, InvalidDataException, InvalidGPSDataException, OutofBoundException, \
+    NetworkBoundError
 
 def get_points_boundary(points_gdf):
     max_x, max_y, min_x, min_y = -180, -180, 180, 180
