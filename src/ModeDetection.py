@@ -9,6 +9,12 @@ class ModeDetection:
         self.episode_data = self.detect_modes(processed_data)
 
     def distance(self, p1, p2):
+        """
+        Gets distance between two points in meters
+        Parameters:
+        p1: Point object with longitude, latitude
+        p2: Point object with longitude, latitude
+        """
 
         # convert from degrees to radian
         lon1 = radians(p1.x)
@@ -28,8 +34,12 @@ class ModeDetection:
 
         return c * r
 
-    # gets seconds travelled at each minute segment and acceleration
     def calc_time_acc(self, data):
+        """
+        Gets seconds travelled at each minute segment and acceleration
+        Parameters:
+        data: A Geodataframe that contains the filtered and smoothed data of GPS points
+        """
         seconds = []
         acc = []
         zeros = []
@@ -90,6 +100,13 @@ class ModeDetection:
         return [seconds, acc]
 
     def detect_modes(self, processed_data):
+        """
+        Returns a Geodataframe where each row contains a trip segment, with a labelled mode
+        Parameters:
+        processed_data= A Geodataframe that contains the filtered and smoothed data of GPS points
+        """
+
+        # initialize variables for main loop
         stage_points = {}
         prev_time = 0
         episode_len = 0
@@ -103,11 +120,14 @@ class ModeDetection:
         last_walk_index = -1
         last = len(processed_data.index) - 1
 
+        # gets seconds travelled between each minute of the data
         [seconds, acc] = self.calc_time_acc(processed_data)
 
+        # iterate over geodataframe
         for index, row in processed_data.iterrows():
+
+            # determine mode based on speed thresholds
             speed = float(row['Speed_kmh'])
-            # print(speed)
             if (0.36 <= speed <= 10.008):
                 new_mode = 'Walk'
             elif (speed < 0.36):
@@ -115,6 +135,7 @@ class ModeDetection:
             elif (speed > 10.008):
                 new_mode = 'Drive'
 
+            # get time difference between two points and calculate length of each stage
             pattern = '(\d+)\/(\d+)\/(\d+)\s(\d+):(\d\d)'
             match = re.search(pattern, row['LocalTime'])
             # inaccuracies in distance and speed can cause impossible times
@@ -130,8 +151,10 @@ class ModeDetection:
             episode_len += time_difference
             episode_lens.append(episode_len)
 
+            # if there is a gap between two points, create one or two episodes
+            # First episode: create if points before gap are a valid episode
+            # Second episode: create stop episode from gap
             if (time_difference >= 120):
-                # print(f'GAP time_difference: {episode_len} cur_mode: {cur_mode}')
                 if (len(episode_lens) > 2 and ((cur_mode == 'Drive' and episode_lens[index-2] >= 120) or (cur_mode == 'Walk' and episode_lens[index-2] >= 60) or (cur_mode == 'Stop' and episode_lens[index-2] >= 120))):
                     ep_id += 1
                     stage_points[ep_id] = {}
@@ -151,6 +174,8 @@ class ModeDetection:
                 episode_len = 0
                 start_index = index + 1
                 cur_mode = 'Stop'
+
+            # if last index, create episode if valid
             elif (index == last):
                 if ((cur_mode == 'Drive' and episode_len >= 120) or (cur_mode == 'Walk' and episode_len >= 60) or (cur_mode == 'Stop' and episode_len >= 120)):
                     ep_id += 1
@@ -159,8 +184,10 @@ class ModeDetection:
                     stage_points[ep_id]['end'] = index
                     stage_points[ep_id]['mode'] = cur_mode
             else:
+                # if the mode of travel is detected as switched, potentially create a new episode
                 if (new_mode != cur_mode):
-                    # currently, no invalid Drive episodes
+                    # If driving and a new mode of walk/stop is detected, don't switch the mode immediately. keep track of how long this potential
+                    # walk/stop episode is until the episode is valid, then create a new driving episode and switch mode
                     if (new_mode != 'Drive' and cur_mode == 'Drive'):
                         if (last_drive_index < 0):
                             last_drive_index = index - 1
@@ -170,7 +197,6 @@ class ModeDetection:
                             valid_stop = False
 
                         temp_episode_len += time_difference
-                        # print('temp_episode_len: ' + str(temp_episode_len))
                         if ((not valid_stop and temp_episode_len >= 120) or (valid_stop and temp_episode_len >= 60)):
                             ep_id += 1
                             stage_points[ep_id] = {}
@@ -183,13 +209,14 @@ class ModeDetection:
                             cur_mode = new_mode
                             valid_stop = True
 
+                    # If walking and a new mode of drive is detected, don't switch the mode immediately. keep track of how long this potential
+                    # stop episode is until the episode is valid, then create a new walking episode and switch mode
                     elif (new_mode == 'Stop' and cur_mode == 'Walk'):
                         if (last_walk_index < 0):
                             last_walk_index = index - 1
                             temp_stop_episode_len = 0
 
                         temp_stop_episode_len += time_difference
-                        # print('temp_episode_len: ' + str(temp_episode_len))
                         if (temp_stop_episode_len >= 120):
                             ep_id += 1
                             stage_points[ep_id] = {}
@@ -201,16 +228,15 @@ class ModeDetection:
                             episode_len = temp_stop_episode_len
                             cur_mode = new_mode
 
+                    # If walking or stopping and a new mode detected, switch modes, and check if the current walking/stopping episode is valid
                     elif ((new_mode != 'Walk' and cur_mode == 'Walk') or (new_mode != 'Stop' and cur_mode == 'Stop')):
                         if ((cur_mode == 'Walk' and episode_len >= 60) or (cur_mode == 'Stop' and episode_len >= 120)):
-                            # print(f'valid episode ep_len: {episode_len} cur_mode: {cur_mode} new_mode: {new_mode}')
                             ep_id += 1
                             stage_points[ep_id] = {}
                             stage_points[ep_id]['start'] = start_index
                             stage_points[ep_id]['end'] = index - 1
                             stage_points[ep_id]['mode'] = cur_mode
                         else:
-                            # print(f'invalid episode')
                             if (ep_id == 0):
                                 stage_points[ep_id] = {}
                                 stage_points[ep_id]['start'] = start_index
@@ -223,10 +249,12 @@ class ModeDetection:
                         episode_len = 0
                         cur_mode = new_mode
                 else:
+                    # Reset variables if driving and a temporary walking/stopping episode was detected, but it was invalid
                     if temp_episode_len > 0:
                         last_drive_index = -1
                         temp_episode_len = 0
                         valid_stop = True
+                    # Reset variables if walking and a temporary stopping episode was detected, but it was invalid
                     if temp_stop_episode_len > 0:
                         last_walk_index = -1
                         temp_stop_episode_len = 0
@@ -239,8 +267,9 @@ class ModeDetection:
 
         invalid_first_stage = False
 
+        # add rows extracted from loop into gdf
+        # if first episode is an invalid episode, add it to the second episode
         for value in stage_points.values():
-            # print(f"start: {value['start']} end: {value['end']} mode: {value['mode']}")
             if value['mode'] == 'invalid':
                 invalid_first_stage = True
                 target = processed_data.iloc[value['start']]
@@ -264,4 +293,8 @@ class ModeDetection:
         return gpd.GeoDataFrame(data)
 
     def get_episode_data(self):
+        """
+        Getter method for episode data from detect_modes
+        """
+
         return self.episode_data
