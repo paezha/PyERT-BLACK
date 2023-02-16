@@ -14,6 +14,7 @@ import variable_generator
 import activity_locations_identification as al_identifier
 from Exceptions import InvalidInputException, InvalidFilePathException, InvalidFileFormatException, \
     InvalidDataException, InvalidGPSDataException, NetworkModeError, OutofBoundException, NetworkBoundError
+import webbrowser
 
 
 def get_points_boundary(points_gdf):
@@ -145,8 +146,8 @@ def get_trip_mode(trip_data):
 
 
 def main():
-    # input("Enter file path to GPS data: ")
-    gps_data_path = '/Users/jasperleung/Documents/GitHub/PyERT-BLACK/quarto-example/data/sample-gps/sample-gps-1.csv'
+    gps_data_path = input("Enter file path to GPS data: ")
+    # gps_data_path = '/Users/jasperleung/Documents/GitHub/PyERT-BLACK/quarto-example/data/sample-gps/sample-gps-1.csv'
     # Check if file type and path are valid, raise exception if not
     try:
         if '.' in gps_data_path[-4:] and '.csv' != gps_data_path[-4:]:
@@ -161,8 +162,8 @@ def main():
     except InvalidFilePathException:
         print(gps_data_path + ': GPS data path does not exist\n')
         return None
-    # input("Enter file path to OSM network data(optional): ")
-    network_pbf_path = ''
+    network_pbf_path = input("Enter file path to OSM network data(optional): ")
+    # network_pbf_path = ''
     # Check if file type and path are valid (empty input is fine), raise exception if not
     if network_pbf_path:
         try:
@@ -178,8 +179,8 @@ def main():
             print(network_pbf_path + ": Network pbf path does not exist\n")
             return None
 
-    # input("Enter file path to the output folder: ")
-    output_dir_path = '/Users/jasperleung/Documents'
+    output_dir_path = input("Enter file path to the output folder: ")
+    # output_dir_path = '/Users/jasperleung/Documents'
     # Check if the path is to a folder, raise exception if not
     try:
         if not os.path.isdir(output_dir_path.rsplit('/', 1)[0]):
@@ -192,11 +193,12 @@ def main():
     gps_data_df = pd.read_csv(gps_data_path)
     # Check if there is any valid data missing
     try:
-        cols = ['RecordID', 'SerialID', 'LocalTime', 'latitude', 'longitude', 'Fix_Status', 'DOP', 'Speed_kmh', 'Limit_kmh']
+        cols = ['RecordID', 'SerialID', 'LocalTime', 'latitude',
+                'longitude', 'Fix_Status', 'DOP', 'Speed_kmh', 'Limit_kmh']
         if not gps_data_df.columns.isin(cols).all():
             raise InvalidDataException()
     except InvalidDataException:
-        print('Data does not have correct columns\nData needs to have the following columns: ' + cols +'\n')
+        print('Data does not have correct columns\nData needs to have the following columns: ' + cols + '\n')
         return None
     preprocessor = gps_preprocess.GPSPreprocess(gps_data_df)
     gps_data_df = preprocessor.get_data()
@@ -211,17 +213,18 @@ def main():
     print('Detecting modes of GPS data...')
     mode_detector = mode_detect.ModeDetection(gps_data_df)
     eps_data_gdf = mode_detector.get_episode_data()
-    print(eps_data_gdf)
+    # print(eps_data_gdf)
     # Extract trip and stop segments
     print('Extracting trip and stop segments...')
     extractor = Extractor.Extractor(eps_data_gdf, gps_data_df)
     trip_gdf = extractor.get_trip_segments()
+    trip_gdf = trip_gdf.set_crs(epsg=4326)
     # trip_gdf = trip_gdf.loc[:100].set_crs(epsg=4326)
 
     aloc_gdf = extractor.get_activity_locations()
 
-    print(trip_gdf.head(100))
-    print(aloc_gdf.head(100))
+    # print(trip_gdf.head(100))
+    # print(aloc_gdf.head(100))
     trip_mode = get_trip_mode(trip_gdf)
     trip_bound = get_points_boundary(trip_gdf)
     if (network_pbf_path == '') or (network_pbf_path is None):
@@ -249,7 +252,8 @@ def main():
                             (network_bound[3] > trip_bound[3]):
                         raise OutofBoundException()
                 except OutofBoundException:
-                    print("Trip Segment is out of the boundary of the extracted network\n")
+                    print(
+                        "Trip Segment is out of the boundary of the extracted network\n")
                     return None
             else:
                 raise NetworkBoundError()
@@ -265,9 +269,9 @@ def main():
         routes_gdf = rs.route_choice_gen(
             trip_gdf, network_g, network_e, network_n)
         routes_gdf = routes_gdf.set_crs(epsg=4326)
-        print(routes_gdf)
+        # print(routes_gdf)
         rca_var_gdf = variable_generator.var_gen(routes_gdf, network_e)
-        print(rca_var_gdf)
+        # print(rca_var_gdf)
         # Generating shp file and csv files into output folder
         routes_gdf[['SerialID', 'geometry']].to_file(filename=output_dir_path +
                                                      '/route_choice', driver='ESRI Shapefile')
@@ -276,8 +280,10 @@ def main():
             output_dir_path+'/rca_var.csv')
         viz_json = gjsio.make_url(
             routes_gdf[['SerialID', 'geometry']].to_json())
-        print('Routes for trip segments generated, visualize the route by clicking HERE')
-        print(viz_json)
+        # print('Routes for trip segments generated, visualize the route by clicking HERE')
+        # print(viz_json)
+        routes_url = viz_json
+        webbrowser.open(routes_url, new=0, autoraise=True)
     else:
         print('No trip segment has been found, hence no route choice can be generated')
     if len(aloc_gdf) >= 1:
@@ -288,21 +294,17 @@ def main():
         landuse_info = landuse_info.to_crs(network_epsg)
         pal_info = pal_info.to_crs(network_epsg)
         aloc_lu_gdf = al_identifier.identify_lu(aloc_gdf, landuse_info)
-        aloc_pal_gdf = al_identifier.identify_PAL(aloc_gdf, pal_info)
+        aloc_pal_gdf = al_identifier.identify_pal(aloc_gdf, pal_info)
         aloc_info = al_identifier.create_al_info(aloc_lu_gdf, aloc_pal_gdf)
 
-        # dropped_geo_gdf = aloc_info.drop(
-        #     columns=['geometry', 'building_index', 'lu_index'])
-        # dropped_geo_gdf = gpd.GeoDataFrame(
-        #     dropped_geo_gdf, geometry='building_geometry')
-        # dropped_geo_gdf = dropped_geo_gdf.set_crs(epsg=network_epsg)
-        # dropped_geo_gdf = dropped_geo_gdf.to_crs(epsg=4326)
-        # dropped_geo_gdf.to_file(
-        #     filename=output_dir_path + 'activity_locations_info', driver='ESRI Shapefile')
-
-        # aloc_info = aloc_info.drop(columns=['geometry'])
-        # aloc_info.to_file(filename=output_dir_path +
-        #                   '/activity_locations', driver='ESRI Shapefile')
+        dropped_geo_gdf = aloc_info.drop(
+            columns=['geometry', 'building_index', 'lu_index'])
+        dropped_geo_gdf = gpd.GeoDataFrame(
+            dropped_geo_gdf, geometry='building_geometry')
+        dropped_geo_gdf = dropped_geo_gdf.set_crs(epsg=network_epsg)
+        dropped_geo_gdf = dropped_geo_gdf.to_crs(epsg=4326)
+        dropped_geo_gdf.to_file(
+            filename=output_dir_path + '/activity_locations_info', driver='ESRI Shapefile')
 
         building_info_df = aloc_info[['SerialID', 'building_geometry']]
         building_info = gpd.GeoDataFrame(
@@ -313,7 +315,9 @@ def main():
             output_dir_path+'/aloc_var.csv')
         viz_aloc_json = gjsio.make_url(
             building_info.to_json())
-        print(viz_aloc_json)
+        # print(viz_aloc_json)
+        aloc_url = viz_aloc_json
+        webbrowser.open(aloc_url, new=0, autoraise=True)
     else:
         print("No stop segment has been found, hence no activity locations' information can be added")
     print('Matching Done!')
