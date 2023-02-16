@@ -11,7 +11,7 @@ import Extractor
 import route_solver as rs
 import variable_generator
 import activity_locations_identification as al_identifier
-from Exceptions import NetworkModeError
+from Exceptions import NetworkModeError, InvalidFileFormatException, InvalidFilePathException, InvalidInputException, InvalidDataException, InvalidGPSDataException, OutofBoundException, NetworkBoundError
 
 def get_points_boundary(points_gdf):
     max_x, max_y, min_x, min_y = -180, -180, 180, 180
@@ -135,18 +135,66 @@ def get_trip_mode(trip_data):
 def main():
     gps_data_path = 'C:/University Grade4/4G06/PyERT-BLACK/quarto-example/data/sample-gps/sample-gps-1.csv' #input("Enter file path to GPS data: ")
     # Check if file type and path are valid, raise exception if not
+    try:
+        if '.' in gps_data_path[-4:] and '.csv' != gps_data_path[-4:]:
+            raise InvalidFileFormatException()
+    except InvalidFileFormatException:
+        print(gps_data_path + ': File format is not .csv\n')
+        return None
+
+    try:
+        if not os.path.isfile(gps_data_path):
+            raise InvalidFilePathException()
+    except InvalidFilePathException:
+        print(gps_data_path + ': GPS data path does not exist\n')
+
     network_pbf_path = ''#input("Enter file path to OSM network data(optional): ")
     # Check if file type and path are valid (empty input is fine), raise exception if not
+    if network_pbf_path:
+        try:
+            if '.' in network_pbf_path[-4:] and '.pbf' != network_pbf_path[-4:]:
+                raise InvalidFileFormatException()
+        except InvalidFileFormatException:
+            print(network_pbf_path + ': File is not .pbf\n')
+            return None
+        try:
+            if not os.path.isfile(network_pbf_path):
+                raise InvalidFilePathException()
+        except InvalidFilePathException:
+            print(network_pbf_path + ": Network pbf path does not exist\n")
+            return None
+
     output_dir_path = 'C:/Users/jimta/Undergraduate/4G06_test/main_test' #input("Enter file path to the output folder: ")
     # Check if the path is to a folder, raise exception if not
-    
+    try:
+        if not os.path.isdir(output_dir_path.rsplit('/', 1)):
+            raise InvalidInputException()
+    except InvalidInputException:
+        print(output_dir_path.rsplit('/', 1) + ": is not a folder\n")
+        return None
+
     # Preprocess GPS data
     print('Preprocessing input GPS data...')
+    # Check if there is any valid data missing
     gps_data_df = pd.read_csv(gps_data_path)
+    try:
+        cols = ['RecordID', 'SerialID', 'LocalTime', 'latitude', 'longitude', 'Fix_Status', 'DOP', 'Speed_kmh', 'Limit_kmh']
+        if not gps_data_df.columns.isin(cols).any():
+            raise InvalidDataException()
+    except InvalidDataException:
+        print('Data does not have correct columns\nData needs to have the following columns: ' + cols +'\n')
+        return None
+
     preprocessor = gps_preprocess.GPSPreprocess(gps_data_df)
     gps_data_df = preprocessor.get_data()
     # Check if there is any valid data left, if not, print message to tell the user and return
-    
+    try:
+        if 'geometry' not in gps_data_path:
+            raise InvalidGPSDataException()
+    except InvalidGPSDataException:
+        print('GPS Data does not have a geometry column\n')
+        return None
+
     # Detect modes of GPS data
     print('Detecting modes of GPS data...')
     mode_detector = mode_detect.ModeDetection(gps_data_df)
@@ -156,37 +204,50 @@ def main():
     print('Extracting trip and stop segments...')
     extractor = Extractor.Extractor(eps_data_gdf, gps_data_df)
     trip_gdf = extractor.get_trip_segments()
-    aloc_gdf = extractor.activity_locations
+    aloc_gdf = extractor.get_activity_locations()
     print(trip_gdf.head(100))
     print(aloc_gdf.head(100))
     trip_mode = get_trip_mode(trip_gdf)
     trip_bound = get_points_boundary(trip_gdf)
-    
-    
     if (network_pbf_path == '') or (network_pbf_path is None):
+        print('Extracting transportation network data...')
         network_g, network_n, network_e = extract_networkdata_bbox(trip_bound[0], trip_bound[1],
                                                                    trip_bound[2], trip_bound[3],
                                                                    trip_mode)
+        print('Extracting landuse data...')
         landuse_info = extract_ludata_bbox(trip_bound[0], trip_bound[1],
                                            trip_bound[2], trip_bound[3])
+        print('Extracting potential activity locations data...')
         pal_info = extract_paldata_bbox(trip_bound[0], trip_bound[1],
                                         trip_bound[2], trip_bound[3])
     else:
+        print('Extracting transportation network data...')
         network_g, network_n, network_e, network_bound = extract_networkdata_pbf(network_pbf_path, trip_mode)
-        if network_bound is not None:
-        # Check if the trip segment is out of the boundary of the extracted network
-            if ((network_bound[0] < trip_bound[0]) or
-                (network_bound[1] > trip_bound[1]) or
-                (network_bound[2] < trip_bound[2]) or
-                (network_bound[3] > trip_bound[3])):
-                # raise exception OutOfBound
-                return
-        
+        try:
+            if network_bound is not None:
+            # Check if the trip segment is out of the boundary of the extracted network
+                try:
+                    if (network_bound[0] < trip_bound[0]) or \
+                            (network_bound[1] > trip_bound[1]) or \
+                            (network_bound[2] < trip_bound[2]) or \
+                            (network_bound[3] > trip_bound[3]):
+                        raise OutofBoundException()
+                except OutofBoundException:
+                    print("Trip Segment is out of the boundary of the extracted network\n")
+                    return None
+            else:
+                raise NetworkBoundError()
+        except NetworkBoundError:
+            print("Network bound is None\n")
+            return None
+
+        print('Extracting landuse data...')
         landuse_info = extract_ludata_pbf(network_pbf_path)
+        print('Extracting potential activity locations data...')
         pal_info = extract_paldata_pbf(network_pbf_path)
-    
     if len(trip_gdf) >= 2:
         print('Generating route choices for trip segments...')
+        trip_gdf = trip_gdf.loc[:1000].set_crs(epsg = 4326)
         routes_gdf = rs.route_choice_gen(trip_gdf, network_g, network_e, network_n)
         routes_gdf = routes_gdf.set_crs(epsg = 4326)
         print(routes_gdf)
@@ -200,9 +261,13 @@ def main():
         print(viz_json)
     else:
         print('No trip segment has been found, hence no route choice can be generated')
-    
     if len(aloc_gdf) >= 1:
         print("Adding activity locations' information...")
+        network_epsg = network_e.crs.to_epsg()
+        aloc_gdf = aloc_gdf.set_crs(epsg = 4326)
+        aloc_gdf = aloc_gdf.to_crs(epsg = network_epsg)
+        landuse_info = landuse_info.to_crs(network_epsg)
+        pal_info = pal_info.to_crs(network_epsg)
         aloc_lu_gdf = al_identifier.identify_lu(aloc_gdf,landuse_info)
         aloc_pal_gdf = al_identifier.identify_PAL(aloc_gdf,pal_info)
         aloc_info = al_identifier.create_al_info(aloc_lu_gdf, aloc_pal_gdf)
@@ -210,6 +275,5 @@ def main():
         aloc_info.to_file(filename=output_dir_path+'/activity_locations', driver = 'ESRI Shapefile')
     else:
         print("No stop segment has been found, hence no activity locations' information can be added")
-    
     print('Matching Done!')
     return
