@@ -6,8 +6,7 @@ from math import cos, sin, radians, sqrt, asin
 class Extractor:
     def __init__(self, episode_data, processed_data):
         self.fill_points(episode_data, processed_data)
-        self.trip_segments = self.extract_trip_segments(episode_data)
-        self.relax_trip()
+        self.trip_segments = self.relax_trip(self.extract_trip_segments(episode_data))
         self.activity_locations = self.extract_activity_locations(episode_data)
 
     # Extracts data with modes that are either "Walk" or "Drive"
@@ -87,11 +86,11 @@ class Extractor:
         episode_data.reset_index(drop=True, inplace=True)
 
     # Processes trip segments to filter out points with distances <5m
-    def relax_trip(self):
+    def relax_trip(self, data):
         start = 0
         dropped = []
         min_dist = 5
-        for index, row in self.trip_segments.iterrows():
+        for index, row in data.iterrows():
             point = row["geometry"]
             if (not start):
                 start = point
@@ -100,8 +99,8 @@ class Extractor:
                 dropped.append(index)
             else:
                 start = point
-        self.trip_segments = self.trip_segments.drop(dropped)
-        self.trip_segments.reset_index(drop=True, inplace=True)
+        data = data.drop(dropped)
+        return data.reset_index(drop=True, inplace=True)
 
     def get_trip_segments(self):
         return self.trip_segments
