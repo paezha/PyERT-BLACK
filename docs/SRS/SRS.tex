@@ -13,7 +13,7 @@
 \usepackage{float}
 \usepackage{hyperref}
 \restylefloat{table}
-
+\usepackage[export]{adjustbox}
 \usepackage[round]{natbib}
 \pagestyle{plain}  
 \renewcommand\headrulewidth{0.4pt}
@@ -156,20 +156,23 @@ The goal of the original GERT toolkit is to break the limit of previously develo
 
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[scale=0.75]{contextdiagram.png}
-    \caption{\bf Context Diagram}
+    \includegraphics[scale=0.75]{contextdiagram_old.png}
+    \newline
+    \newline
+    \includegraphics[scale=0.75,,cfbox=red 1pt 1pt]{updatedcontext.png}
+    \caption{\bf \textcolor{red}{\sout{Context Diagram} Updated Context Diagram}}
 \end{figure}
 
 \begin{itemize}
 \item User responsibilities: 
     \begin{itemize}
-        \item Input a data-set containing GPS information in CSV format (mandatory) and TUD episodes in CSV format (optional).
+        \item Input a data-set containing GPS information in CSV format (mandatory) \textcolor{red}{\sout{and TUD episodes in CSV format (optional)}}.
         \item Ensure the general format of the input data is correct.
     \end{itemize}
     
     \item PyERT responsibilities: 
         \begin{itemize}
-        \item Filter faulty TUD episodes and GPS data.
+        \item \textcolor{red}{\sout{Filter faulty TUD episodes and GPS data.}}
         \item Return detected routes, generated data for those routes, and identified potential activity locations in the correct format.
         \end{itemize}
 \end{itemize}
@@ -177,21 +180,22 @@ The goal of the original GERT toolkit is to break the limit of previously develo
 \subsection{Normal Operation}
 This program is used to process geographical data. Users will use the program on a computer, which allows them to view and save the processed data. Users will then be able utilize the processed data in any manner they choose.
 \subsection{Behaviour Overview}
-The system requires user input in order to begin processing and returning data. The program will accept geographical data in the form of a CSV file. The user must provide a CSV file containing GPS points, and can optionally provide a CSV file with TUD data and SHP files with data on LU and PAL. If no TUD CSV file is provided, the program will use its own generated data during processing. If a TUD CSV file is provided, the program will use the data in the provided file during processing. The program will filter faulty GPS points, and will return processed data on route choices in SHP and CSV files. Activity location data will also be returned with LU and PAL data appended if they were provided, in the form of a SHP file.
+The system requires user input in order to begin processing and returning data. The program will accept geographical data in the form of a CSV file. The user must provide a CSV file containing GPS points, and can optionally provide a CSV file with \textcolor{red}{\sout{TUD data}} and SHP files with data on LU and PAL.  \textcolor{red}{\sout{If no TUD CSV file is provided, the program will use its own generated data during processing. If a TUD CSV file is provided, the program will use the data in the provided file during processing}}. The program will filter faulty GPS points, and will return processed data on route choices in SHP and CSV files. Activity location data will also be returned with LU and PAL data appended if they were provided, in the form of a SHP file.
 \subsection{Undesired Event Handling}
 If an undesired event occurs during operation of the program, the program shall enter an error state. The program shall not process any data in this state to ensure corrupted or incorrect data is not used, and that it does not corrupt the user's inputted data. A reason for the error will be displayed so that the user understands the undesired event and potentially avoids it in the future. The program will need to be run again and will require the user to re-input their data, to ensure the undesired event does not affect the programs results.
 \subsection{User Characteristics}
 \begin{itemize}
     \item The end user of PyERT should have an understanding of basic geographic concepts (GPS, latitude, longitude, etc.).
-    \item The end user of PyERT should know the input formats of the GPS data-sets and TUD Episodes.
-    \item The end user of PyERT should understand the relevance of the GPS data-sets and Time Use Diaries being input into the program.
+    \item The end user of PyERT should know the input formats of the GPS data-sets and  \textcolor{red}{\sout{TUD Episodes}}.
+    \item The end user of PyERT should understand the relevance of the GPS data-sets \textcolor{red}{\sout{and Time Use Diaries}} being input into the program.
     \item The end user of PyERT should have an understanding of the Route Data and activity analysis provided by PyERT.
 \end{itemize}
 \section{Functional Requirements}
 \subsection{The Scope of the Work and the Product}
 
 \subsubsection{The Context of the Work}
-The plan for the project is to re-implement the features of the original GERT toolkit, where packages require an ArcGIS Pro license, and implement it with open-source packages and libraries so that the toolkit can be independent from ArcGIS Pro. The re-implemented version of the toolkit (PyERT) should inherit all functionalities of the original GERT toolkit. In addition, the structure of the implementation of the toolkit shall be reorganized into modules that are more readable and understandable for users who are trying to access the code.
+The plan for the project is to re-implement the features of the original GERT toolkit, where packages require an ArcGIS Pro license, and implement it with open-source packages and libraries so that the toolkit can be independent from ArcGIS Pro. The re-implemented version of the toolkit (PyERT) should inherit \textcolor{red}{\sout{all functionalities of the original GERT toolkit} the main functionalities of the original GERT toolkit}. \textcolor{red}{\sout{In addition, the structure of the implementation of the toolkit shall be reorganized into modules that are more readable and understandable for users who are trying to access the code}}.
+The plan for the project is to re-implement the features of the original GERT toolkit, where packages require an ArcGIS Pro license, and implement it with open-source packages and libraries so that the toolkit can be independent from ArcGIS Pro. The re-implemented version of the toolkit (PyERT) should inherit \textcolor{red}{\sout{all functionalities of the original GERT toolkit} the main functionalities of the original GERT toolkit}. \textcolor{red}{\sout{In addition, the structure of the implementation of the toolkit shall be reorganized into modules that are more readable and understandable for users who are trying to access the code}}.
 
 \subsubsection{Work Partitioning}
 
@@ -201,7 +205,7 @@ The plan for the project is to re-implement the features of the original GERT to
 \hline
 {\bf Event ID} & {\bf Event Name} & {\bf Summary} \\ 
 \hline
- \refstepcounter{benum} \bethebenum \label{BE1} & Matching GPS Data Point to Network with TUD Episodes Input & User executes PyERT toolkit using command line in console with input GPS data and TUD Episodes. \\ 
+ \refstepcounter{benum} \bethebenum \label{BE1} &  \textcolor{red}{\sout{Matching GPS Data Point to Network with TUD Episodes Input}} &  \textcolor{red}{\sout{User executes PyERT toolkit using command line in console with input GPS data and TUD Episodes.}} \\ 
 \hline
  \refstepcounter{benum} \bethebenum \label{BE2} & Matching GPS Data Point to Network without TUD Episodes Inputs & User executes PyERT toolkit using command line in console with input GPS data only. \\ 
 \hline
@@ -216,7 +220,7 @@ The plan for the project is to re-implement the features of the original GERT to
 \hline
 {\bf Event ID} & {\bf Input} & {\bf Output} \\ 
 \hline
-\beref{BE1} & User's GPS data, TUD Episodes in CSV format and LU and PAL information in SHP format & Route Choice Set and Activity Locations' Information in SHP file type and RCA Variables in CSV format  \\ 
+\beref{BE1} & User's GPS data,  \textcolor{red}{\sout{TUD Episodes in CSV format}} and LU and PAL information in SHP format & Route Choice Set and Activity Locations' Information in SHP file type and RCA Variables in CSV format  \\ 
 \hline
 \beref{BE2} & User's GPS data in CSV format and LU and PAL information in SHP format & Route Choice Set and Activity Locations' Information in SHP file type and RCA Variables in CSV format \\ 
 \hline
@@ -289,7 +293,7 @@ The plan for the project is to re-implement the features of the original GERT to
 
 \begin{boxed}
 \begin{tabular}{l r r}
-\refstepcounter{reqnum} \reqthereqnum \label{Req3} & {\bf Req. Type}: &  Functional\\
+ \textcolor{red}{\sout{\refstepcounter{reqnum} \reqthereqnum \label{Req3}} Requirement Removed} & {\bf Req. Type}: &  Functional\\
 \end{tabular}
 \newline
 \begin{tabular}{l p{11.5cm}}
