@@ -5,16 +5,16 @@ import os
 class GPSPreprocess:
     def __init__(self, data=None):
         data = data
-        filteredData = self.filterData(data)
-        smoothedData = self.smoothData(filteredData)
-        self.processedData = smoothedData
+        filtered_data = self.filter_data(data)
+        smoothed_data = self.smooth_data(filtered_data)
+        self.processed_data = smoothed_data
 
 # Return GeoDataFrame of processed data
-    def getData(self):
-        return self.processedData
+    def get_data(self):
+        return self.processed_data
 
 # Remove all duplicate rows with the same latitudes and longitudes and converts DataFrame to GeoDataFrame
-    def filterData(self, data):
+    def filter_data(self, data):
         if data is None:
             return None
         else:
@@ -23,22 +23,22 @@ class GPSPreprocess:
 
             # Converts DataFrame to GeoDataFrame and adds 'geometry' column which will be points based on the
             # latitude and longitude from the DataFrame
-            filteredData = gpd.GeoDataFrame(data, geometry=gpd.points_from_xy(data.longitude, data.latitude))
+            filtered_data = gpd.GeoDataFrame(data, geometry=gpd.points_from_xy(data.longitude, data.latitude))
 
             # Reset index of GeoDataFrame
-            filteredData.reset_index(drop=True, inplace=True)
+            filtered_data.reset_index(drop=True, inplace=True)
 
-            return filteredData
+            return filtered_data
 
 # Remove all rows where 'Speed_kmh' > 180.0
-    def smoothData(self, data):
+    def smooth_data(self, data):
         if data is None:
             return None
         else:
             # Remove all rows that have a value of greater than 180.0 for the column 'Speed_kmh'
-            smoothedData = data.drop(data[data.Speed_kmh > 180.0].index)
+            smoothed_data = data.drop(data[data.Speed_kmh > 180.0].index)
 
             # Reset index of GeoDataFrame
-            smoothedData.reset_index(drop=True, inplace=True)
-            return smoothedData
+            smoothed_data.reset_index(drop=True, inplace=True)
+            return smoothed_data
 
