@@ -23,7 +23,7 @@ class InvalidEPSGNumException(Exception):
 
 
 class InvalidDataException(Exception):
-    """Raises when the read data is missing information"""
+    """Raised when the read data is missing information"""
     print("Invalid Data Exception:\n")
     pass
 
