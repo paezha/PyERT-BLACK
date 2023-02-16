@@ -4,16 +4,16 @@ Source Name: activity_locations_identification.py
 Creator: Hongzhao Tan (tanh10@mcmaster.ca)
 Requirements: Python 3.8 or later
 Date Created: Feb 12, 2023
-Last Revised: Feb 12, 2023
+Last Revised: Feb 15, 2023
 Description: Appends LU and PAL for Activity Locations extracted by the Extractor module,
              if such information has been provided
 
 Version History:
-2023-02-12 (activity_locations_identification.py) Create identify_lu, identify_PAL and create_al_info functions
+2023-02-12 (activity_locations_identification.py) Create identify_lu, identify_pal and create_al_info functions
 
 2023-02-13 (activity_locations_identification.py) Create comments explaining the logic of each function
 
-2023-02-13 (activity_locations_identification.py) Update format & naming
+2023-02-15 (activity_locations_identification.py) Update format & naming
 """
 
 
@@ -91,7 +91,7 @@ def identify_lu(al_gdf, lu_gdf):
     return al_lu_gdf
 
 
-def identify_PAL(al_gdf, pal_gdf):
+def identify_pal(al_gdf, pal_gdf):
     """
     Returns a Geodataframe of Activity Locations with appended PAL information corresponding to the Activity Locations
 
@@ -111,7 +111,7 @@ def identify_PAL(al_gdf, pal_gdf):
     # Iterate through the length of a GeoDataFrame Activity Locations
     for i in range(len(al_gdf)):
         # Get the geometry of row i for the Activity Locations
-        AL_geo = al_gdf.loc[i]['geometry']
+        al_geo = al_gdf.loc[i]['geometry']
         # Get the house number of the first row of the PAL GeoDataFrame
         closest_pal_house_num = pal_gdf.iloc[0]['addr:housenumber']
         # Get the street of the first row of the PAL GeoDataFrame
@@ -127,7 +127,7 @@ def identify_PAL(al_gdf, pal_gdf):
         # Get the index of the first row of the PAL GeoDataFrame
         closest_pal_index = list(pal_gdf.index)[0]
 
-        closest_dist = closest_pal_geo.distance(AL_geo)
+        closest_dist = closest_pal_geo.distance(al_geo)
         # If the closest distance is smaller than the threshold 1e-8, append the
         # closest PAL house number, street name, city, province, name, geometry
         # and list to their respective list and continue the for loop to the next
@@ -150,7 +150,7 @@ def identify_PAL(al_gdf, pal_gdf):
             # Calculate the current distance between the geometry of the ith row
             # of the Activity Locations and the geometry of jth row of the
             # PAL GeoDataFrame
-            curr_dist = curr_pal_geo.distance(AL_geo)
+            curr_dist = curr_pal_geo.distance(al_geo)
             # If the current distance is smaller than the closest distance,
             # set the closest distance to the current distance, the closest PAL
             # house number to the jth rows house number, closest street name
