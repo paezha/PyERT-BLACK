@@ -46,7 +46,7 @@ def var_gen(route, network_edges):
     network_epsg = network_edges.crs.to_epsg()
     route_gdf_proj = route.to_crs(epsg=network_epsg)
     # Find geometry extract route segments with each geometry
-    rca = list(route['geometry'].value_counts().index)
+    rca = list(route['geometry'])
     # Find serial IDs extract route segments with each serial ID
     serial_id = list(route['SerialID'].value_counts().index)
 
@@ -170,13 +170,13 @@ def count_turns(network_pe, edges_route_passed, route_coord):
         # If an angle greater than 30 degrees is found,
         # Check if the two line segments of the angle are going from one street to another.
         if abs(180 - angle_deg) > 30:
-            print(angle_deg)
+            # print(angle_deg)
             start_street = find_nearest_street(
                 network_pe, edges_route_passed, route_coord[j - 1])
-            print(start_street)
+            # print(start_street)
             end_street = find_nearest_street(
                 network_pe, edges_route_passed, route_coord[j + 1])
-            print(end_street)
+            # print(end_street)
             # If the two line segments of the angle are going from one street to another
             # Meaning a Turn is found. Then use cross product
             # to determine the direction of the turn(Left/Right)
@@ -188,10 +188,10 @@ def count_turns(network_pe, edges_route_passed, route_coord):
                 cross_prod = point_diff1[0] * point_diff2[1] - \
                     point_diff2[0] * point_diff1[1]
                 if cross_prod < 0:
-                    print('Left Turn')
+                    # print('Left Turn')
                     num_left_turn += 1
                 elif cross_prod > 0:
-                    print('Right Turn')
+                    # print('Right Turn')
                     num_right_turn += 1
 
     return {'left': num_left_turn, 'right': num_right_turn, 'total': (num_left_turn + num_right_turn)}
@@ -226,7 +226,7 @@ def longest_leg(network_pe, edges_route_passed, route_coord):
             #    leg_len_dict[point_street] += line_seg_len
 
             curr_street = point_street
-    print(leg_len_dict)
+    # print(leg_len_dict)
 
     long_leg_street = curr_street
     long_leg_len = leg_len_dict[curr_street]
