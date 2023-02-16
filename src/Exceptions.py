@@ -32,13 +32,3 @@ class NetworkModeError(Exception):
     """Raised when the input mode is one of 'drive', 'walk' or 'all'"""
     print("Network Mode Error Exception:\n")
     pass
-
-
-class OutofBoundException(Exception):
-    """Raised when trip segment is out of the boundary of the extracted network"""
-    print("Out of Bound Exception:\n")
-
-
-class NetworkBoundError(Exception):
-    """Raised when Network Bound is None"""
-    print("Network Bound Error:\n")
