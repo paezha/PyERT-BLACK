@@ -257,7 +257,7 @@ class ModeDetection:
 
         data = {'SerialID': serial_ids,
                 'RecordID': record_ids,
-                'Timestart': start_times,
+                'TimeStart': start_times,
                 'Modes': modes,
                 'geometry': geometry}
 
