@@ -5,15 +5,16 @@ from math import cos, sin, radians, sqrt, asin
 
 class Extractor:
     def __init__(self, episode_data, processed_data):
-        self.fill_points(episode_data, processed_data)
-        self.trip_segments = self.relax_trip(self.extract_trip_segments(episode_data))
+        episode_data = self.fill_points(episode_data, processed_data)
+        self.trip_segments = self.relax_trip(
+            self.extract_trip_segments(episode_data))
         self.activity_locations = self.extract_activity_locations(episode_data)
 
     # Extracts data with modes that are either "Walk" or "Drive"
     def extract_trip_segments(self, episode_data):
         options = ['Walk', 'Drive']
         data = episode_data[episode_data["Modes"].isin(options)]
-        return data.reset_index(drop=True, inplace=True)
+        return data.reset_index(drop=True)
 
     def distance(self, p1, p2):
 
@@ -83,7 +84,7 @@ class Extractor:
                 episode_data = pd.concat(
                     [episode_data, add, gpd.GeoDataFrame(data)]).sort_values(by=['RecordID'])
 
-        episode_data.reset_index(drop=True, inplace=True)
+        return episode_data.reset_index(drop=True)
 
     # Processes trip segments to filter out points with distances <5m
     def relax_trip(self, data):
@@ -100,7 +101,7 @@ class Extractor:
             else:
                 start = point
         data = data.drop(dropped)
-        return data.reset_index(drop=True, inplace=True)
+        return data.reset_index(drop=True)
 
     def get_trip_segments(self):
         return self.trip_segments
@@ -108,4 +109,7 @@ class Extractor:
     # Extracts data with modes that is "Stop"
     def extract_activity_locations(self, episode_data):
         data = episode_data[episode_data["Modes"] == "Stop"]
-        return data.reset_index(drop=True, inplace=True)
+        return data.reset_index(drop=True)
+
+    def get_activity_locations(self):
+        return self.activity_locations
