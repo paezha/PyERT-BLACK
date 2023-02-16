@@ -3,6 +3,7 @@ import geojsonio as gjsio
 import os
 from pyrosm import OSM
 import osmnx as ox
+from datetime import datetime
 
 
 import GPSPreprocess as gps_preprocess
@@ -189,8 +190,15 @@ def main():
         print(output_dir_path.rsplit('/', 1)[0] + ": is not a folder\n")
         return None
 
-    num_points = int(
-        input("Enter the number of points from the dataset to process. "))
+    num_points_str = input(
+        "(Optional) Enter the number of points from the dataset to process. ")
+    if num_points_str.isdigit():
+        num_points = int(num_points_str)
+        if num_points < 100:
+            print("num_points too low. set to 100.")
+            num_points = 100
+    else:
+        num_points = None
 
     # Preprocess GPS data
     print('Preprocessing input GPS data...')
@@ -222,8 +230,10 @@ def main():
     print('Extracting trip and stop segments...')
     extractor = Extractor.Extractor(eps_data_gdf, gps_data_df)
     trip_gdf = extractor.get_trip_segments()
-    # trip_gdf = trip_gdf.set_crs(epsg=4326)
-    trip_gdf = trip_gdf.loc[:num_points].set_crs(epsg=4326)
+    if num_points is None:
+        trip_gdf = trip_gdf.set_crs(epsg=4326)
+    else:
+        trip_gdf = trip_gdf.loc[:num_points].set_crs(epsg=4326)
 
     aloc_gdf = extractor.get_activity_locations()
 
@@ -324,7 +334,11 @@ def main():
         webbrowser.open(aloc_url, new=0, autoraise=True)
     else:
         print("No stop segment has been found, hence no activity locations' information can be added")
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Current Time =", current_time)
     print('Matching Done!')
+
     return
 
 
