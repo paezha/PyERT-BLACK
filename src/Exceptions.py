@@ -16,12 +16,6 @@ class InvalidFileFormatException(Exception):
     pass
 
 
-class InvalidEPSGNumException(Exception):
-    """The EPSG CRS Number from user input cannot be used"""
-    print("Invalid EPSG Number Exception:\n")
-    pass
-
-
 class InvalidDataException(Exception):
     """Raised when the read data is missing information"""
     print("Invalid Data Exception:\n")
