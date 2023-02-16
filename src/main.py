@@ -14,23 +14,23 @@ import activity_locations_identification as al_identifier
 from Exceptions import NetworkModeError
 
 def get_points_boundary(points_gdf):
-    maxX, maxY, minX, minY = -180, -180, 180, 180
+    max_x, max_y, min_x, min_y = -180, -180, 180, 180
 
     for point in points_gdf['geometry']:
-        if point.x > maxX:
-            maxX = point.x
-        if point.x < minX:
-            minX = point.x
-        if point.y > maxY:
-            maxY = point.y
-        if point.y < minY:
-            minY = point.y
+        if point.x > max_x:
+            max_x = point.x
+        if point.x < min_x:
+            min_x = point.x
+        if point.y > max_y:
+            max_y = point.y
+        if point.y < min_y:
+            min_y = point.y
 
-    maxX = maxX + 0.005
-    minX = minX - 0.005
-    maxY = maxY + 0.005
-    minY = minY - 0.005
-    return (maxY, minY, maxX, minX)
+    max_x = max_x + 0.005
+    min_x = min_x - 0.005
+    max_y = max_y + 0.005
+    min_y = min_y - 0.005
+    return (max_y, min_y, max_x, min_x)
 
 
 def extract_networkdata_pbf(pbf_file_path, mode):
@@ -42,10 +42,10 @@ def extract_networkdata_pbf(pbf_file_path, mode):
         
     except NetworkModeError:
         print("The input mode for required network data is not one of 'driving','walking' or 'all'")
-        return None, None, None
-    except ValueError as e:
-        print(e)
-        return None, None, None
+        return None, None, None, None
+    except ValueError as error:
+        print(error)
+        return None, None, None, None
     
 
     nodes, edges = osm.get_network(nodes=True, network_type=mode)
@@ -87,8 +87,8 @@ def extract_networkdata_bbox(max_lat, min_lat, max_lon, min_lon, mode):
 def extract_ludata_pbf(pbf_file_path):
     try:
         osm = OSM(pbf_file_path)
-    except ValueError as e:
-        print(e)
+    except ValueError as error:
+        print(error)
         return None
     
     landuse_gdf = osm.get_landuse()
@@ -156,15 +156,15 @@ def main():
     print('Extracting trip and stop segments...')
     extractor = Extractor.Extractor(eps_data_gdf, gps_data_df)
     trip_gdf = extractor.get_trip_segments()
-    aloc_gdf = extractor.get_activity_locations()
+    aloc_gdf = extractor.activity_locations
     print(trip_gdf.head(100))
     print(aloc_gdf.head(100))
     trip_mode = get_trip_mode(trip_gdf)
     trip_bound = get_points_boundary(trip_gdf)
     
     
-    if (network_pbf_path == '') or (network_pbf_path == None):
-        network_G, network_N, network_E = extract_networkdata_bbox(trip_bound[0], trip_bound[1],
+    if (network_pbf_path == '') or (network_pbf_path is None):
+        network_g, network_n, network_e = extract_networkdata_bbox(trip_bound[0], trip_bound[1],
                                                                    trip_bound[2], trip_bound[3],
                                                                    trip_mode)
         landuse_info = extract_ludata_bbox(trip_bound[0], trip_bound[1],
@@ -172,24 +172,25 @@ def main():
         pal_info = extract_paldata_bbox(trip_bound[0], trip_bound[1],
                                         trip_bound[2], trip_bound[3])
     else:
-        network_G, network_N, network_E, network_bound = extract_networkdata_pbf(network_pbf_path, trip_mode)
+        network_g, network_n, network_e, network_bound = extract_networkdata_pbf(network_pbf_path, trip_mode)
+        if network_bound is not None:
         # Check if the trip segment is out of the boundary of the extracted network
-        if ((network_bound[0] < trip_bound[0]) or
-            (network_bound[1] > trip_bound[1]) or
-            (network_bound[2] < trip_bound[2]) or
-            (network_bound[3] > trip_bound[3])):
-            # raise exception OutOfBound
-            return
+            if ((network_bound[0] < trip_bound[0]) or
+                (network_bound[1] > trip_bound[1]) or
+                (network_bound[2] < trip_bound[2]) or
+                (network_bound[3] > trip_bound[3])):
+                # raise exception OutOfBound
+                return
         
         landuse_info = extract_ludata_pbf(network_pbf_path)
         pal_info = extract_paldata_pbf(network_pbf_path)
     
     if len(trip_gdf) >= 2:
         print('Generating route choices for trip segments...')
-        routes_gdf = rs.route_choice_gen(trip_gdf, network_G, network_E, network_N)
+        routes_gdf = rs.route_choice_gen(trip_gdf, network_g, network_e, network_n)
         routes_gdf = routes_gdf.set_crs(epsg = 4326)
         print(routes_gdf)
-        rca_var_gdf = variable_generator.var_gen(routes_gdf)
+        rca_var_gdf = variable_generator.var_gen(routes_gdf, network_e)
         print(rca_var_gdf)
         # Generating shp file and csv files into output folder
         routes_gdf.to_file(filename=output_dir_path+'/route_choice', driver = 'ESRI Shapefile')
