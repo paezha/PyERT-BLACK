@@ -13,5 +13,5 @@ RnwWeave: Sweave
 LaTeX: pdfLaTeX
 
 PythonType: conda
-PythonVersion: 3.8.13
-PythonPath: C:/Users/paezha/anaconda3/envs/PyERT/python.exe
+PythonVersion: 3.8.15
+PythonPath: C:/Users/paezha/anaconda3/envs/PyERT-BLACK/python.exe
