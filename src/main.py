@@ -147,7 +147,8 @@ def get_trip_mode(trip_data):
 
 
 def main():
-    gps_data_path = input("Enter file path to GPS data: ")
+    gps_data_path = input(
+        "Enter file path to GPS data (this file must be in csv format): ")
     # gps_data_path = '/Users/jasperleung/Documents/GitHub/PyERT-BLACK/quarto-example/data/sample-gps/sample-gps-1.csv'
     # Check if file type and path are valid, raise exception if not
     try:
@@ -163,7 +164,8 @@ def main():
     except InvalidFilePathException:
         print(gps_data_path + ': GPS data path does not exist\n')
         return None
-    network_pbf_path = input("Enter file path to OSM network data(optional): ")
+    network_pbf_path = input(
+        "Enter file path to OSM network data(optional, this file must be in pbf format): ")
     # network_pbf_path = ''
     # Check if file type and path are valid (empty input is fine), raise exception if not
     if network_pbf_path:
