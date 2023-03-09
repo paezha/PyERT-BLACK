@@ -89,9 +89,9 @@ def var_gen(route, network_edges):
         num_r.append(longest_leg_info['numOfStreets'])
 
     temp_df = pd.DataFrame({'SerialID': serial_id,
-                            'distanceMeter:': distance,
-                            'numOfLturns:': num_lt,
-                            'numOfRturns:': num_rt,
+                            'distanceMeter': distance,
+                            'numOfLturns': num_lt,
+                            'numOfRturns': num_rt,
                             'numOfRoads': num_r,
                             'streetLongestLeg': street_name,
                             'lengthLongestLeg': length,

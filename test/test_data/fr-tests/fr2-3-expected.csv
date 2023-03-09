@@ -1,0 +1,2 @@
+,RecordID,SerialID,LocalTime,latitude,longitude,Fix_Status,DOP,Speed_kmh,Limit_kmh,geome
+0,5685,26,9/3/2009 11:57,43.33742,-79.79029,3D Fix,0.5,0,50,POINT (-79.79029 43.33742)

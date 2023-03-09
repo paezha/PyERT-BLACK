@@ -6,7 +6,8 @@ import datetime
 
 class ModeDetection:
     def __init__(self, processed_data=None):
-        self.episode_data = self.detect_modes(processed_data)
+        if not processed_data.empty:
+            self.episode_data = self.detect_modes(processed_data)
 
     def distance(self, p1, p2):
         """
