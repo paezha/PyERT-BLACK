@@ -54,6 +54,24 @@ def test_filter_data(sample_gps):
         assert i == False
 
 @pytest.mark.parametrize(
+    'sample_gps', [(sample_gps_file_path+'/sample-gps-6.csv')]
+)
+def test_filter_data_redundant_only(sample_gps):
+    data = pd.read_csv(filepath_or_buffer=sample_gps, nrows=4)
+    data_length1 = len(data)
+    gps_data = gpsp.GPSPreprocess(data=None)
+    gps_data.data = data
+    filtered_data1 = gps_data.filter_data(gps_data.data)
+    filtered_data_length1 = len(filtered_data1)
+    duplicate1 = filtered_data1.duplicated()
+
+    assert data_length1 != filtered_data_length1
+    assert filtered_data_length1 == 1
+    for i in duplicate1:
+        assert i == False
+
+
+@pytest.mark.parametrize(
     'sample_gps', [(sample_gps_file_path+'/sample-gps-1.csv')]
 )
 def test_smooth_data(sample_gps):
@@ -61,7 +79,7 @@ def test_smooth_data(sample_gps):
     data_length = len(data)
     gps_data = gpsp.GPSPreprocess(data=None)
     gps_data.data = data
-    smooth_data1 = gps_data.smoothdata(gps_data.data)
+    smooth_data1 = gps_data.smooth_data(gps_data.data)
     smooth_data_length1 = len(smooth_data1)
 
     gps_data.data['Speed_kmh'][0] = 200.0
