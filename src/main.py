@@ -1,3 +1,32 @@
+"""
+Module Name: PyERT-BLACK Main Module
+Source Name: main.py
+Creator: All PyERT-BLACK project team members
+Requirements: Python 3.8 or later
+Date Created: Feb 15, 2023
+Last Revised: Mar 20, 2023
+Description: Main module of PyERT-BLACK that contains the main function
+
+Version History:
+2023-02-15 (main.py) Create get_points_boundary, extract_networkdata_pbf, extract_networkdata_bbox 
+    extract_ludata_pbf, extract_paldata_pbf, extract_ludata_bbox, extract_paldata_bbox, get_trip_mode 
+    and main functions
+
+2023-03-17 (main.py) Move get_points_boundary, extract_networkdata_pbf, extract_networkdata_bbox 
+    extract_ludata_pbf, extract_paldata_pbf, extract_ludata_bbox, extract_paldata_bbox, 
+    and get_trip_mode to a separate module Network Data Utilities
+
+2023-03-17 (main.py) Update code for adding activity locations' information due to changes made in
+    Activity Locations Identification moule
+
+2023-03-18 (main.py) Update code for visualizing routes generated and activity locations' information 
+    to let the program print excepion message and keep progressing when visualization failed instead of 
+    crashing
+
+2023-03-19 (main.py) Update code for extracting network, potential activity locations and landuse data 
+    from OSM PBF file due to changes made in Network Data Utilities module
+"""
+
 import pandas as pd
 import geojsonio as gjsio
 import os
@@ -13,142 +42,14 @@ import Extractor
 import route_solver as rs
 import variable_generator
 import activity_locations_identification as al_identifier
+from network_data_utils import get_points_boundary, extract_networkdata_pbf, extract_networkdata_bbox, \
+    extract_ludata_pbf, extract_paldata_pbf, extract_ludata_bbox, extract_paldata_bbox, get_trip_mode
 from Exceptions import InvalidInputException, InvalidFilePathException, InvalidFileFormatException, \
-    InvalidDataException, InvalidGPSDataException, NetworkModeError, OutofBoundException, NetworkBoundError
+    InvalidDataException, InvalidGPSDataException, OutofBoundException, NetworkBoundError
 import webbrowser
 
-
-def get_points_boundary(points_gdf):
-    max_x, max_y, min_x, min_y = -180, -180, 180, 180
-
-    for point in points_gdf['geometry']:
-        if point.x > max_x:
-            max_x = point.x
-        if point.x < min_x:
-            min_x = point.x
-        if point.y > max_y:
-            max_y = point.y
-        if point.y < min_y:
-            min_y = point.y
-
-    max_x = max_x + 0.005
-    min_x = min_x - 0.005
-    max_y = max_y + 0.005
-    min_y = min_y - 0.005
-    return (max_y, min_y, max_x, min_x)
-
-
-def extract_networkdata_pbf(pbf_file_path, mode):
-    try:
-        if mode not in ['driving', 'walking', 'all']:
-            raise NetworkModeError
-
-        osm = OSM(pbf_file_path)
-
-    except NetworkModeError:
-        print("The input mode for required network data is not one of 'driving','walking' or 'all'")
-        return None, None, None, None
-    except ValueError as error:
-        print(error)
-        return None, None, None, None
-
-    nodes, edges = osm.get_network(nodes=True, network_type=mode)
-
-    # Columns for id, longitude and latitude need to be remaned to osmid, x and y respectively
-    nodes['osmid'] = nodes['id']
-    nodes['x'] = nodes['lon']
-    nodes['y'] = nodes['lat']
-    # Dropping the original columns for longitude and latitude
-    nodes.drop(columns=['id', 'lon', 'lat'], inplace=True)
-    nodes.set_index('osmid', inplace=True)
-    pbf_boundary = get_points_boundary(nodes)
-
-    # Column 'timestamp' needs to be renamed to 'key'
-    edges['key'] = edges['timestamp']
-    # Index for Edges need to be set to ['u','v','key'] multi-index
-    edges.set_index(['u', 'v', 'key'], inplace=True)
-
-    graph = ox.graph_from_gdfs(nodes, edges)
-    graph_proj = ox.projection.project_graph(graph)
-    nodes_proj, edges_proj = ox.graph_to_gdfs(graph_proj)
-    return graph_proj, nodes_proj, edges_proj, pbf_boundary
-
-
-def extract_networkdata_bbox(max_lat, min_lat, max_lon, min_lon, mode):
-    try:
-        if mode not in ['drive', 'walk', 'all']:
-            raise NetworkModeError
-    except NetworkModeError:
-        print(
-            "The input mode for required network data is not one of 'drive','walk' or 'all'")
-        return None, None, None
-
-    graph = ox.graph.graph_from_bbox(max_lat, min_lat, max_lon, min_lon,
-                                     network_type=mode, simplify=False, retain_all=True)
-    graph_proj = ox.projection.project_graph(graph)
-    nodes_proj, edges_proj = ox.graph_to_gdfs(graph_proj)
-
-    return graph_proj, nodes_proj, edges_proj
-
-
-def extract_ludata_pbf(pbf_file_path):
-    try:
-        osm = OSM(pbf_file_path)
-    except ValueError as error:
-        print(error)
-        return None
-
-    landuse_gdf = osm.get_landuse()
-    landuse_gdf.set_index(['osm_type', 'id'], inplace=True)
-    return landuse_gdf
-
-
-def extract_paldata_pbf(pbf_file_path):
-    try:
-        osm = OSM(pbf_file_path)
-    except ValueError as e:
-        print(e)
-        return None
-
-    buildings = osm.get_buildings()
-    filtered_buildings = buildings[((-buildings['addr:housenumber'].isnull()) &
-                                    (-buildings['addr:street'].isnull())) |
-                                   (-buildings['name'].isnull())]
-    filtered_buildings.set_index(['osm_type', 'id'], inplace=True)
-    return filtered_buildings
-
-
-def extract_ludata_bbox(max_lat, min_lat, max_lon, min_lon):
-    landuse_gdf = ox.geometries.geometries_from_bbox(
-        max_lat, min_lat, max_lon, min_lon, tags={'landuse': True})
-    return landuse_gdf
-
-
-def extract_paldata_bbox(max_lat, min_lat, max_lon, min_lon):
-    pal_gdf = ox.geometries.geometries_from_bbox(
-        max_lat, min_lat, max_lon, min_lon, tags={'building': True})
-    filtered_pal = pal_gdf[((-pal_gdf['addr:housenumber'].isnull()) &
-                            (-pal_gdf['addr:street'].isnull())) |
-                           (-pal_gdf['name'].isnull())]
-    return filtered_pal
-
-
-def get_trip_mode(trip_data):
-    trip_modes = list(trip_data['Modes'].value_counts().index)
-
-    if ('Walk' in trip_modes) and ('Drive' not in trip_modes):
-        return 'walk'
-    elif ('Walk' not in trip_modes) and ('Drive' in trip_modes):
-        return 'drive'
-    elif ('Walk' in trip_modes) and ('Drive' in trip_modes):
-        return 'all'
-    else:
-        return 'no mode found'
-
-
 def main():
-    gps_data_path = input(
-        "Enter file path to GPS data (this file must be in csv format): ")
+    gps_data_path = input("Enter file path to GPS data: ")
     # gps_data_path = '/Users/jasperleung/Documents/GitHub/PyERT-BLACK/quarto-example/data/sample-gps/sample-gps-1.csv'
     # Check if file type and path are valid, raise exception if not
     try:
@@ -164,8 +65,7 @@ def main():
     except InvalidFilePathException:
         print(gps_data_path + ': GPS data path does not exist\n')
         return None
-    network_pbf_path = input(
-        "Enter file path to OSM network data(optional, this file must be in pbf format): ")
+    network_pbf_path = input("Enter file path to OSM network data(optional): ")
     # network_pbf_path = ''
     # Check if file type and path are valid (empty input is fine), raise exception if not
     if network_pbf_path:
@@ -183,6 +83,18 @@ def main():
             return None
 
     output_dir_path = input("Enter file path to the output folder: ")
+    
+    aloc_pal_info_radius = input("Enter the radius in meters that activity location information "
+                                 + "will be collected from(optional, default 100 meters): ")
+    try:
+        if aloc_pal_info_radius == '' or aloc_pal_info_radius == None:
+            aloc_pal_info_radius = 100
+        else:
+            aloc_pal_info_radius = float(aloc_pal_info_radius)
+    except ValueError:
+        print("Invalid input for radius, please enter a real number.\n")
+        return None
+    
     # output_dir_path = '/Users/jasperleung/Documents'
     # Check if the path is to a folder, raise exception if not
     try:
@@ -243,21 +155,25 @@ def main():
     # print(aloc_gdf.head(100))
     trip_mode = get_trip_mode(trip_gdf)
     trip_bound = get_points_boundary(trip_gdf)
+    aloc_bound = get_points_boundary(aloc_gdf)
     if (network_pbf_path == '') or (network_pbf_path is None):
         print('Extracting transportation network data...')
         network_g, network_n, network_e = extract_networkdata_bbox(trip_bound[0], trip_bound[1],
                                                                    trip_bound[2], trip_bound[3],
                                                                    trip_mode)
+        #if (network_g == None):
+        #    return
         print('Extracting landuse data...')
-        landuse_info = extract_ludata_bbox(trip_bound[0], trip_bound[1],
-                                           trip_bound[2], trip_bound[3])
+        landuse_info = extract_ludata_bbox(aloc_bound[0], aloc_bound[1],
+                                           aloc_bound[2], aloc_bound[3])
         print('Extracting potential activity locations data...')
-        pal_info = extract_paldata_bbox(trip_bound[0], trip_bound[1],
-                                        trip_bound[2], trip_bound[3])
+        pal_info = extract_paldata_bbox(aloc_bound[0], aloc_bound[1],
+                                        aloc_bound[2], aloc_bound[3])
     else:
         print('Extracting transportation network data...')
         network_g, network_n, network_e, network_bound = extract_networkdata_pbf(
-            network_pbf_path, trip_mode)
+            network_pbf_path, trip_mode, bbox=[trip_bound[3], trip_bound[1], 
+                                               trip_bound[2], trip_bound[0]])
         try:
             if network_bound is not None:
                 # Check if the trip segment is out of the boundary of the extracted network
@@ -277,10 +193,15 @@ def main():
             print("Network bound is None\n")
             return None
         print('Extracting landuse data...')
-        landuse_info = extract_ludata_pbf(network_pbf_path)
+        landuse_info = extract_ludata_pbf(
+            network_pbf_path,bbox=[aloc_bound[3], aloc_bound[1], 
+                                   aloc_bound[2], aloc_bound[0]])
         print('Extracting potential activity locations data...')
-        pal_info = extract_paldata_pbf(network_pbf_path)
-    if len(trip_gdf) >= 2:
+        pal_info = extract_paldata_pbf(
+            network_pbf_path,bbox=[aloc_bound[3], aloc_bound[1], 
+                                   aloc_bound[2], aloc_bound[0]])
+    
+    if len(trip_gdf) >= 2 and (network_g != None):
         print('Generating route choices for trip segments...')
         routes_gdf = rs.route_choice_gen(
             trip_gdf, network_g, network_e, network_n)
@@ -294,46 +215,77 @@ def main():
         # routes_gdf[['SerialID', 'geometry']].to_file(filename='route_choice.shp')
         rca_var_gdf.drop(columns=['geometry']).to_csv(
             output_dir_path+'/rca_var.csv')
-        viz_json = gjsio.make_url(
-            routes_gdf[['SerialID', 'geometry']].to_json())
-        # print('Routes for trip segments generated, visualize the route by clicking HERE')
-        # print(viz_json)
+        try:
+            viz_json = gjsio.make_url(
+                routes_gdf[['SerialID', 'geometry']].to_json())
+        except Exception as e:
+            print("Unable to generate url to visualize generated routes due to exception: \n" + str(e))
+
         routes_url = viz_json
-        webbrowser.open(routes_url, new=0, autoraise=True)
+        
+        try:
+            webbrowser.open(routes_url, new=0, autoraise=True)
+        except Exception as e:
+            print("Unable to visualize generated route due to exception: \n" + str(e))
     else:
         print('No trip segment has been found, hence no route choice can be generated')
+    
     if len(aloc_gdf) >= 1:
         print("Adding activity locations' information...")
         network_epsg = network_e.crs.to_epsg()
         aloc_gdf = aloc_gdf.set_crs(epsg=4326)
+        #aloc_points_url = gjsio.make_url(
+        #    aloc_gdf.to_json())
+        #webbrowser.open(aloc_points_url, new=0, autoraise=True)
         aloc_gdf = aloc_gdf.to_crs(epsg=network_epsg)
         landuse_info = landuse_info.to_crs(network_epsg)
         pal_info = pal_info.to_crs(network_epsg)
-        aloc_lu_gdf = al_identifier.identify_lu(aloc_gdf, landuse_info)
-        aloc_pal_gdf = al_identifier.identify_pal(aloc_gdf, pal_info)
-        aloc_info = al_identifier.create_al_info(aloc_lu_gdf, aloc_pal_gdf)
 
-        dropped_geo_gdf = aloc_info.drop(
-            columns=['geometry', 'building_index', 'lu_index'])
-        dropped_geo_gdf = gpd.GeoDataFrame(
-            dropped_geo_gdf, geometry='building_geometry')
-        dropped_geo_gdf = dropped_geo_gdf.set_crs(epsg=network_epsg)
-        dropped_geo_gdf = dropped_geo_gdf.to_crs(epsg=4326)
-        dropped_geo_gdf.to_file(
-            filename=output_dir_path + '/activity_locations_info', driver='ESRI Shapefile')
+        aloc_info = al_identifier.create_al_info(aloc_gdf, landuse_info, pal_info, 
+                                                 aloc_pal_info_radius)
 
-        building_info_df = aloc_info[['SerialID', 'building_geometry']]
-        building_info = gpd.GeoDataFrame(
-            building_info_df, geometry='building_geometry')
-        building_info = building_info.set_crs(epsg=network_epsg)
-        building_info = building_info.to_crs(epsg=4326)
-        aloc_info.drop(columns=['geometry']).to_csv(
+        aloc_info_geo_crs = aloc_info.to_crs(epsg=4326)
+        polygon_pal_info = aloc_info_geo_crs.loc[(aloc_info_geo_crs.geometry.geom_type=='Polygon')]
+        polygon_pal_info = polygon_pal_info.reset_index(drop=True)
+        point_pal_info = aloc_info_geo_crs.loc[(aloc_info_geo_crs.geometry.geom_type=='Point')]
+        point_pal_info = point_pal_info.reset_index(drop=True)
+        polygon_pal_to_save = polygon_pal_info.drop(
+            columns=['pal_index', 'lu_index'])
+        point_pal_to_save = point_pal_info.drop(
+            columns=['pal_index', 'lu_index'])
+        
+        #dropped_geo_gdf = gpd.GeoDataFrame(
+        #    dropped_geo_gdf, geometry='building_geometry')
+        #dropped_geo_gdf = dropped_geo_gdf.set_crs(epsg=network_epsg)
+        #dropped_geo_gdf = dropped_geo_gdf.to_crs(epsg=4326)
+        if not polygon_pal_to_save.empty:
+            polygon_pal_to_save.to_file(
+                filename=output_dir_path + '/activity_locations_polygon_info', driver='ESRI Shapefile')
+        if not point_pal_to_save.empty:
+            point_pal_to_save.to_file(
+                filename=output_dir_path + '/activity_locations_point_info', driver='ESRI Shapefile')
+    
+        #building_info_df = aloc_info[['SerialID', 'building_geometry']]
+        #building_info = gpd.GeoDataFrame(
+        #    building_info_df, geometry='building_geometry')
+        #building_info = building_info.set_crs(epsg=network_epsg)
+        #building_info = building_info.to_crs(epsg=4326)
+        aloc_info_geo_crs.drop(columns=['geometry']).to_csv(
             output_dir_path+'/aloc_var.csv')
-        viz_aloc_json = gjsio.make_url(
-            building_info.to_json())
+        
+        try:
+            viz_aloc_json = gjsio.make_url(
+                aloc_info_geo_crs.to_json())
+        except Exception as e:
+            print("Unable to generate url to visualize generated routes due to exception: \n" + str(e))
         # print(viz_aloc_json)
         aloc_url = viz_aloc_json
-        webbrowser.open(aloc_url, new=0, autoraise=True)
+        
+        try:
+            webbrowser.open(aloc_url, new=0, autoraise=True)
+        except Exception as e:
+            print("Unable to visualize the activity locations' info due to exception: \n" + str(e))
+        
     else:
         print("No stop segment has been found, hence no activity locations' information can be added")
     now = datetime.now()
@@ -343,5 +295,5 @@ def main():
 
     return
 
-
-main()
+if __name__ == '__main__':
+    main()
