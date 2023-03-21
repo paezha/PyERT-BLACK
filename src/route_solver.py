@@ -29,6 +29,13 @@ point of two or more streets.
 2023-02-13 (route_solver.py) Update comments & naming
 
 2023-02-14 (route_solver.py) fix bugs and update comments & naming
+
+2023-03-06 (route_solver.py) update map_point_to_network function to make the matching of GPS points
+    onto transportation network more accurate
+
+2023-03-19 (route_solver.py) update map_point_to_network function to print progress bar in console 
+    to show the progress of finding the nearest edges of GPS points and snapping the GPS points
+    onto their nearest edges
 """
 
 import geopandas as gpd
@@ -36,7 +43,7 @@ import pandas as pd
 import numpy as np
 import osmnx as ox
 from shapely.geometry import Point, LineString
-
+from Progressbar import Progressbar
 
 def route_choice_gen(trip, network_graph, network_edges, network_nodes):
     """
@@ -64,6 +71,7 @@ def route_choice_gen(trip, network_graph, network_edges, network_nodes):
         # extract trip segments with each unique serial ID
         curr_serial_points = trip[trip['SerialID'] == serial_id]
         # Matching points to the network data
+        print('Matching GPS points onto transportation network...')
         points_on_net = map_point_to_network(
             curr_serial_points, network_graph, network_edges)
         # Because the matched points have not been projected to any CRS yet,
@@ -71,6 +79,7 @@ def route_choice_gen(trip, network_graph, network_edges, network_nodes):
         points_on_net = points_on_net.set_crs(epsg=network_epsg)
 
         # Detecting gaps between the points and fill the gaps
+        print('Detecting and filling gaps within matched GPS points...')
         points_on_net, filled_gaps = detect_and_fill_gap(
             points_on_net, network_graph, network_nodes, network_edges)
 
@@ -126,7 +135,14 @@ def map_point_to_network(points, network_pg, network_pe):
     network_epsg = network_pe.crs.to_epsg()
     points = points.to_crs(network_epsg)
 
+    # Count the number of GPS points
+    num_of_points = len(list(points['geometry']))
     # Finding the nearest edge for every sample GPS point and take the edges' IDs
+    # intialize counter for finding edges, print empty progress bar
+    print('Finding nearest edges on the network to the GPS points...')
+    find_edge_counter = 0
+    progress = Progressbar(find_edge_counter, num_of_points)
+    progress.print_progress_bar(prefix = 'Progress', length=50)
     for point in points['geometry']:
         near_edge = ox.distance.nearest_edges(
             network_pg, point.x, point.y, return_dist=True)
@@ -134,8 +150,23 @@ def map_point_to_network(points, network_pg, network_pe):
         near_edges_id.append(near_edge[0])
         # nearEdgesDist.append(near_edge[1])
 
+        # Update counter and progress bar
+        find_edge_counter += 1
+        if (find_edge_counter+1) < num_of_points:
+            progress = Progressbar(find_edge_counter+1, num_of_points)
+            progress.print_progress_bar(prefix = 'Progress:', length = 50)
+        elif (find_edge_counter+1) == num_of_points:
+            progress = Progressbar(find_edge_counter+1, num_of_points)
+            progress.print_progress_bar(prefix = 'Progress:', suffix = 'Complete', length = 50)
+
     # For the each sample GPS point, find the nearest leg on its nearest edges,
     # and find the nearest point on the nearest leg to the sample GPS point
+    # intialize counter for snapping points onto edges, 
+    # print empty progress bar
+    print('Snapping GPS points onto their nearest edges...')
+    snap_point_counter = 0
+    progress = Progressbar(snap_point_counter, num_of_points)
+    progress.print_progress_bar(prefix = 'Progress', length=50)
     for i, edge in enumerate(near_edges_id):
         if 1 <= i < (len(near_edges_id)-1):
             # If current GPS point is on a different street from the following 
@@ -143,6 +174,15 @@ def map_point_to_network(points, network_pg, network_pe):
             # current GPS point could be crossing an interesction of two streets
             if ((network_pe.loc[near_edges_id[i-1]]['name'] == network_pe.loc[near_edges_id[i+1]]['name']) and
                     (network_pe.loc[near_edges_id[i]]['name'] != network_pe.loc[near_edges_id[i+1]]['name'])):
+                near_edges_id[i] = near_edges_id[i-1]
+            
+            # If current GPS point is on the same street(by street name) from the former one 
+            # but the GPS points' corresponding edge ids are different 
+            # and the street currtent GPS point is on is one-way
+            # current GPS point could be crossing wrongly assgined to the other side of the street
+            if ((network_pe.loc[near_edges_id[i]]['name'] == network_pe.loc[near_edges_id[i-1]]['name']) and
+                    (near_edges_id[i] != near_edges_id[i-1]) and
+                    (network_pe.loc[near_edges_id[i]]['oneway'] == True)):
                 near_edges_id[i] = near_edges_id[i-1]
 
         # if the last GPS point is on a different street from the second last GPS point,
@@ -170,6 +210,15 @@ def map_point_to_network(points, network_pg, network_pe):
         # find the nearest point on the nearest leg to the sample GPS point
         point_on_net.append(near_leg.interpolate(near_leg.project(list(points['geometry'])[i])))
         near_legs_geo.append(near_leg)
+
+        # Update counter and progress bar
+        snap_point_counter += 1
+        if (snap_point_counter+1) < num_of_points:
+            progress = Progressbar(snap_point_counter+1, num_of_points)
+            progress.print_progress_bar(prefix = 'Progress:', length = 50)
+        elif (snap_point_counter+1) == num_of_points:
+            progress = Progressbar(snap_point_counter+1, num_of_points)
+            progress.print_progress_bar(prefix = 'Progress:', suffix = 'Complete', length = 50)
 
     # Create a dataframe for the points after matching
     temp_df = pd.DataFrame({'SerialID': list(points['SerialID']),
@@ -214,9 +263,6 @@ def detect_and_fill_gap(points, network_pg, network_pn, network_pe):
             (points.loc[i-1]['nearEdgeName'] != points.loc[i]['nearEdgeName'])):
             #print((points.loc[i-1]['RecordID'], points.loc[i]['RecordID']))
             # print(points.loc[i-1]['geometry'].distance(points.loc[i]['geometry']))
-            # Get the track ID and episode ID of the start point of the gap
-            gaps_orig_record_id.append(points.loc[i-1]['RecordID'])
-            gaps_orig_eps_id.append(points.loc[i-1]['SerialID'])
 
             # Find the two nodes in the network dataset that are nearest to the start
             # and end points of the gap respectively
@@ -229,7 +275,15 @@ def detect_and_fill_gap(points, network_pg, network_pn, network_pe):
                                                        start_node,
                                                        end_node,
                                                        weight='length')
-            # print(shortest_route)
+            #print(shortest_route)
+            # if a shortest path cannot be found for the gap, continue the iteration
+            if shortest_route == None:
+                continue
+
+            # Get the track ID and episode ID of the start point of the gap
+            gaps_orig_record_id.append(points.loc[i-1]['RecordID'])
+            gaps_orig_eps_id.append(points.loc[i-1]['SerialID'])
+
             # Get the coordinates of the nodes on the shortest route
             shortest_route_geo = [(network_pn.loc[nodeID]['geometry'].x,
                                     network_pn.loc[nodeID]['geometry'].y)
