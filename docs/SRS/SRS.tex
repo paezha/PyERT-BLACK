@@ -63,6 +63,7 @@
 05/10/2022 & 1.0 & Initial Software Requirements Specification\\
 02/11/2022 & 1.1 & Modified Functional Requirements and Naming Conventions\\
 14/11/2022 & 1.2 & Modified Functional Requirements\\
+28/03/2023 & 1.3 & Modified Naming Conventions, Functional Requirements, Assumptions, Traceability, Likely and Unlikely Changes and Reflection\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -83,35 +84,41 @@ This document describes the requirements for PyERT. The template for the Softwar
  \hline
  {\bf Acronym/Abbreviation} & {\bf Definition} \\
  \hline
- GIS & Geographic Information System \\
+ \textcolor{red}{API} & \textcolor{red}{Application Programming Interface} \\
  \hline
- GERT & GIS-based Episode Reconstruction Toolkit  \\ 
-\hline
  ArcGIS & A licensed GIS service used by GERT for data processing \\
- \hline
- PyERT & Python-based Episode Reconstruction Toolkit  \\ 
- \hline
- Req. & Requirement  \\
- \hline
- NFR & Non-Functional Requirement  \\
- \hline 
- CSV & Comma Separated Values \\
- \hline
- GPS & Global Positioning System \\
- \hline
- TUD & Time Use Diary:  Survey data containing a chronological sequence of activities that respondents did over a time period\\
- \hline
- m/s & meters per second\\
- \hline
- SHP & shapefile: A data format for spreadsheet \\ 
- \hline
- LU & Land Use \\ 
- \hline
- PAL & Potential Activity Locations \\ 
  \hline
  CI/CD & Continuous Integration / Continuous Deployment\\
  \hline
+ CSV & Comma Separated Values \\
+ \hline
+ GERT & GIS-based Episode Reconstruction Toolkit  \\ 
+ \hline
+ GIS & Geographic Information System \\
+ \hline
+ GPS & Global Positioning System \\
+ \hline
+ LU & Land Use \\ 
+ \hline
+ m/s & meters per second\\
+ \hline
+ NFR & Non-Functional Requirement  \\
+ \hline
+ \textcolor{red}{OSM} & \textcolor{red}{OpenStreetMap} \\
+ \hline 
+ PAL & Potential Activity Locations\textcolor{red}{, which refer to points of interest that indicate the locations of government offices, shopping destinations, banks, normal residential houses and so on.} \\ 
+ \hline
+ \textcolor{red}{PBF} & \textcolor{red}{Protocolbuffer Binary Format} \\
+ \hline
+ PyERT & Python-based Episode Reconstruction Toolkit  \\ 
+ \hline
  \textcolor{red}{RCA} & \textcolor{red}{Route Choice Analysis} \\
+ \hline
+ Req. & Requirement  \\
+ \hline
+ SHP & shapefile: A data format for spreadsheet \\ 
+ \hline
+ TUD & Time Use Diary:  Survey data containing a chronological sequence of activities that respondents did over a time period\\
  \hline
 \end{tabular}
 \caption{\bf Naming Conventions and Terminology}
@@ -148,6 +155,10 @@ The goal of the original GERT toolkit is to break the limit of previously develo
 \subsubsection{Assumptions}
 \begin{itemize}
     \item The project assumes the users will directly run the compiled .pyc files of the source code .py files with command line in console to use the product.
+    
+    \item \textcolor{red}{The project assumes the users have Python of version 3.8.15 installed on their computers.}
+
+    \item \textcolor{red}{The project assumes the users will use the product on Windows or MacOS operating system.}
 \end{itemize}
 
 \section{System Description}
@@ -235,8 +246,14 @@ The plan for the project is to re-implement the features of the original GERT to
 \subsubsection{Individual Product Use Cases}
 \begin{figure}[!htbp]
     \centering
-    \includegraphics[scale=0.75]{Use_Case_Diagram.png}
-    \caption{\bf Use Case Diagram}
+    \includegraphics[scale=0.75]{Use_Case_Diagram_old.png}
+    %\caption{\bf Use Case Diagram}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[scale=0.75,,cfbox=red 1pt 1pt]{Use_Case_Diagram_new.png}
+    \caption{\bf \textcolor{red}{\sout{Use Case Diagram} Updated Use Case Diagram}}
 \end{figure}
 
 \subsection{Functional Requirements}
@@ -247,10 +264,10 @@ The plan for the project is to re-implement the features of the original GERT to
 \end{tabular}
 \newline
 \begin{tabular}{l p{11.5cm}}
-    {\bf Description:} & The product shall be able to read and generate CSV and SHP files.  \\
-    {\bf Rationale:} & Since the product is a re-implemented version of the GERT toolkit, it shall be able to take and generate the same types of files the GERT toolkit used to take and generate as its inputs and outputs respectively.\\
+    {\bf Description:} & The product shall be able to read \textcolor{red}{\sout{and generate}} CSV \textcolor{red}{\sout{and SHP files} file}.  \\
+    {\bf Rationale:} & Since the product is a re-implemented version of the GERT toolkit, it shall be able to take \textcolor{red}{\sout{and generate}} the same type of files the GERT toolkit used to take \textcolor{red}{\sout{and generate}} as its inputs \textcolor{red}{\sout{and outputs respectively}}.\\
     {\bf Organizer:} & Software Engineer\\
-    {\bf Fit Criterion:} & After the user executes the product with valid input data in CSV and SHP formats, the product will be able to read the data from the input and generate required CSV and SHP files after processing the input data.\\
+    {\bf Fit Criterion:} & After the user executes the product with valid input GPS data in CSV \textcolor{red}{\sout{and SHP formats} format}, the product will be able to read the data from the input \textcolor{red}{\sout{and generate required CSV and SHP files after processing the input data}}.\\
 \end{tabular}
 \begin{tabular}{l r}
 {\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
@@ -293,26 +310,25 @@ The plan for the project is to re-implement the features of the original GERT to
 
 \begin{boxed}
 \begin{tabular}{l r r}
- \textcolor{red}{\sout{\refstepcounter{reqnum} \reqthereqnum \label{Req3}} Requirement Removed} & {\bf Req. Type}: &  Functional\\
+ \color{red} \refstepcounter{reqnum} \reqthereqnum \label{Req3} Requirement Removed & \color{red}\sout{\textbf{Req. Type:}} &  \color{red}\sout{Functional}\\
 \end{tabular}
 \newline
 \begin{tabular}{l p{11.5cm}}
-    {\bf Description:} & The product shall be able to divide GPS points into 24-hour trajectories and further divide the trajectories into clusters of adjacent points based on speed, distance, heading and change-in-heading thresholds.  \\
-    {\bf Rationale:} & The requirement is needed since the GPS points from users' input need to be divided into clusters that represents the movement of each person-day or of even shorter time period so that the points can be further processed by the product.\\
-    {\bf Organizer:} & Software Engineer\\
-    {\bf Fit Criterion:} & The product will divide input GPS points into clusters of adjacent points based on predefined thresholds.\\
+    \color{red}\sout{\bf Description:} & \textcolor{red}{\sout{The product shall be able to divide GPS points into 24-hour trajectories and further divide the trajectories into clusters of adjacent points based on speed, distance, heading and change-in-heading thresholds.}}\\
+    \color{red}\sout{\bf Rationale:} & \textcolor{red}{\sout{The requirement is needed since the GPS points from users' input need to be divided into clusters that represents the movement of each person-day or of even shorter time period so that the points can be further processed by the product.}}\\
+    \color{red}\sout{\bf Organizer:} & \textcolor{red}{\sout{Software Engineer}}\\
+    \color{red}\sout{\textbf{Fit Criterion:}} & \textcolor{red}{\sout{The product will divide input GPS points into clusters of adjacent points based on predefined thresholds.}}\\
 \end{tabular}
 \begin{tabular}{l r}
-{\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
+\color{red}\sout{\textbf{Costumer Satisfaction:}} \sout{N/A}  & \color{red}\sout{\textbf{Costumer Dissatisfaction:}} \sout{N/A}\\
 \end{tabular}
 \begin{tabular}{l r r}
-    {\bf Priority}: 2 & {\bf Dependencies}: None  & {\bf Conflicts}: None \\
+    \color{red}\sout{\bf Priority:} \sout{2} & \color{red}\sout{\bf Dependencies:} \sout{None}  & \color{red}\sout{\bf Conflicts:} \sout{None} \\
 \end{tabular}
 \begin{tabular}{l l}
-     {\bf Supporting Materials}:& 
-     \beref{BE1}, \beref{BE2} \\ 
-     {\bf History}: & Created October 5, 2022\\
-     {\bf Plan to Complete by}: & January 12, 2023\\
+     \color{red}\sout{\bf{Supporting Materials:}}& \color{red}\sout{\beref{BE1}, \beref{BE2}}\\ 
+     \color{red}\sout{\bf History:} & \color{red}\sout{Created October 5, 2022}\\
+     \color{red}\sout{\textbf{Plan to Complete by:}} & \color{red}\sout{January 12, 2023}\\
 \end{tabular}
 \end{boxed}
 
@@ -452,7 +468,7 @@ The plan for the project is to re-implement the features of the original GERT to
     {\bf Description:} & The product shall generate SHP files for extracted activity locations with additional information about them when the information is available in given spatial data such as LU and PAL data in user's input.  \\
     {\bf Rationale:} & SHP is a standard format for spatial data across different GIS platforms,the outputs can be used to visualize activity episodes in a GIS or can be used as inputs to spatial analysis and modeling outside of GERT.\\
     {\bf Organizer:} & Software Engineer\\
-    {\bf Fit Criterion:} & The file can be generated from spatial data such as land use and potential activity locations (PAL) using overlay analysis functions in GIS. PAL refers to points of interest that indicate the locations of government offices, shopping destinations, banks, and so on.\\
+    {\bf Fit Criterion:} & The file can be generated from spatial data such as land use and potential activity locations (PAL) using overlay analysis functions in GIS. \textcolor{red}{\sout{PAL refers to points of interest that indicate the locations of government offices, shopping destinations, banks, and so on.}}\\
 \end{tabular}
 \begin{tabular}{l r}
 {\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
@@ -547,6 +563,90 @@ The plan for the project is to re-implement the features of the original GERT to
 \end{boxed}
 }
 
+\textcolor{red}{
+\begin{boxed}
+\begin{tabular}{l r r}
+\refstepcounter{reqnum} \reqthereqnum \label{Req13} & {\bf Req. Type}: &  Functional\\
+\end{tabular}
+\newline
+\begin{tabular}{l p{11.5cm}}
+    {\bf Description:} & The product shall hall be able to read data from OSM PBF file.  \\
+    {\bf Rationale:} & To match the input GPS data onto transportation network, the geographic data will be needed. The product shall be able to take OSM PBF file as its input which contains the needed geographic data, if the user has the geographic data stored locally. \\
+    {\bf Organizer:} & Software Engineer\\
+    {\bf Fit Criterion:} & After the user executes the product with valid input geographic data in OSM PBF file and optional boundary values of longitudes and latitudes, the product will be able to
+    read the geographic data that is within the boundary from the input \\
+\end{tabular}
+\begin{tabular}{l r}
+{\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
+\end{tabular}
+\begin{tabular}{l r r}
+    {\bf Priority}: 1 & {\bf Dependencies}: None & {\bf Conflicts}: None \\
+\end{tabular}
+\begin{tabular}{l l}
+     {\bf Supporting Materials}:& 
+     \beref{BE1}, \beref{BE2} \\ 
+     {\bf History}: & Created October 5, 2022\\
+     {\bf Plan to Complete by}: & January 6, 2023\\
+\end{tabular}
+\end{boxed}
+}
+
+\textcolor{red}{
+\begin{boxed}
+\begin{tabular}{l r r}
+\refstepcounter{reqnum} \reqthereqnum \label{Req14} & {\bf Req. Type}: &  Functional\\
+\end{tabular}
+\newline
+\begin{tabular}{l p{11.5cm}}
+    {\bf Description:} & The product shall hall be able to extract data from OSM API.  \\
+    {\bf Rationale:} & OSM is a free, open geographic database. Being able to extract data from its API makes the user does not have to have network data stored locally when using the product. \\
+    {\bf Organizer:} & Software Engineer\\
+    {\bf Fit Criterion:} & Given boundary values of longitudes and latitudes, the product will be able to extract geographic data within the boundary.\\
+\end{tabular}
+\begin{tabular}{l r}
+{\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
+\end{tabular}
+\begin{tabular}{l r r}
+    {\bf Priority}: 1 & {\bf Dependencies}: None & {\bf Conflicts}: None \\
+\end{tabular}
+\begin{tabular}{l l}
+     {\bf Supporting Materials}:& 
+     \beref{BE1}, \beref{BE2} \\ 
+     {\bf History}: & Created October 5, 2022\\
+     {\bf Plan to Complete by}: & January 6, 2023\\
+\end{tabular}
+\end{boxed}
+}
+
+\textcolor{red}{
+\begin{boxed}
+\begin{tabular}{l r r}
+\refstepcounter{reqnum} \reqthereqnum \label{Req15} & {\bf Req. Type}: &  Functional\\
+\end{tabular}
+\newline
+\begin{tabular}{l p{11.5cm}}
+    {\bf Description:} & The product shall be able to generate CSV and SHP files.  \\
+    {\bf Rationale:} & Since the product is a re-implemented version of the GERT toolkit, it shall be able to generate the same type of files the GERT toolkit used to generate as its outputs. \\
+    {\bf Organizer:} & Software Engineer\\
+    {\bf Fit Criterion:} & After the user executes the product and processing the input data, the product will be able to generate required CSV and SHP files that contain the additional information of activity locations, information about the route choice generated, and the values of RCA variables.\\
+\end{tabular}
+\begin{tabular}{l r}
+{\bf Costumer Satisfaction:} N/A &  {\bf Costumer Dissatisfaction:}  N/A\\
+\end{tabular}
+\begin{tabular}{l r r}
+    {\bf Priority}: 1 & {\bf Dependencies}: None & {\bf Conflicts}: None \\
+\end{tabular}
+\begin{tabular}{l l}
+     {\bf Supporting Materials}:& 
+     \beref{BE1}, \beref{BE2} \\ 
+     {\bf History}: & Created October 5, 2022\\
+     {\bf Plan to Complete by}: & January 6, 2023\\
+\end{tabular}
+\end{boxed}
+}
+
+
+
 \section{Non-functional Requirements}
 
 \subsection{Look and Feel Requirements}
@@ -573,10 +673,10 @@ The plan for the project is to re-implement the features of the original GERT to
     \begin{itemize}
         \item Fit Criterion: 95\% of users must be able to use the program and process data by themselves.
 \end{itemize}
-\item \label{UH3} The program shall be able to display instructions on how to use it.
+\item \label{UH3} {\textcolor{red}{\sout{The program shall be able to display instructions on how to use it.} Requirement removed.}}
     \begin{itemize} 
-        \item Rationale: The program should be able to provide users with help, listing available commands and proper file types.
-        \item Fit Criterion: A help menu must be displayed to the user whenever a help command is called.
+        \item {\textcolor{red}{\sout{Rationale: The program should be able to provide users with help, listing available commands and proper file types.}}}
+        \item {\textcolor{red}{\sout{Fit Criterion: A help menu must be displayed to the user whenever a help command is called.}}}
 \end{itemize}
 \end{enumerate}
 
@@ -585,14 +685,14 @@ The plan for the project is to re-implement the features of the original GERT to
 \item \label{PR1} The average time between user input of data and output of processed data shall be relatively low.
     \begin{itemize} 
         \item Rationale: To improve the user's experience, the processing delay should be as low as possible.
-        \item Fit Criterion: The processing speed of filtering out invalid GPS points should be at least 80 percent as fast as GERT's reported performance of 9100 GPS points per second.
+        \item Fit Criterion: The processing speed of filtering out invalid GPS points should be at least \textcolor{red}{\sout{80 percent as fast as GERT's reported performance of 9100 GPS points per second} 400 GPS points per second}.
     \end{itemize} 
     
-\item \label{PR2} The program shall be able to process data with up to 50 million GPS points.
+\item \label{PR2} \textcolor{red}{\sout{The program shall be able to process data with up to 50 million GPS points.} Requirement Removed}
     \begin{itemize} 
-        \item Rationale: To allow users to use large data-sets.
-        \item Fit Criterion: The program successfully process a data-set with 50 million GPS points.
-    \end{itemize} 
+        \item \textcolor{red}{\sout{Rationale: To allow users to use large data-sets.}}
+        \item \textcolor{red}{\sout{Fit Criterion: The program successfully process a data-set with 50 million GPS points.}}
+    \end{itemize}
 
 \item \label{PR3} The user shall be able to use the program at any time of the day.
     \begin{itemize} 
@@ -676,23 +776,26 @@ N/A
 N/A
 
 \section{Functional and Non-Functional Requirements Traceability}
+\textcolor{red}{Currently, there is no traceability between Functional and Non-Functional Requirements within this project}
+
+\begin{comment}
 \begin{table}[h]
 \centering
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
 \hline
- & LF\ref{LF1} & LF\ref{LF2} & UH\ref{UH1} & UH\ref{UH2} & UH\ref{UH3} & PR\ref{PR1} & PR\ref{PR2} & PR\ref{PR3} & OE\ref{OE1} & OE\ref{OE2} & OE\ref{OE3} \\
+ & LF\ref{LF1} & LF\ref{LF2} & UH\ref{UH1} & UH\ref{UH2} & UH\ref{UH3} & PR\ref{PR1} & \color{red}\sout{PR\ref{PR2}} & PR\ref{PR3} & OE\ref{OE1} & OE\ref{OE2} & OE\ref{OE3} \\
 \hline
 \reqref{Req1} &  &  & & & & & & & & & \\
 \hline
 \reqref{Req2} &  &  & & & & & & & & & \\
 \hline
-\reqref{Req3} &  &  & & & & & $\times$  & & & & \\
+\color{red}\sout{\reqref{Req3}} &  &  & & & & & \color{red}\sout{$\times$}  & & & & \\
 \hline
 \reqref{Req4} &  &  & & & & & & & & & \\
 \hline
 \reqref{Req5} &  &  & & & & & & & & & \\
 \hline
-\reqref{Req6} &  & & & & & & $\times$ & & & & \\
+\reqref{Req6} &  & & & & & & \color{red}\sout{$\times$} & & & & \\
 \hline
 \reqref{Req7} &  & & & & & & & & & & \\
 \hline
@@ -701,6 +804,16 @@ N/A
 \reqref{Req9} &  & & & & & & & & & & \\
 \hline
 \reqref{Req10} &  & & & & & & & & & & \\
+\hline
+\color{red}{\reqref{Req11}} &  & & & & & & & & & & \\
+\hline
+\color{red}{\reqref{Req12}} &  & & & & & & & & & & \\
+\hline
+\color{red}{\reqref{Req13}} &  & & & & & & & & & & \\
+\hline
+\color{red}{\reqref{Req14}} &  & & & & & & & & & & \\
+\hline
+\color{red}{\reqref{Req15}} &  & & & & & & & & & & \\
 \hline
 \end{tabular}
 \caption{\bf Functional and Non-Functional Requirements Traceability Part 1}
@@ -718,7 +831,7 @@ N/A
 \hline
 \reqref{Req2} & & & & & & & \\
 \hline
-\reqref{Req3} & & & & & & & \\
+\color{red}\sout{\reqref{Req3}} & & & & & & & \\
 \hline
 \reqref{Req4} & & & & & & & \\
 \hline
@@ -734,10 +847,20 @@ N/A
 \hline
 \reqref{Req10} & & & & & & &\\
 \hline
+\color{red}{\reqref{Req11}} & & & & & & &\\
+\hline
+\color{red}{\reqref{Req12}} & & & & & & &\\
+\hline
+\color{red}{\reqref{Req13}} & & & & & & &\\
+\hline
+\color{red}{\reqref{Req14}} & & & & & & &\\
+\hline
+\color{red}{\reqref{Req15}} & & & & & & &\\
+\hline
 \end{tabular}
 \caption{\bf Functional and Non-Functional Requirements Traceability Part 2}
 \end{table}
-
+\end{comment}
 \newpage
 
 \section{Project Issues}
@@ -839,6 +962,16 @@ This table outlines which functional and nonfunctional requirements are likely a
 \hline
 \reqref{Req10}& & $\times$\\
 \hline
+\color{red}{\reqref{Req11}}& & \color{red}{$\times$}\\
+\hline
+\color{red}{\reqref{Req12}}& & \color{red}{$\times$}\\
+\hline
+\color{red}{\reqref{Req13}}& & \color{red}{$\times$}\\
+\hline
+\color{red}{\reqref{Req14}}& & \color{red}{$\times$}\\
+\hline
+\color{red}{\reqref{Req15}}& & \color{red}{$\times$}\\
+\hline
 LF\ref{LF1} & & $\times$\\
 \hline
 LF\ref{LF2}& & $\times$\\
@@ -911,7 +1044,7 @@ graduate attribute of Lifelong Learning.  Please answer the following questions:
     \item For the purpose of CI/CD, the team members will need to learn to use GitHub Actions platform which is built into GitHub.
     \item For the development of Python project, the team members will need to learn about all necessary libraries utilized in the project,
     including GeoPandas, numpy, etc.
-    \item For developing any necessary R project, the team members will need to acquire knowledge of R and learn to use RStudio as the integrated development environment for R.
+    \item \textcolor{red}{\sout{For developing any necessary R project, the team members will need to acquire knowledge of R and learn to use RStudio as the integrated development environment for R.}}
 \end{itemize}
 
 \subsection*{Approaches}
@@ -940,9 +1073,9 @@ graduate attribute of Lifelong Learning.  Please answer the following questions:
     \begin{itemize}
         \item Zabrain - This is a good approach as there is a lot of in-depth documentation on each Python library that explains how everything functions and when to use them. Furthermore, if the documentation is difficult to understand then there are many external online resources such as video guides and example projects making use of different Python libraries that can be useful for better understanding
     \end{itemize}
-    \item For R and R and RStudio, the team members can turn to their documentation for help. There are also online videos and webinars that would help the team to gain a better understanding on how to use RStudio. It is also possible to ask the supervisor of the project if there is any specific problem regarding this project.
+    \item \textcolor{red}{\sout{For R and R and RStudio, the team members can turn to their documentation for help. There are also online videos and webinars that would help the team to gain a better understanding on how to use RStudio. It is also possible to ask the supervisor of the project if there is any specific problem regarding this project.}}
     \begin{itemize}
-        \item Mengtong - This is a good approach since the online videos and webinars are quite helpful for understanding how things work, especially when they demonstrate the process of using RStudio to accomplish their tasks. It is also easier to learn new things when there is a video to follow.
+        \item \textcolor{red}{\sout{Mengtong - This is a good approach since the online videos and webinars are quite helpful for understanding how things work, especially when they demonstrate the process of using RStudio to accomplish their tasks. It is also easier to learn new things when there is a video to follow.}}
     \end{itemize}
 
 \end{itemize}
