@@ -1,8 +1,8 @@
 import pytest
 import geopandas as gpd
 import osmnx as ox
-import variable_generator as vg
-import route_solver as rs
+from src import variable_generator as vg
+from src import route_solver as rs
 
 test_data_path = './test_data'
 

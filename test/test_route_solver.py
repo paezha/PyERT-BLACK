@@ -4,11 +4,11 @@ import pandas as pd
 import osmnx as ox
 import os
 import sys
-import route_solver as rs
+from src import route_solver as rs
 
 #test_data_path = os.getcwd().split("PyERT-BLACK")[0] + 'PyERT-BLACK/test/test_data/sample-gps'
 test_data_path = './test_data'
-print(test_data_path)
+#print(test_data_path)
 
 @pytest.mark.parametrize(
     'test_trip_seg_path, test_network_g_path', 
