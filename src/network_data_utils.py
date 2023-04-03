@@ -5,8 +5,8 @@ Creator: Hongzhao Tan (tanh10@mcmaster.ca)
 Requirements: Python 3.8 or later
 Date Created: Mar 17, 2023
 Last Revised: Mar 20, 2023
-Description: Appends LU and PAL for Activity Locations extracted by the Extractor module,
-             if such information has been provided
+Description: Extracts transportation network, PAL and LU data from OSM API or OSM PBF file and 
+             preprocesses the extracted data to make it ready to be used by other modules.
 
 Version History:
 2023-03-17 (network_data_utils.py) Create Network Data Utilities module and move 
