@@ -57,10 +57,10 @@ def get_points_boundary(points_gdf):
 
     # Extend 0.005 degree out to make sure all network data 
     # needed can be extracted later in other function
-    max_x = max_x + 0.005
-    min_x = min_x - 0.005
-    max_y = max_y + 0.005
-    min_y = min_y - 0.005
+    max_x = round(max_x + 0.005,6)
+    min_x = round(min_x - 0.005,6)
+    max_y = round(max_y + 0.005,6)
+    min_y = round(min_y - 0.005,6)
     return (max_y, min_y, max_x, min_x)
 
 
