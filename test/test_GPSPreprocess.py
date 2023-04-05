@@ -8,8 +8,13 @@ from src import GPSPreprocess as gpsp
 
 sample_gps_file_path = os.getcwd().split("PyERT-BLACK")[0] + 'PyERT-BLACK/quarto-example/data/sample-gps'
 
+
+# Tests if the function get_data correctly returns the processed data that has the correct data types and values as
+# the initial input as well as an additional 'geometry' column that has the correct longitude and latitude of each
+# corresponding point. This test also takes a sample input of data with redundant points and outliers and checks if
+# processed data has less rows than the input.
 @pytest.mark.parametrize(
-    'sample_gps', [(sample_gps_file_path+'/sample-gps-1.csv')]
+    'sample_gps', [(sample_gps_file_path + '/sample-gps-1.csv')]
 )
 def test_get_data(sample_gps):
     data = pd.read_csv(sample_gps)
@@ -25,8 +30,11 @@ def test_get_data(sample_gps):
     assert 'geometry' in processed_data
     assert data_length != processed_data_length
 
+
+# Tests if the function filter_data correctly filters and removes a redundant point by manually appending a copied
+# data row to the end of the database.
 @pytest.mark.parametrize(
-    'sample_gps', [(sample_gps_file_path+'/sample-gps-1.csv'), (sample_gps_file_path+'/sample-gps-8.csv')]
+    'sample_gps', [(sample_gps_file_path + '/sample-gps-1.csv'), (sample_gps_file_path + '/sample-gps-8.csv')]
 )
 def test_filter_data(sample_gps):
     data = pd.read_csv(filepath_or_buffer=sample_gps, nrows=4)
@@ -54,8 +62,9 @@ def test_filter_data(sample_gps):
         assert i == False
 
 
+# Tests if the function filter_data correctly filters input data with only redundant points.
 @pytest.mark.parametrize(
-    'sample_gps', [(sample_gps_file_path+'/sample-gps-6.csv')]
+    'sample_gps', [(sample_gps_file_path + '/sample-gps-6.csv')]
 )
 def test_filter_data_redundant_only(sample_gps):
     data = pd.read_csv(filepath_or_buffer=sample_gps, nrows=4)
@@ -72,8 +81,9 @@ def test_filter_data_redundant_only(sample_gps):
         assert i == False
 
 
+# Tests if the function filter_data correctly filters input data with both redundant points and outliers.
 @pytest.mark.parametrize(
-    'sample_gps', [(sample_gps_file_path+'/sample-gps-7.csv')]
+    'sample_gps', [(sample_gps_file_path + '/sample-gps-7.csv')]
 )
 def test_filter_data_redundant_and_outliers(sample_gps):
     data = pd.read_csv(filepath_or_buffer=sample_gps, nrows=4)
@@ -89,8 +99,10 @@ def test_filter_data_redundant_and_outliers(sample_gps):
         assert i == False
 
 
+# Tests if the function smooth_data removes outliers from redundant points only and then manually changing some rows
+# to outliers and testing if those rows are removed
 @pytest.mark.parametrize(
-    'sample_gps', [(sample_gps_file_path+'/sample-gps-1.csv')]
+    'sample_gps', [(sample_gps_file_path + '/sample-gps-1.csv')]
 )
 def test_smooth_data(sample_gps):
     data = pd.read_csv(filepath_or_buffer=sample_gps, nrows=4)
@@ -118,8 +130,9 @@ def test_smooth_data(sample_gps):
         assert i <= 180.0
 
 
+# Tests if the function smooth\_data removes outliers from an input data with redundant points and outliers.
 @pytest.mark.parametrize(
-    'sample_gps', [(sample_gps_file_path+'/sample-gps-7.csv')]
+    'sample_gps', [(sample_gps_file_path + '/sample-gps-7.csv')]
 )
 def test_smooth_data_redundant_and_outliers(sample_gps):
     data = pd.read_csv(filepath_or_buffer=sample_gps, nrows=4)
@@ -134,8 +147,9 @@ def test_smooth_data_redundant_and_outliers(sample_gps):
         assert i <= 180.0
 
 
+# Tests if the function smooth\_data removes outliers from an input data with only outliers.
 @pytest.mark.parametrize(
-    'sample_gps', [(sample_gps_file_path+'/sample-gps-8.csv')]
+    'sample_gps', [(sample_gps_file_path + '/sample-gps-8.csv')]
 )
 def test_smooth_data_outliers_only(sample_gps):
     data = pd.read_csv(filepath_or_buffer=sample_gps, nrows=4)
