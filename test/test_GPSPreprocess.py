@@ -130,7 +130,7 @@ def test_smooth_data(sample_gps):
         assert i <= 180.0
 
 
-# Tests if the function smooth\_data removes outliers from an input data with redundant points and outliers.
+# Tests if the function smooth_data removes outliers from an input data with redundant points and outliers.
 @pytest.mark.parametrize(
     'sample_gps', [(sample_gps_file_path + '/sample-gps-7.csv')]
 )
@@ -147,7 +147,7 @@ def test_smooth_data_redundant_and_outliers(sample_gps):
         assert i <= 180.0
 
 
-# Tests if the function smooth\_data removes outliers from an input data with only outliers.
+# Tests if the function smooth_data removes outliers from an input data with only outliers.
 @pytest.mark.parametrize(
     'sample_gps', [(sample_gps_file_path + '/sample-gps-8.csv')]
 )
