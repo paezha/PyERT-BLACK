@@ -6,21 +6,25 @@ import sys
 from shapely.geometry import Point, Polygon
 import activity_locations_identification as ali
 
+#Get data and transfer the data into valid test data for activtiy location information as input
 pal_data_from_gpkg = gpd.read_file("test_data/test_al_info_data.gpkg", layer='buildings')
 lu_data_from_gpkg = gpd.read_file("test_data/test_al_info_data.gpkg", layer='landuse')
 pal_data_from_gpkg.set_index(['element_type', 'osmid'], inplace=True)
 lu_data_from_gpkg.set_index(['element_type', 'osmid'], inplace=True)
 pal_data_from_gpkg = pal_data_from_gpkg.to_crs(epsg=32620)
 lu_data_from_gpkg = lu_data_from_gpkg.to_crs(epsg=32620)
+
+#Covert Shp file to valid GPS Points of Segments
 test_stop_seg_path = "C:/Users/Clyde/PyERT-BLACK/src/test_data/test_al_info_stop_seg/test_al_info_stop_seg.shp"
 test_stop_seg = gpd.read_file(test_stop_seg_path)
 test_stop_seg = test_stop_seg.to_crs(epsg=32620)
 
+#Rename the input as more understandable input variable name
 pal_gdf = pal_data_from_gpkg
 lu_gdf = lu_data_from_gpkg
 al_gdf = test_stop_seg
 
-
+#Testing that  activity location landuse gdf has the correct value in lu classification and lu
 def test_identify_lu():
     test_lu_gdf = ali.identify_lu(al_gdf, lu_gdf)
 
@@ -28,7 +32,8 @@ def test_identify_lu():
         assert test_lu_gdf.iloc[i]['lu_classification'] == 'residential'
         assert test_lu_gdf.iloc[i]['lu_index'] == ('relation', 13745200)
 
-
+#Testing that  The distance between building points in the GPS
+stop Segment and building polygons are less t
 def test_identify_pal():
     test_pal_gdf = ali.identify_pal(al_gdf, pal_gdf)
 
