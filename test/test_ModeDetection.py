@@ -11,6 +11,9 @@ from src import ModeDetection as md
 sample_gps_file_path = os.getcwd().split(
     "PyERT-BLACK")[0] + 'PyERT-BLACK/quarto-example/data/sample-gps'
 
+# Tests if the distance function from mode detection is able to correctly get the
+# distance between two points, and calculate the distance between the same point to be 0.
+
 
 def test_distance():
     p1 = Point(1, 1)
