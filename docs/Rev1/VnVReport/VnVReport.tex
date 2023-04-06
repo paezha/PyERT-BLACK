@@ -1,0 +1,878 @@
+\documentclass[12pt, titlepage]{article}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{ulem}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=red,
+    urlcolor=blue
+}
+\usepackage[round]{natbib}
+
+\input{../Comments}
+\input{../Common}
+
+\begin{document}
+
+\title{Verification and Validation Report: \progname} 
+\author{\authname}
+\date{April 5, 2023}
+	
+\maketitle
+
+\pagenumbering{roman}
+
+\section{Revision History}
+
+\begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
+\toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
+\midrule
+March 5 & 1.0 & Modified Symbols, Abbreviations and Acronyms\\
+March 6 & 1.1 & Modified Functional Requirements Evaluation and Nonfunctional Requirements Evaluation\\
+March 7 & 1.2 & Modified Unit Testing and Changes Due to Testing\\
+March 8 & 1.3 & Modified Automated Testing, Trace to Requirements, Trace to Modules and Code Coverage Metrics\\
+April 5 & 2.0 & Modified Document according to feedback from Revision 0\\
+\bottomrule
+\end{tabularx}
+
+~\newpage
+
+\section{Symbols, Abbreviations and Acronyms}
+
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{l l} 
+  \toprule		
+  \textbf{symbol} & \textbf{description}\\
+  \midrule 
+  API & Application Programming Interface\\
+  \textcolor{red}{\sout{csv} CSV} & Comma Separated Values file type\\
+  OSM & OpenStreetMap, a free, open geographic database\\
+  \textcolor{red}{T} & \textcolor{red}{Test}\\
+  \bottomrule
+\end{tabular}\\
+
+See other symbols, abbreviations or acronyms in section 1.1 of \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}.
+
+\newpage
+
+\tableofcontents
+
+\listoftables %if appropriate
+
+\listoffigures %if appropriate
+
+\newpage
+
+\pagenumbering{arabic}
+
+\section{Functional Requirements Evaluation}
+
+\subsection{Generation of CSV and SHP Files}
+\begin{enumerate}
+    \item test-FR1-1:\label{test-FR1-1}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user's input.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+    
+    Expected Output: Processed Activity Location information in \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr1-1-expected-aloc.csv}{CSV} and \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr1-1-expected-aloc.shp}{SHP}, and Route Choice Analysis information in \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr1-1-expected-rca.csv}{CSV} and \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr1-1-expected-rca.shp}{SHP}.
+    
+    Actual Output: Processed Activity Location information in \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr1-1-out-aloc.csv}{CSV} and \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr1-1-out-aloc.shp}{SHP}, and Route Choice Analysis information in \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr1-1-out-rca.csv}{CSV} and \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr1-1-out-rca.shp}{SHP}.
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{Removal of Invalid Points}
+\begin{enumerate}
+    \item test-FR2-1:\label{test-FR2-1}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user's input.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-1-in.csv}{GPS Points with no redundant or outlying points.}
+    
+    Expected Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-1-expected.csv}{Processed GPS points with the same number of points.}
+    
+    Actual Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-1-out.csv}{Processed GPS points with the same number of points.}
+    
+    Result: Pass
+    \item test-FR2-2:\label{test-FR2-2}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user's input.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-2-in.csv}{GPS Points with redundant and outlying points.}
+    
+    Expected Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-2-expected.csv}{Processed GPS points with redundant and outlying points removed.}
+    
+    Actual Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-2-out.csv}{Processed GPS points with redundant and outlying points removed.}
+    
+    Result: Pass
+    \item test-FR2-3:\label{test-FR2-3}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user's input.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-3-in.csv}{GPS Points with only redundant points.}
+    
+    Expected Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-3-expected.csv}{One processed GPS point.}
+    
+    Actual Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-3-out.csv}{One processed GPS point.}
+    
+    Result: Pass
+    \item test-FR2-4:\label{test-FR2-4}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user's input.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-8.csv}{GPS points with only outliers}
+    
+    Expected Output: No processed GPS points.
+    
+    Actual Output: No processed GPS points
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{Tag Creation for Valid GPS Points}
+\begin{enumerate}
+    \item test-FR4-1\label{test-FR4-1}
+    
+    Initial State: The system has received valid GPS data and is ready to proceed.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+    
+    Expected Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr4-1-expected.csv}{GPS points tagged with their respective mode.}
+    
+    Actual Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr4-1-out.csv}{GPS points tagged with their respective mode.}
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{Partition of GPS Trajectories}
+\begin{enumerate}
+    \item test-FR5-1\label{test-FR5-1}
+    
+    Initial State: The system has divided processed GPS points into trajectories and is ready to proceed.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+    
+    Expected Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr5-1-expected.csv}{GPS points partitioned by mode.}
+    
+    Actual Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr5-1-out.csv}{GPS points partitioned by mode.}
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{Extraction of Trip Segments}
+\begin{enumerate}
+    \item test-FR6-1\label{test-FR6-1}
+    
+    Initial State: The system has classified GPS point segments partitioned from trajectories.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+    
+    Expected Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr6-1-expected.csv}{GPS points of only mode Drive.}
+    
+    Actual Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr6-1-out.csv}{GPS points of only mode Drive.}
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{Extraction of Activity Locations}
+\begin{enumerate}
+    \item test-FR7-1\label{test-FR7-1}
+    
+    Initial State: The system has classified GPS point segments partitioned from trajectories.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+    
+    Expected Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr7-1-expected.csv}{GPS points of only mode Stop.}
+    
+    Actual Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr7-1-out.csv}{GPS points of only mode Stop.}
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{Generation of Alternative Routes}
+\begin{enumerate}
+    \item test-FR8-1\label{test-FR8-1}
+    
+    Initial State: The system has classified GPS point segments partitioned from trajectories.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+    
+    Expected Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr8-1-expected.shp}{Route of the extracted trip segments.}
+    
+    Actual Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr8-1-out.shp}{Route of the extracted trip segments.}
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{Generation of Activity Locations with Additional Information}
+\begin{enumerate}
+    \item {test-FR9-1}\label{test-FR9-1}
+    
+    Initial State: The GPS data from \textcolor{red}{the} stop segment, LU and PAL data that is needed for \textcolor{red}{the} test has been prepared, \textcolor{red}{and} the necessary Python libraries have been installed on \textcolor{red}{the} local machine and \textcolor{red}{are} ready to run the system that will be tested
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}, LU and PAL data fetched from OSM API
+    
+    Expected Output: The output SHP file should match the predetermined SHP file with the correct activity locations with additional information. If the output does not match, the nearest buildings that are determined for the input GPS points should be no further than 200 meters away from the GPS points.
+    
+    Actual Output: The output SHP file did not match the predetermined expected output. Out of 114 GPS points from the input, only 14 of those had their nearest buildings within 200 meters of distance from them
+    
+    Result: \textcolor{red}{Fail}
+\end{enumerate}
+
+\subsection{Generation of Error Messages}
+\begin{enumerate}
+    \item test-FR10-1\label{test-FR10-1}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} \textcolor{red}{the} user’s input.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-4.csv}{Invalid Data Format}
+    
+    Expected Output: Raise InvalidDataException Error
+    
+    Actual Output: Raise InvalidDataException Error
+    
+    Result: Pass
+    \item test-FR10-2\label{test-FR10-2}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} \textcolor{red}{the} user’s input.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.gpx}{Invalid File Format}
+    
+    Expected Output: Raise InvalidFileFormatException Error
+    
+    Actual Output: Raise InvalidFileFormatException Error
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{Classification of GPS Points Segments}
+\begin{enumerate}
+    \item test-FR11-1\label{test-FR11-1}
+    
+    Initial State: The system has partitioned trajectories into segments and is ready to proceed.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+    
+    Expected Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr11-1-expected.csv}{GPS points partitioned by mode.}
+    
+    Actual Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr11-1-out.csv}{GPS points partitioned by mode.}
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{Assignment of Values to RCA Variables}
+\begin{enumerate}
+    \item test-FR12-1\label{test-FR12-1}
+    
+    Initial State: The system has already generated alternative routes for trip segments.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+    
+    Expected Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr12-1-expected.csv}{CSV file with assigned RCA variables for each alternative route generated.}
+    
+    Actual Output: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr12-1-out.csv}{CSV file with assigned RCA variables for each alternative route generated.}
+    
+    Result: Pass
+\end{enumerate}
+
+\section{Nonfunctional Requirements Evaluation}
+
+Many of the tests for non-functional requirements refer to a sample \textcolor{red}{\sout{csv} CSV} 'sample-gps-1.csv'. This \textcolor{red}{\sout{csv} CSV} can be found \href{https://github.com/paezha/PyERT-BLACK/blob/main/quarto-example/data/sample-gps/sample-gps-1.csv}{here}.
+\\ \\
+The VnV Plan and many of the tests for the non-functional requirements also refer to a survey given to the supervisor, found \href{https://forms.gle/aJaBmjKrMnpH48Kb7}{here}.
+
+\subsection{Look and Feel}
+\begin{enumerate}
+
+\item{test-LF-1} \label{test-LF-1}
+
+Initial State: The system was installed and run using sample-gps-1.csv and 500 points.
+
+Input: The user was asked if the system’s interface is easy to follow
+
+Output: The supervisor was satisfied with the easiness of interaction with the interface
+
+Result: Pass
+
+\item{test-LF-2} \label{test-LF-2}
+
+Initial State: The system was installed and run using sample-gps-1.csv and 500 points.
+
+Input: The user was if the system’s interface makes it easy to
+determine the required input
+
+Output: The supervisor was satisfied with the easiness of determination of the input
+
+Result: Pass
+
+\item{test-LF-3\\} \label{test-LF-3}
+Initial State: The system was installed and run using sample-gps-1.csv and 500 points.
+
+Input: The user will be asked if the system’s interface gave a clear indication of what stage the system was in while the system was generating an output
+
+Output: The supervisor says it is easy to visualize the stage of the system from its interface when the system is generating output
+
+Result: Pass
+					
+\end{enumerate}
+
+\subsection{Usability}
+\begin{enumerate}
+\item{test-UH-1} \label{test-UH-1}
+
+Initial State: The system was available for download online. The user installed the system
+
+Input: The user was asked about their programming experience level, and if they were able to install the system without asking for help
+
+Output: The supervisor says that the process of downloading the system is smooth, and the guidance is easy to follow.
+
+Result: Pass
+
+\item{test-UH-2} \label{test-UH-2}
+
+Initial State: The system was installed and run using sample-gps-1.csv and 500 points.
+
+Input: The user was asked if they were able to generate an output with
+given sample inputs
+
+Output: The supervisor said that the process of downloading the system is smooth, and the guidance is easy to follow.
+
+Result: Pass
+
+\end{enumerate}
+		
+\subsection{Performance}
+\begin{enumerate}
+
+\item{test-PR-1} \label{test-PR-1}
+
+Initial State: The system \textcolor{red}{\sout{is}} was set up and ready to take the user's input.
+
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/nfr-tests/pr-1.csv}{78000 Valid GPS Points}
+
+Output: The time it took for the system to print that it had entered \textcolor{red}{the} mode detection stage was about 9.62 seconds. Since this is less than 10 seconds, this test was marked as passed.
+
+Result: Pass
+
+\item{test-PR-2} \label{test-PR-2}
+
+Initial State: The system \textcolor{red}{\sout{is}} was set up and ready to take the user's input.
+
+Input: The system was run using sample-gps-1.csv and 500 points at two different times.
+
+Output: The GeoJSON files, \textcolor{red}{\sout{csv} CSV} files, \textcolor{red}{\sout{shp} SHP} files generated by the two different runs were verified \textcolor{red}{\sout{by}} to be the same by the developers. Since they were the same, the test was marked as passed.
+
+Result: Pass
+
+\end{enumerate}
+
+\subsection{Operational and Environmental}
+\begin{enumerate}
+\item{test-OE-1} \label{test-OE-1}
+
+Initial State: The system was run using sample-gps-1.csv and 500 points
+
+Input: The supervisor was asked for their operating system and if they were able to run the system without any issues.
+
+Output: The supervisor reported that they were able to run the system, and that they were using a Windows computer to do so. The developers used \textcolor{red}{\sout{Linux and}} Mac to run the system, and were able to get the same output as the supervisor. Thus, the test was marked as passed.
+
+Result: Pass
+
+\item{test-OE-2} \label{test-OE-2}
+
+Initial State: The system was downloaded in a Python virtual environment with the required packages installed.
+
+Input: The system was run in the Python virtual environment using sample-gps-1.csv and 500 points.
+
+Output: The developers verified that running the system in the virtual environment produced the expected output. The test was marked as passed.
+
+Result: Pass
+
+\item{test-OE-3} \label{test-OE-3}
+
+Initial State: The system was downloaded in a Python virtual environment without the required packages installed.
+
+Input: The system was run in the Python virtual environment using sample-gps-1.csv and 500 points.
+
+Output: The developers verified that a list of dependencies was provided \href{https://github.com/paezha/PyERT-BLACK/blob/main/src/PyERT_environment.yaml}{inside a file in the folder.} The developers then installed these dependencies into the virtual environment, ran the system, and verified that the system produced the expected output. The test was marked as passed.
+
+Result: Pass
+
+\end{enumerate}	
+
+\subsection{Maintainability and Support}
+
+\begin{enumerate}
+
+\item{test-MS-1} \label{test-MS-1}
+
+Initial State: The system \textcolor{red}{\sout{is}} was set up and ready to take the users' inputs.
+
+Input: The system was run \textcolor{red}{\sout{using}} using sample-gps-1.csv and 500 points by two developers on their own systems.
+
+Output: The GeoJSON files, \textcolor{red}{\sout{csv} CSV} files, \textcolor{red}{\sout{shp} SHP} files generated by the two different runs were verified \textcolor{red}{\sout{by}} to be the same by the developers. Since they were the same, the test was marked as passed.
+
+Result: Pass
+
+\end{enumerate}
+
+\subsection{Security}
+
+\begin{enumerate}
+    \item{test-SR-1} \label{test-SR-1}
+    
+    Initial State: Revision 0 of the system was completed.
+
+    Input: The developers were given the system to review.
+    
+    Output: The developers confirmed during the code review session that there was no code that accessed the user's personal information. The test was marked as passed because of this.
+    
+    Result: Pass
+
+    \item{test-SR-2} \label{test-SR-2}
+    
+    Initial State: Revision 0 of the system was completed.
+
+    Input: The developers were given the system to review.
+    
+    Output: The developers confirmed during the code review session that there was no code that accessed files outside of the user-provided inputs and files included in Python and the system. The test was marked as passed because of this.
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{Legal}
+
+\begin{enumerate}
+    \item{test-LR-1} \label{test-LR-1}
+    
+    Initial State: Revision 0 of the system was completed.
+
+    Input: The developers were given the system to review.
+    
+    Output: The developers confirmed during the code review session that there was no code that used packages or licenses that require libraries. The test was marked as passed because of this.
+    
+    Result: Pass
+\end{enumerate}
+
+\section{Unit Testing}
+
+\subsection{GPS Data Preprocessing Module}
+
+
+\begin{enumerate}
+    \item{test\_get\_data} \label{test_get_data}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{sample-gps-1.csv} Valid GPS Data Points
+    
+    Output: GeoDataFrame of processed GPS Points 
+    
+    Result: Pass
+
+
+
+    \item{test\_filter\_data} \label{test_filter_data}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{sample-gps-1.csv} Valid GPS Data Points only and \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-8.csv}{sample-gps-8.csv} Outliers GPS Data Points only
+    
+    Output: GeoDataFrame of processed GPS Points with the correct latitude, longitude, and geometry column with correct points
+    
+    Result: Pass
+
+    \item{test\_filter\_data\_redundant\_only} \label{test_filter_data_redundant_only}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-6.csv}{sample-gps-6.csv} Redundant GPS Data Points only
+    
+    Output: GeoDataFrame of processed GPS Points with the correct latitude, longitude, and geometry column with correct points
+    
+    Result: Pass
+
+    \item{test\_filter\_data\_redundant\_and\_outliers} \label{test_filter_data_redundant_and_outliers}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-7.csv}{sample-gps-7.csv} Valid, Redundant and Outliers GPS Data Points 
+    
+    Output: GeoDataFrame of processed GPS Points with the correct latitude, longitude, and geometry column with correct points
+    
+    Result: Pass
+
+    \item{test\_smooth\_data} \label{test_smooth_data}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{sample-gps-1.csv} Valid GPS Data Points only
+    
+    Output: GeoDataFrame of processed GPS Points with no points with a Speed\_kmh greater than 50m/s or 180km/h
+    
+    Result: Pass
+
+    \item{test\_smooth\_data\_redundant\_and\_outliers} \label{test_smooth_data_redundant_and_outliers}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-7.csv}{sample-gps-7.csv} Valid, Redundant, and Outliers GPS Data Points 
+    
+    Output: GeoDataFrame of processed GPS Points with no points with a Speed\_kmh greater than 50m/s or 180km/h
+    
+    Result: Pass
+
+    \item{test\_smooth\_data\_outliers\_only} \label{test_smooth_data_outliers_only}
+    
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-8.csv}{sample-gps-8.csv} Outliers GPS Data Points only
+    
+    Output: GeoDataFrame of processed GPS Points with no points with a Speed\_kmh greater than 50m/s or 180km/h
+    
+    Result: Pass
+\end{enumerate}
+
+\subsection{ModeDetection Module}
+
+\begin{enumerate}
+    \item{test\_distance} \label{test_distance}
+
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+
+    Output: Checks if the distance between two different longitude/latitude coordinates is valid (matches what is found using \href{https://www.nhc.noaa.gov/gccalc.shtml}{this calculator} and also checks if the distance between the same point is 0.
+
+    Result: Pass
+    
+\end{enumerate}
+
+\subsection{Extractor Module}
+
+\begin{enumerate}
+    \item{test\_fill\_points} \label{test_fill_points}
+
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+
+    Expected Output: GPS points tagged with their respective mode.
+    
+    Actual Output: GPS points tagged with their respective mode.
+
+    Result: Pass
+
+    \item{test\_extract\_trip\_segments} \label{test_extract_trip_segments}
+
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+    
+    Expected Output: GPS points of only mode Drive.
+    
+    Actual Output: GPS points of only mode Drive.
+
+    Result: Pass
+
+    \item{test\_extract\_activity\_locations} \label{test_extract_activity_locations}
+
+    Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
+    
+    Expected Output: GPS points of only mode Stop.
+    
+    Actual Output: GPS points of only mode Stop.
+
+    Result: Pass
+
+\end{enumerate}
+
+\subsection{Route Choice Set Generator Module}
+\begin{enumerate}
+    \item{test\_map\_point} \label{test_map_point}\\
+    Initial State: The system is set up to be run. Test data for GPS points of trip segment and transportation network is ready to be used.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/tree/rev0-test/test/test_data/test_rs_trip_seg}{Valid GPS Points of Trip Segment}, \href{https://github.com/paezha/PyERT-BLACK/tree/rev0-test/test/test_data/test_rs_network_g.osm}{Transportation Network Data}
+
+    Output: The GPS points are matched to the correct streets
+
+    Result: Pass
+
+    \item{test\_detect\_and\_fill\_gap} \label{test_detect_and_fill_gap}\\
+    Initial State: The system is set up to be run. Test data for GPS points of trip segment and transportation network is ready to be used.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/tree/rev0-test/test/test_data/test_rs_trip_seg}{Valid GPS Points of Trip Segment}, \href{https://github.com/paezha/PyERT-BLACK/tree/rev0-test/test/test_data/test_rs_network_g.osm}{Transportation Network Data}
+
+    Output: The predetermined gaps(i.e. 2 consecutive GPS points that are more than 50 meters away from each other and not on the same line segment, or 2 consecutive GPS points that are not on the same street by street name) in the input GPS points have all been detected and the gaps are correctly filled by shortest path between the GPS points that involved.
+
+    Result: Pass
+
+    \item{test\_route\_choice\_gen} \label{test_route_choice_gen}\\
+    Initial State: The system is set up to be run. Test data for GPS points of trip segment and transportation network is ready to be used.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/tree/rev0-test/test/test_data/test_rs_trip_seg}{Valid GPS Points of Trip Segment}, \href{https://github.com/paezha/PyERT-BLACK/tree/rev0-test/test/test_data/test_rs_network_g.osm}{Transportation Network Data}
+
+    Output: A route that fits the GPS points in the trip segment 
+
+    Result: Pass
+    
+\end{enumerate}
+
+\subsection{Route Choice Analysis Variables Generator Module}
+\begin{enumerate}
+    \item{test\_var\_gen}\label{test_var_gen}
+    Initial State: The system is set up to be run. Test data for GPS points of trip segment and transportation network is ready to be used.
+
+    Input: \href{https://github.com/paezha/PyERT-BLACK/tree/rev0-test/test/test_data/test_rs_trip_seg}{Valid GPS Points of Trip Segment}, \href{https://github.com/paezha/PyERT-BLACK/tree/rev0-test/test/test_data/test_rs_network_g.osm}{Transportation Network Data}
+
+    Output: The generated RCA variable has the correct value for each attribute
+
+    Result: Pass
+\end{enumerate}
+
+\subsection{Activity Location Identification Module}
+\begin{enumerate}
+    \item{test\_identify\_lu} \label{test_identify_lu}
+        
+    Initial State: The system is set up to be run. Test data for activity location information and valid GPS Points of Stop Segment.
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/tree/rev0-test/test/test_data/test_al_info_stop_seg}{Valid GPS Points of Stop Segment},\href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/test_al_info_data.gpkg}{Test data for activity location information}
+    
+    Expected Output: The activity location landuse gdf has the correct value in lu\_classification and 
+    lu\_index
+    
+    Actual Output: The values are matched 
+
+    Result: Pass
+    \item{test\_identify\_pal} \label{test_identify_pal}
+    
+    Initial State: The system is set up to be run. Test data for activity location information and valid GPS Points of Stop Segment
+    
+    Input: \href{https://github.com/paezha/PyERT-BLACK/tree/rev0-test/test/test_data/test_al_info_stop_seg}{Valid GPS Points of Stop Segment},\href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/test_al_info_data.gpkg}{Test data for activity location information}
+    
+    Expected Output: The distance between building points in \textcolor{red}{the} GPS stop Segment and building polygons are less than 100
+    
+    Actual Output: All points are within 100 meters of the polygons
+
+    Result: Pass
+\end{enumerate}
+
+\section{Changes Due to Testing}
+
+\subsection{Change due to supervisor's feedback}
+Dr. Paez, who is the supervisor of this project, has pointed out during the Revision 0 demo that rather than finding the nearest building for every single GPS point in stop segment(s), it would be better for the product to find all the buildings that are within \textcolor{red}{a} certain distance to the points of the stop segment(s). To follow the feedback of Dr. Paez, the implementation and design of the Activity Locations Identification module will be changed so that the corresponding method in the module will output all the buildings that are within a distance from \textcolor{red}{the} user's input in unit of meters(100 meters by default) to the points of the stop segment(s). An input prompt will be added in the Main module to ask for \textcolor{red}{the} user's input for the distance.
+
+\subsection{Change due to reviewing the questions in the usability survey}
+In the VnV plan, it states that our group will review the questions in the usability survey as part of non-functional testing. One of the questions in the usability related to how easy it was to determine the current state of the system, and that was used for requirement and test LF-3. While the supervisor responded that it was easy to determine the stage of the system (pre-processing, mode detection, etc.) from the print statements being shown in the console, the team decided that this state could be more clear, since the individual progress of each stage of the system is not shown. The team decided that adding a progress bar to the interface of the system would give a better indication of the current stage of the system, rather than just print statements.
+
+\subsection{Change due to failing system test test-FR9-\ref{test-FR9-1}}
+The reason of failing the test-FR9-\ref{test-FR9-1} has been found to be that within the PAL data that is fetched from OSM API, lots of the buildings that are around the input GPS points had neither addresses nor names of the building included in the fetched PAL data, while the method in the Main module for fetching PAL data from OSM API has been implemented to filter out all the data of buildings that have neither address nor name information. Hence, the nearest buildings that was predetermined for the GPS points were not recognized by the Activity Locations Identification module. To fix the issue, the implementation of the method for fetching PAL data will be changed so that the data of buildings that have neither address nor name specified in OSM will be kept to be used by the Activity Locations Identification module.
+
+\section{Automated Testing}
+
+The automated testing framework being used is PyTest. PyTest allows created test cases to be as simple as writing a Python Function. Statements such as "assert" are used to verify if the expected output is the same as the actual output. PyTest also enables test parametrization at several levels with the use of the builtin pytest.mark.parametrize decorator. This has made the experience with automated testing much faster and easier to use. 
+		
+\section{Trace to Requirements}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+Test ID & R1 & R2 & R4 & R5 & R6 & R7 & R8 & R9 & R10 & R11 & R12 \\
+\hline
+test-FR1-\ref{test-FR1-1} & $\times$ & & & & & & & & & & \\
+\hline
+test-FR2-\ref{test-FR2-1} & & $\times$ & & & & & & & & & \\
+\hline
+test-FR2-\ref{test-FR2-2} & & $\times$ & &  & & & & & & & \\
+\hline
+test-FR2-\ref{test-FR2-3} & & $\times$ & & & & & & & & & \\
+\hline
+test-FR2-\ref{test-FR2-4} & & $\times$ & & & & & & & & & \\
+\hline
+test-FR4-\ref{test-FR4-1} & & & $\times$ & & & & & & & & \\
+\hline
+test-FR5-\ref{test-FR5-1} & & & & $\times$ & & & & & & & \\
+\hline
+test-FR6-\ref{test-FR6-1} & & & & & $\times$ & & & & & & \\
+\hline
+test-FR7-\ref{test-FR7-1} & & & & & & $\times$ & & & & & \\
+\hline
+test-FR8-\ref{test-FR8-1} & & & & & & & $\times$ & & & & \\
+\hline
+test-FR9-\ref{test-FR9-1} & & & & & & & & $\times$ & & & \\
+\hline
+test-FR10-\ref{test-FR10-1} & & & & & & & & & $\times$ & & \\
+\hline
+test-FR10-\ref{test-FR10-2} & & & & & & & & & $\times$ & & \\
+\hline
+test-FR11-\ref{test-FR11-1} & & & & & & & & & & $\times$ & \\
+\hline
+test-FR12-\ref{test-FR12-1} & & & & & & & & & & & $\times$ \\
+\hline
+\end{tabular}
+\caption{\bf Functional Requirements Traceability}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+Test ID & LF1 & LF2 & UH1 & UH2 & PR1 & PR3 & OE1 & OE2 & OE3 \\
+\hline
+test-LF-\ref{test-LF-1} & $\times$ & & & & & & & & \\
+\hline
+test-LF-\ref{test-LF-2} & $\times$ & & & & & & & & \\
+\hline
+test-LF-\ref{test-LF-3} & & $\times$ & & & & & & & \\
+\hline
+test-UH-\ref{test-UH-1} & & & $\times$ & & & & & & \\
+\hline
+test-UH-\ref{test-UH-2} & & & & $\times$ & & & & & \\
+\hline
+test-PR-\ref{test-PR-1} & & & & & $\times$ & & & & \\
+\hline
+test-PR-\ref{test-PR-2} & & & & & & $\times$ & & & \\
+\hline
+test-OE-\ref{test-OE-1} & & & & & & & $\times$ & & \\
+\hline
+test-OE-\ref{test-OE-2} & & & & & & & & $\times$ & \\
+\hline
+test-OE-\ref{test-OE-3} & & & & & & & & & $\times$ \\
+\hline
+\end{tabular}
+\caption{\bf Non-Functional Requirements Traceability Part 1}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+Test ID & MS1 & MS2 & MS3 & SR1 & SR2 & SR3 & LR1 \\
+\hline 
+test-MS-\ref{test-MS-1} & & & $\times$ & & & & \\
+\hline
+test-SR-\ref{test-SR-1} & & & & $\times$ & & & \\
+\hline
+test-SR-\ref{test-SR-2} & & & & & $\times$ & & \\
+\hline
+test-LR-\ref{test-LR-1} & & & & & & & $\times$ \\
+\hline
+\end{tabular}
+\caption{\bf Non-Functional Requirements Traceability Part 2}
+\end{table}
+		
+\section{Trace to Modules}
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+Test ID & M2 & M3 & M4 & M5 & M6 & M7 & M8 \\
+\hline
+test-FR1-\ref{test-FR1-1} & & & & & & & $\times$ \\
+\hline
+test-FR2-\ref{test-FR2-1} & $\times$ & & & & & & \\
+\hline
+test-FR2-\ref{test-FR2-2} & $\times$ & & & & & & \\
+\hline
+test-FR2-\ref{test-FR2-3} & $\times$ & & & & & & \\
+\hline
+test-FR2-\ref{test-FR2-4} & $\times$ & & & & & & \\
+\hline
+test-FR4-\ref{test-FR4-1} & & $\times$ & & & & & \\
+\hline
+test-FR5-\ref{test-FR5-1} & & $\times$ & & & & & \\
+\hline
+test-FR6-\ref{test-FR6-1} & & & $\times$ & & & & \\
+\hline
+test-FR7-\ref{test-FR7-1} & & & $\times$ & & & & \\
+\hline
+test-FR8-\ref{test-FR8-1} & & & & $\times$ & & & $\times$ \\
+\hline
+test-FR9-\ref{test-FR9-1} & & & & & & $\times$ & $\times$ \\
+\hline
+test-FR10-\ref{test-FR10-1} & & & & & & & $\times$ \\
+\hline
+test-FR10-\ref{test-FR10-2} & & & & & & & $\times$ \\
+\hline
+test-FR11-\ref{test-FR11-1} & & $\times$ & & & & & \\
+\hline
+test-FR12-\ref{test-FR12-1} & & & & & $\times$ & & $\times$ \\
+\hline
+\end{tabular}
+\caption{\bf Implemented Modules Traceability Part 1}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+Test ID & M2 & M3 & M4 & M5 & M6 & M7 & M8 \\
+\hline
+test-LF-\ref{test-LF-1} & & & & & & & $\times$ \\
+\hline
+test-LF-\ref{test-LF-2} & & & & & & & $\times$ \\
+\hline
+test-LF-\ref{test-LF-3} & & & & & & & $\times$ \\
+\hline
+test-UH-\ref{test-UH-1} & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ \\
+\hline
+test-UH-\ref{test-UH-2} & & & & & & & $\times$ \\
+\hline
+test-PR-\ref{test-PR-1} & & & & & & & $\times$ \\
+\hline
+test-PR-\ref{test-PR-2} & & & & & & & $\times$ \\
+\hline
+test-OE-\ref{test-OE-1} & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ \\
+\hline
+test-OE-\ref{test-OE-2} & & & & & & & \\
+\hline
+test-OE-\ref{test-OE-3} & & & & & & & \\
+\hline
+test-MS-\ref{test-MS-1} & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ \\
+\hline
+test-SR-\ref{test-SR-1} & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ \\
+\hline
+test-SR-\ref{test-SR-2} & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ & $\times$ \\
+\hline
+test-LR-\ref{test-LR-1} & & & & & & & \\
+\hline
+\end{tabular}
+\caption{\bf Implemented Modules Traceability Part 2}
+\end{table}
+
+%\section{Code Coverage Metrics}
+
+\bibliographystyle{plainnat}
+\bibliography{VnVReport}
+
+\newpage{}
+\section*{Appendix --- Reflection}
+
+The information in this section will be used to evaluate the team members on the
+graduate attribute of Reflection.  Please answer the following question:
+
+\begin{enumerate}
+  \item In what ways was the Verification and Validation (VnV) Plan different
+  from the activities that were actually conducted for VnV?  If there were
+  differences, what changes required the modification in the plan?  Why did
+  these changes occur?  Would you be able to anticipate these changes in future
+  projects?  If there weren't any differences, how was your team able to clearly
+  predict a feasible amount of effort and the right tasks needed to build the
+  evidence that demonstrates the required quality?  (It is expected that most
+  teams will have had to deviate from their original VnV Plan.)
+  \begin{enumerate}
+    \item One change that we made to the VnV plan was the test group for the usability survey. Originally, our plan was to have at least 10 test users run the system, and give feedback. We decided to change this to just having the supervisor do the survey, because once we completed our system, we felt that it would be hard to get valuable feedback from users not familiar with the premise of the system, and it would take too much time to introduce each user to the system. We decided that feedback from the supervisor would be more relevant and easy to obtain. In future projects, we will make sure to take into account how complex the system is before using usability surveys as a form of non-functional testing, to anticipate whether new users will be able to use the system easily and provide relevant feedback.
+    \item Another change that we made to the VnV plan was testing over 1 million unique points during the preprocessing phase. We decided after talking with our supervisor it was not necessary to test that many points, nor was there a valid sample gps data for us to use. In future projects, we will set our testing goals to be more realistic and discuss with any supervisor beforehand what is a feasible data set to use for accurate testing. 
+    \item A change that we have made to the VnV plan was we have removed the tests for requirement 3 which was to cluster GPS points into 24-hour trajectories because the requirement has been removed. We made such decision after talking with the supervisor of the project Dr. Paez that it was necessary to GPS data that goes across multiple days and there was no such long valid sample GPS data for us to use. In future projects, we will set our requirements and testing goals to be more realistic and discuss with any supervisor beforehand about what requirements the stakeholders would have and what is a feasible data set to use for accurate testing. 
+  \end{enumerate}
+
+  
+\end{enumerate}
+
+\end{document}

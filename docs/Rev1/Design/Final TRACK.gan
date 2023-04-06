@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="Desgin Document timeline" company="Track a Trace " webLink="https://www.overleaf.com/project/632e2ffc6c9887b5c5bb5edd" view-date="2023-01-07" view-index="0" gantt-divider-location="526" resource-divider-location="300" version="2.8.11" locale="zh_CN">
+    <description/>
+    <view zooming-state="default:2" id="gantt-chart">
+        <field id="tpd3" name="名称" width="242" order="0"/>
+        <field id="tpd4" name="开始日期" width="140" order="1"/>
+        <field id="tpd5" name="结束日期" width="140" order="2"/>
+        <timeline><![CDATA[56]]></timeline>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="名称" width="210" order="0"/>
+        <field id="1" name="默认角色" width="86" order="1"/>
+    </view>
+    <!-- -->
+    <calendars>
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="153" name="任务_153" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-09" thirdDate-constraint="0" expand="true">
+            <depend id="89" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="56" name="Desgin &amp; Document Revision 0" color="#8cb6ce" meeting="false" start="2023-01-13" duration="8" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true">
+            <task id="59" name="Intoduction" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-17" thirdDate-constraint="0" expand="true"/>
+            <task id="76" name="Notation" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true"/>
+            <task id="73" name="Module Decomposition" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true"/>
+            <task id="74" name="MIS of GPS Data Preprocessing Module" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true"/>
+            <task id="75" name="MIS of Mode Detection Module" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true"/>
+            <task id="81" name="MIS of Trip Segments and Activity Location Extraction Module" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true"/>
+            <task id="82" name="MIS of Route Choice Set Generator Module" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true"/>
+            <task id="83" name="MIS of Route Choice Analysis Variables Generator Module" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true"/>
+            <task id="84" name="MIS of Activity Locatios Identification Module" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true"/>
+            <task id="89" name="MIS of Main Function Module" color="#8cb6ce" meeting="false" start="2023-01-19" duration="4" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true"/>
+            <task id="90" name="Appendix" color="#8cb6ce" meeting="false" start="2023-01-13" duration="4" complete="0" thirdDate="2023-01-16" thirdDate-constraint="0" expand="true"/>
+        </task>
+        <task id="97" name="Implementation of Modules" color="#8cb6ce" meeting="false" start="2023-01-18" duration="14" complete="0" thirdDate="2023-01-18" thirdDate-constraint="1" expand="true">
+            <task id="102" name="GPS Data Preprocessing" color="#8cb6ce" meeting="false" start="2023-01-18" duration="14" complete="0" thirdDate="2023-01-18" thirdDate-constraint="1" expand="true"/>
+            <task id="103" name="Trip Segments and Activity Lo- cations Extraction Module" color="#8cb6ce" meeting="false" start="2023-01-18" duration="14" complete="0" thirdDate="2023-01-18" thirdDate-constraint="1" expand="true"/>
+            <task id="246" name="Mode Detection Module" color="#8cb6ce" meeting="false" start="2023-01-18" duration="14" complete="0" thirdDate="2023-01-18" thirdDate-constraint="1" expand="true"/>
+            <task id="104" name="Route Choice Set Generator Module" color="#8cb6ce" meeting="false" start="2023-01-18" duration="14" complete="0" thirdDate="2023-01-18" thirdDate-constraint="1" expand="true"/>
+            <task id="105" name="Route Choice Analysis Variables Generator Module" color="#8cb6ce" meeting="false" start="2023-01-18" duration="14" complete="0" thirdDate="2023-01-18" thirdDate-constraint="1" expand="true"/>
+            <task id="106" name="Activity Loca- tions Identifica- tion Module" color="#8cb6ce" meeting="false" start="2023-01-18" duration="14" complete="0" thirdDate="2023-01-18" thirdDate-constraint="1" expand="true"/>
+            <task id="107" name="Main Function Module" color="#8cb6ce" meeting="false" start="2023-01-18" duration="14" complete="0" thirdDate="2023-01-18" thirdDate-constraint="1" expand="true"/>
+        </task>
+    </tasks>
+    <resources>
+        <resource id="0" name="HongZhao Tan" function="1" contacts="" phone=""/>
+        <resource id="1" name="Linqi Jiang" function="1" contacts="" phone=""/>
+        <resource id="2" name="Zabrain Ali" function="1" contacts="" phone=""/>
+        <resource id="3" name="Jasper Leung" function="1" contacts="" phone=""/>
+        <resource id="4" name="Mike Li" function="1" contacts="" phone=""/>
+        <resource id="5" name="Mengtong Shi" function="1" contacts="" phone=""/>
+    </resources>
+    <allocations>
+        <allocation task-id="107" resource-id="0" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="105" resource-id="0" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="104" resource-id="0" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="59" resource-id="0" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="76" resource-id="0" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="73" resource-id="0" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="82" resource-id="0" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="83" resource-id="0" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="105" resource-id="1" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="59" resource-id="1" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="76" resource-id="1" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="73" resource-id="1" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="83" resource-id="1" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="106" resource-id="2" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="59" resource-id="2" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="76" resource-id="2" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="73" resource-id="2" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="84" resource-id="2" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="89" resource-id="2" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="102" resource-id="3" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="103" resource-id="3" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="59" resource-id="3" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="76" resource-id="3" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="73" resource-id="3" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="74" resource-id="3" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="75" resource-id="3" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="59" resource-id="4" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="76" resource-id="4" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="73" resource-id="4" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="81" resource-id="4" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="90" resource-id="4" function="1" responsible="true" load="100.0"/>
+        <allocation task-id="104" resource-id="5" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="59" resource-id="5" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="76" resource-id="5" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="73" resource-id="5" function="1" responsible="false" load="100.0"/>
+        <allocation task-id="82" resource-id="5" function="1" responsible="false" load="100.0"/>
+    </allocations>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+    <roles>
+        <role id="1" name="Developer"/>
+    </roles>
+</project>

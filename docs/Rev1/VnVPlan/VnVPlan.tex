@@ -30,7 +30,7 @@
 
 \title{Project Title: System Verification and Validation Plan for \progname{}} 
 \author{\authname}
-\date{November 2, 2022}
+\date{April 5, 2023}
 	
 \maketitle
 
@@ -43,6 +43,7 @@
 \midrule
 November 1, 2022 & 1.0 & Modified Abbreviations and Acronyms, General Information, Plan, System Test Description and the Appendix\\
 November 2, 2022 & 1.1 & Modified Plan and System Test Description\\
+April 5, 2023 & 2.0 & Modified requirements for revision 1\\
 \bottomrule
 \end{tabularx}
 
@@ -61,35 +62,41 @@ November 2, 2022 & 1.1 & Modified Plan and System Test Description\\
   \hline		
   \textbf{symbol} & \textbf{description}\\
   \hline
-  T & Test\\
+  \textcolor{red}{API} & \textcolor{red}{Application Programming Interface} \\
   \hline
-  SRS & Software Requirement Specification\\
+  ArcGIS & A licensed GIS service used by GERT for data processing \\
+  \hline
+  CSV & Comma Separated Values \\
+  \hline
+  GERT & GIS-based Episode Reconstruction Toolkit  \\ 
+  \hline
+  GIS & Geographic Information System \\
+  \hline
+  GPS & Global Positioning System \\
+  \hline
+  LU & Land Use \\ 
   \hline
   MG & Module Guide\\
   \hline
   MIS & Module Interface Specification\\
   \hline
-  GPS & Global Positioning System \\
+  NFR & Non-Functional Requirement  \\
   \hline
-  GIS & Geographic Information System \\
-  \hline
-  GERT & GIS-based Episode Reconstruction Toolkit  \\ 
-  \hline
-  ArcGIS & A licensed GIS service used by GERT for data processing \\
-  \hline
-  PyERT & Python-based Episode Reconstruction Toolkit  \\ 
-  \hline
-  CSV & Comma Separated Values \\
-  \hline
-  SHP & shapefile: A data format for spreadsheet \\
-  \hline
-  RCA & Route Choice Analysis \\
-  \hline
-  LU & Land Use \\ 
+  \textcolor{red}{OSM} & \textcolor{red}{OpenStreetMap}\\
   \hline
   PAL & Potential Activity Locations \\ 
   \hline
-  NFR & Non-Functional Requirement  \\
+  \textcolor{red}{PBF} & \textcolor{red}{Protocolbuffer Binary Format} \\
+  \hline
+  PyERT & Python-based Episode Reconstruction Toolkit  \\ 
+  \hline
+  RCA & Route Choice Analysis \\
+  \hline
+  SHP & shapefile: A data format for spreadsheet \\
+  \hline
+  SRS & Software Requirement Specification\\
+  \hline
+  T & Test\\
   \hline
 \end{tabular}\\
 
@@ -111,7 +118,7 @@ This document will provide a detailed plan for verification and validation for P
 The software being tested is called PyERT. PyERT is a software toolkit that aims to reverse engineer the GERT toolkit. PyERT is intended to re-implement the features in GERT that use ArcGIS Pro packages with open-source packages and libraries to make it fully open-source and independent from proprietary software like ArcGIS Pro. Some general functionalities of PyERT include pre-processing GPS points, classifying GPS points segments, generating alternative routes on transportation networks for given GPS points and adding information about activity locations.\\
 
 \subsection{Objectives}
-The objectives of verification and validation are to build confidence for the team in the correctness of our software, determine if the requirements are built correctly and that the design and development are following the requirements. Another goal is to demonstrate adequate usability of our product, showing that team is building what the clients truly needed and require.\\
+The objectives of verification and validation are to build confidence for the team in the correctness of our software, determine if the requirements are built correctly and that the design and development are following the requirements. Another goal is to demonstrate adequate usability of our product, showing that team is building what the clients truly need and require.\\
 
 \subsection{Relevant Documentation}
 The documents that are relevant to verification and validation include the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, MG and MIS for the project.
@@ -153,17 +160,17 @@ This section will list the team members involved in the verification and validat
 \label{section:4.3}
 
 \begin{itemize}
-    \item Classmates will review the design documents of the system.
-    \item The team will hold a review session with Dr.Paez when the system has been completed. During the review session with Dr.Paez, he will go over the design documents with the team and verify that everything described in the design was implemented properly.
+    \item \textcolor{red}{\sout{Classmates will review the design documents of the system.}}
+    \item The team will hold a review session with Dr. Paez when the system has been completed. During the review session with Dr. Paez, he will go over the design documents with the team and verify that everything described in the design was implemented properly.
 \end{itemize}
 
 \subsection{Verification and Validation Plan Verification Plan}
 \label{section:4.4}
 
 \begin{itemize}
-    \item Classmates will review the Verification and Validation Plan of the system.
+    \item \textcolor{red}{\sout{Classmates will review the Verification and Validation Plan of the system.}}
     \item The team will keep track of all the tests listed in the document, and during testing, make sure that all of them are completed successfully.
-    \item The team will hold a review session with Dr.Paez when the system has been completed. During the review session with Dr.Paez, he will go over the Verification and Validation document with the team and verify with the team that all the tests described in the VnV plan were completed successfully.
+    \item The team will hold a review session with Dr. Paez when the system has been completed. During the review session with Dr. Paez, he will go over the Verification and Validation document with the team and verify with the team that all the tests described in the VnV plan were completed successfully.
 \end{itemize}
 
 \subsection{Implementation Verification Plan}
@@ -177,7 +184,7 @@ Once the system is complete, the developers will hold a code review session and 
 \subsection{Software Validation Plan}
 \label{section:4.7}
 
-The team will hold a review session with Dr.Paez to verify that the requirements document has the right requirements. The team and Dr.Paez will walk through the SRS and review every requirement.
+The team will hold a review session with Dr. Paez to verify that the requirements document has the right requirements. The team and Dr. Paez will walk through the SRS and review every requirement.
 
 \section{System Test Description}
 \label{section:5}	
@@ -188,23 +195,38 @@ This section contains the tests for the Functional Requirements. The subsections
 
 \subsubsection{Generation of CSV and SHP Files}
 
-This subsection covers Requirement \#1 of the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS document} \citep{SRS}, by testing that the system is able to read and generate CSV and SHP files.
+This subsection covers Requirement \#1\textcolor{red}{, \#13, \#14 and \#15} of the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS document} \citep{SRS}, by testing that the system is able to \textcolor{red}{read CSV and OSM PBF files as inputs, fetch geographic data from OSM API when there is no OSM PBF file given as input and generate CSV and SHP files as outputs}.
 
 \begin{enumerate}
 
-\item{test-FR1-1\\} \label{test-FR1-1}
+\item{test-FR1\textcolor{red}{,13,14,15}-1\\} \label{test-FR1,13,14,15-1}
 
 Control: Manual 
 					
-Initial State: The system is set up and ready to take over the user's input.
+Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user's input.
 					
-Input: Valid GPS data
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}, \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-osm/planet_-80.265,43.283_-79.276,43.734.osm.pbf}{\textcolor{red}{OSM PBF file with valid network data that is needed to match the input valid GPS points}}
 					
 Output: CSV and SHP files containing alternative routes, RCA variables with values and activity locations information
 
-Test Case Derivation: The data will be processed by the script is previously determined to be valid and should not cause the script running into any error. The alternative routes and activity location information output does not have to be correct.
+Test Case Derivation: The data will be processed by the script is previously determined to be valid and should not cause the script to run into any error. The alternative routes and activity location information output does not have to be correct.
 					
-How this test will be performed: The test controller will be given a sample GPS data that has been made sure is valid. The controller will execute the script with the sample data as input and observe if the script can successfully generate CSV and SHP files or run into an error.  
+How this test will be performed: The test controller will be given a sample GPS data \textcolor{red}{and an OSM PBF file} that have been made sure are valid. The controller will execute the script with the sample data as input and observe if the script can successfully generate CSV and SHP files or run into an error.  
+
+
+\item{\textcolor{red}{test-FR1,13,14,15-2}\\} \label{test-FR1,13,14,15-2}
+
+\textcolor{red}{Control: Manual}
+					
+\textcolor{red}{Initial State: The system is set up and ready to take in the user's input.}
+					
+\textcolor{red}{Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}}
+					
+\textcolor{red}{Output: CSV and SHP files containing alternative routes, RCA variables with values and activity locations information}
+
+\textcolor{red}{Test Case Derivation: The data will be processed by the script is previously determined to be valid and should not cause the script to run into any error. The alternative routes and activity location information output does not have to be correct.}
+					
+\textcolor{red}{How this test will be performed: The test controller will be given only a sample GPS data that has been made sure is valid. The controller will execute the script with the sample data as input and observe if the script can successfully generate CSV and SHP files or run into an error.}
 					
 \end{enumerate}
 
@@ -218,9 +240,9 @@ This subsection covers Requirement \#2 of the \href{https://github.com/paezha/Py
 
 Control: Manual
 					
-Initial State: The system is set up and ready to take over the user's input.
+Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user's input.
 					
-Input: GPS points where all points are valid
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-1-in.csv}{GPS Points with no redundant or outlying points.}
 					
 Output: Valid GPS points without redundant points(points with the same coordinate) and outliers(speed $\geq$ 50m/s)
 
@@ -232,42 +254,42 @@ How this test will be performed: The test controller will execute the script wit
 
 Control: Manual
 					
-Initial State: The system is set up and ready to take over the user's input.
+Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user's input.
 					
-Input: GPS points with redundant points, outliers and regular valid points
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-2-in.csv}{GPS Points with redundant and outlying points.}
 					
 Output: Valid GPS points without redundant points(points with the same coordinate) and outliers(speed $\geq$ 50m/s)
 
-Test Case Derivation: Because the sample data has been predetermined to have both redundant points and outliers. The system should remove the redundant points and outliers from the input GPS data.
+Test Case Derivation: Because the sample data has been predetermined to have both redundant points and outliers. The system should remove redundant points and outliers from the input GPS data.
 
-How this test will be performed: The test controller will execute the script with the input sample data which will be a CSV file containing GPS points, and the controller will observe from the generated output to see if the predetermined redundant points and outliers have been removed.
+How this test will be performed: The test controller will execute the script with the input sample data, which will be a CSV file containing GPS points, and the controller will observe from the generated output to see if the predetermined redundant points and outliers have been removed.
 
 \item{test-FR2-3} \label{test-FR2-3}
 Control: Manual
 					
-Initial State: The system is set up and ready to take over the user's input.
+Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user's input.
 					
-Input: GPS points with only redundant points
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/test/test_data/fr-tests/fr2-3-in.csv}{GPS Points with only redundant points.}
 					
 Output: Valid GPS points without redundant points(points with the same coordinate) and outliers(speed $\geq$ 50m/s)
 
-Test Case Derivation:Because the sample data has been predetermined to have only redundant points. The system should remove all the points given in the input GPS data.
+Test Case Derivation: Because the sample data has been predetermined to have only redundant points. The system should remove all the points given in the input GPS data.
 
-How this test will be performed: The test controller will execute the script with the input sample data which will be a CSV file containing GPS points, and the controller will observe from the generated output to see if all the points given in the input data have been removed.
+How this test will be performed: The test controller will execute the script with the input sample data, which will be a CSV file containing GPS points, and the controller will observe from the generated output to see if all the points given in the input data have been removed.
 
 \item{test-FR2-4} \label{test-FR2-4}
 
 Control: Manual
 					
-Initial State: The system is set up and ready to take over the user's input.
+Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user's input.
 					
-Input: GPS points with only outliers
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-8.csv}{GPS points with only outliers}
 					
 Output: Valid GPS points without redundant points(points with the same coordinate) and outliers(speed $\geq$ 50m/s)
 
 Test Case Derivation: Because the sample data has been predetermined to have only outliers. The system should remove all the points given in the input GPS data.
 
-How this test will be performed: The test controller will execute the script with the input sample data which will be a CSV file containing GPS points, and the controller will observe from the generated output to see if all the points given in the input data have been removed.
+How this test will be performed: The test controller will execute the script with the input sample data, which will be a CSV file containing GPS points, and the controller will observe from the generated output to see if all the points given in the input data have been removed.
 
 \end{enumerate}
 
@@ -291,7 +313,7 @@ adjacent points based on speed, distance, heading, and change in-heading thresho
 
 \textcolor{red}{\sout{Test Case Derivation: The system will first divide GPS points into 24-hour trajectories and then divide them into clusters of adjacent points based on speed, distance, heading, and change in-heading thresholds with input with valid GPS data.}}
 					
-\textcolor{red}{\sout{How this test will be performed: The test controller will be given a sample GPS data that has been made sure is valid, the controller will execute GPS points after proceeding with data.}}
+\textcolor{red}{\sout{How this test will be performed: The test controller will be given a sample GPS data that has been made sure is valid, and the controller will execute GPS points after proceeding with data.}}
 
 \end{enumerate}
 
@@ -307,13 +329,13 @@ Control: Manual
 					
 Initial State: The system has received valid GPS data and is ready to proceed. 
 					
-Input: Valid GPS data
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
 					
 Output: GPS points are tagged with stop points or trip points correctly.
 
 Test Case Derivation: The system will tag GPS points with stop points and trip points with input with valid GPS data.
 					
-How this test will be performed: The test controller will be given a sample GPS data that has been made sure is valid and predetermined tags on each of the GPS data points. The controller will execute the script with the sample data as input and observe if GPS points tagged by the script matches the predetermined tags.
+How this test will be performed: The test controller will be given a sample GPS data that has been made sure is valid and predetermined tags on each of the GPS data points. The controller will execute the script with the sample data as input and observe if the GPS points tagged by the script match the predetermined tags.
 
 \end{enumerate}
 
@@ -327,11 +349,11 @@ This subsection covers part of Requirement \#5 of the \href{https://github.com/p
 
 Control: Manual 
 					
-Initial State: System has divided the GPS points into trajectories and ready to proceed.
+Initial State: The system has divided the GPS points into trajectories and is ready to proceed.
 					
-Input: GPS trajectories
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
 					
-Output: GPS Points Segments 
+Output: \textcolor{red}{\sout{GPS Points Segments}GPS points partitioned by mode.} 
 
 Test Case Derivation: The system will take over GPS trajectories and partition them into segments.
 					
@@ -349,11 +371,11 @@ This subsection covers Requirement \#6 of the \href{https://github.com/paezha/Py
 
 Control: Manual 
 					
-Initial State: System has classified the GPS points segments partitioned from trajectories.
+Initial State: The system has classified the GPS points segments partitioned from trajectories.
 					
-Input: GPS trajectories with classified GPS points segments
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
 					
-Output: Extract the trip segments(sequences of GPS points in travel episodes)
+Output: \textcolor{red}{\sout{Extract the trip segments(sequences of GPS points in travel episodes)} GPS points of only mode 'Drive'.}
 
 Test Case Derivation: The system will need to look at the GPS trajectories and extract the trip segments because it is necessary when for generating alternative routes for the input GPS points.
 					
@@ -371,11 +393,11 @@ This subsection covers Requirement \#7 of the \href{https://github.com/paezha/Py
 
 Control: Manual 
 					
-Initial State: System has classified the GPS points segments partitioned from trajectories.
+Initial State: The system has classified the GPS points segments partitioned from trajectories.
 					
-Input: GPS Trajectories 
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
 					
-Output: Extraction of activity locations (GPS points in stop episode or end points of trip segments)
+Output: \textcolor{red}{\sout{Extract the trip segments(sequences of GPS points in travel episodes)} GPS points of only mode 'Stop'.}
 
 Test Case Derivation: The system will need to look at the GPS trajectories and extract the activity locations because it is necessary when adding LU and PAL information to stationary GPS points.
 					
@@ -393,15 +415,15 @@ This subsection covers part of Requirement \#8 of the \href{https://github.com/p
 
 Control: Manual 
 					
-Initial State: System has classified the GPS points segments partitioned from trajectories.
+Initial State: The system has classified the GPS points segments partitioned from trajectories.
 					
-Input: Valid GPS Points \textcolor{red}{, Transportation Network Data} 
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points} \textcolor{red}{, Transportation Network Data fetched from OSM API} 
 					
-Output: Alternative routes for trip segments in SHP format with digital road/pedestrian network
+Output: \textcolor{red}{\sout{Alternative routes for} Route of the extracted} trip segments in SHP format with digital road/pedestrian network
 
-Test Case Derivation: Because the system is developed to match input GPS points into transportation network. With the previously extracted trip segments, the system should be able to generate correct alternative routes on the transportation network for these segments.
+Test Case Derivation: Because the system is developed to match input GPS points into the transportation network. With the previously extracted trip segments, the system should be able to generate correct alternative routes on the transportation network for these segments.
 					
-How this test will be performed: The test controller will use valid GPS data in a correct file format to test that an SHP file with digital road/pedestrian network is produced and matches the content of a predetermined SHP file with the correct digital road/pedestrian network.
+How this test will be performed: The test controller will use valid GPS data in a correct file format to test that an SHP file with a digital road/pedestrian network is produced and matches the content of a predetermined SHP file with the correct digital road/pedestrian network.
 
 \end{enumerate}
 
@@ -415,9 +437,9 @@ This subsection covers Requirement \#9 of the \href{https://github.com/paezha/Py
 
 Control: Manual 
 					
-Initial State: System has classified the GPS points segments partitioned from trajectories.
+Initial State: The system has classified the GPS points segments partitioned from trajectories.
 					
-Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{\textcolor{red}{Valid GPS Points}}, LU and PAL data
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{\textcolor{red}{Valid GPS Points}}, LU and PAL data fetched from OSM API
 					
 Output: SHP files for extracted activity locations with additional information 
 
@@ -437,9 +459,9 @@ This subsection covers Requirement \#10 of the \href{https://github.com/paezha/P
 
 Control: Manual 
 					
-Initial State: The system is set up and ready to take over user’s input.
+Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
 					
-Input: Invalid data format
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-4.csv}{Invalid Data Format}
 					
 Output: Descriptive error message 
 
@@ -451,9 +473,9 @@ How this test will be performed: The test controller will try to use a file with
 
 Control: Manual 
 					
-Initial State: The system is set up and ready to take over user’s input.
+Initial State: The system is set up and ready to take \textcolor{red}{\sout{over} in} the user’s input.
 					
-Input: Invalid file format
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.gpx}{Invalid File Format}
 					
 Output: Descriptive error message 
 
@@ -465,7 +487,7 @@ How this test will be performed: The test controller will try to use an invalid 
 
 \subsubsection{Classification of GPS Points Segments}
 
-This this subsection covers part of Requirement \#11 of the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS document} \citep{SRS}, by testing that the system is able to classify the segments into stationary activity (stop) episodes and travel (moving) episodes.
+This subsection covers part of Requirement \#11 of the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS document} \citep{SRS}, by testing that the system is able to classify the segments into stationary activity (stop) episodes and travel (moving) episodes.
 
 \begin{enumerate}
 
@@ -473,11 +495,11 @@ This this subsection covers part of Requirement \#11 of the \href{https://github
 
 Control: Manual 
 					
-Initial State: System has partitioned trajectories into segments and ready to proceed.
+Initial State: The system has partitioned trajectories into segments and is ready to proceed.
 					
-Input: Segments that are derived from GPS trajectories
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
 					
-Output: Segments that are classified with stationary activity (stop) episodes or travel (moving) episodes
+Output: Segments that are classified with stationary activity (stop) episodes or travel (moving) episodes 
 
 Test Case Derivation: The system will take over Segments that are derived from GPS trajectories and classify them into stationary activity (stop) episodes and travel (moving) episodes.
 					
@@ -492,32 +514,32 @@ This subsection covers part of Requirement \#12 of the \href{https://github.com/
 \begin{enumerate}
 
 \begin{comment}
-
 \item{test-FR12-1\\} \label{test-FR12-1}
 
 Control: Manual 
 					
-Initial State: Control has already generated alternative routes for trip segments in SHP format with a digital road/pedestrian network and ready to move forward. 
+Initial State: Control has already generated alternative routes for trip segments in SHP format with a digital road/pedestrian network and is ready to move forward. 
 					
 Input:  alternative routes in CSV format 
 					
-Output: Each RCA variables with assigned variables 
+Output: Each RCA variable with assigned variables 
 
 Test Case Derivation: 
 					
 How this test will be performed: 
 \end{comment}
+
 \item{test-FR12-1\\} \label{test-FR12-1}
 
 Control: Manual 
 					
-Initial State: System has already generated alternative routes for trip segments.
+Initial State: The system has already generated alternative routes for trip segments.
 					
-Input: Valid GPS Points
+Input: \href{https://github.com/paezha/PyERT-BLACK/blob/rev0-test/quarto-example/data/sample-gps/sample-gps-1.csv}{Valid GPS Points}
 					
 Output: CSV formatted file with the correct RCA variables and values
 
-Test Case Derivation: Because the system has generated alternative routes for the input GPS data. It should be also to generate the correct RCA variables with correct values as the system is developed to do so.
+Test Case Derivation: Because the system has generated alternative routes for the input GPS data. It should also generate the correct RCA variables with correct values as the system is developed to do so.
 					
 How this test will be performed: The test controller will use valid GPS points to generate an alternative route for trip segments. This will then have a CSV file produced and the test controller will verify with a predetermined CSV file with the correct RCA values that the newly generated CSV file is correct.
 
@@ -527,7 +549,7 @@ How this test will be performed: The test controller will use valid GPS points t
 This section contains tests for Nonfunctional Requirements. The subsections for these tests were created based on the subsections of the Nonfunctional Requirements listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}. Each test was created according to the Fit Criterion of the requirements they were covering. The traceability for these requirements and tests can be found in the traceability matrix (\ref{section:5.3}). 
 
 \subsubsection{Look and Feel}
-This subsection's tests covers all Look and Feel Requirements listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing that it is easy for users to figure out the input for the system and follow the system. 
+This subsection's tests cover all Look and Feel Requirements listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing that it is easy for users to figure out the input for the system and follow the system. 
 
 \begin{enumerate}
 
@@ -582,7 +604,7 @@ How this test will be performed:
 \end{enumerate}
 
 \subsubsection{Usability and Humanity}
-This subsection's tests covers all Usability and Humanity requirements listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing that it is easy for users to download the system, testing if the users can generate output, and testing that the system can display instructions. 
+This subsection's tests cover all Usability and Humanity requirements listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing that it is easy for users to download the system, testing if the users can generate output, and testing that the system can display instructions. 
 
 \begin{enumerate}
 
@@ -594,7 +616,7 @@ Initial State:
 The system is available for download online. The user installs the system.
 
 Input/Condition: 
-The user will be asked their programming experience level, and if they were able to install the system without asking for help.	
+The user will be asked about their programming experience level, and if they were able to install the system without asking for help.	
 
 Output: 
 \textcolor{red}{\sout{At least 90\% of the users with little to no programming experience} The supervisor} will say that they were able to install the system without asking for help, \textcolor{red}{even if they have little to no programming experience}.
@@ -630,12 +652,12 @@ How this test will be performed:
 {\textcolor{red}{\sout{There will be a help menu displayed on the system's interface}}}
 
 {\textcolor{red}{\sout{How this test will be performed:}}}
-{\textcolor{red}{\sout{The developers will run the program with a help flag in the input, and confirm that there is a help menu displayed when it is ran with that flag.}}}
+{\textcolor{red}{\sout{The developers will run the program with a help flag in the input, and confirm that there is a help menu displayed when it is run with that flag.}}}
 
 \end{enumerate}
 
 \subsubsection{Performance}
-This subsection's tests covers all Performance requirements listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing the processing time \textcolor{red}{of filtering the data}, \textcolor{red}{\sout{the data size limit of the system input}}, and that the system can be used at any date/time. 
+This subsection's tests cover all Performance requirements listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing the processing time \textcolor{red}{of filtering the data}, \textcolor{red}{\sout{the data size limit of the system input}}, and that the system can be used at any date/time. 
 
 \begin{enumerate}
 
@@ -647,13 +669,13 @@ Initial State:
 The system is set up and ready to take the user's input.
 
 Input/Condition: 
-The system is called with a CSV data file with \textcolor{red}{\sout{1,000,000 GPS points} 8000 GPS points}.
+The system is called with a CSV data file with \textcolor{red}{\sout{1,000,000 GPS points} 78000 GPS points}.
 
 Output: 
-The system returns on output in at most \textcolor{red}{\sout{88} 20} seconds. 
+The system returns on output in at most \textcolor{red}{\sout{88} 10} seconds. \textcolor{red}{The original GERT program could pre-process 7887 points per second, so achieving a comparable rate is desired.}
 
 How this test will be performed:
-The developers will run the system and use a data file containing \textcolor{red}{at least \sout{1,000,000} 8000} GPS points as the input. The difference between the start and end time of processing the data will be \textcolor{red}{\sout{output} when the program prints out a message saying the data was filtered and modes detection is in progress}. If the resulting difference is \textcolor{red}{\sout{88} 20} seconds or less, this test will be considered a success.  
+The developers will run the system and use a data file containing \textcolor{red}{\sout{1,000,000} 78000} GPS points as the input. The difference between the start and end time of processing the data will be \textcolor{red}{\sout{output} when the program prints out a message saying the data was filtered and modes detection is in progress}. If the resulting difference is \textcolor{red}{\sout{88} 10} seconds or less, this test will be considered a success.  
 \\
 \item{\textcolor{red}{\sout{PR2} Test removed because the corresponding requirement was removed}\\}\label{PR2}
 
@@ -668,7 +690,7 @@ The system is called with a data file of 50 million GPS points.}}
 \textcolor{red}{\sout{Output: 
 The system successfully generates an output for an input data set containing 50 million data points.}}
 
-\textcolor{red}{\sout{How this test will be performed: The developers will run the system and use a data file containing 50 million data points as the input. They will verify manually that an output is generated, and that the output is valid.}}
+\textcolor{red}{\sout{How this test will be performed: The developers will run the system and use a data file containing 50 million data points as the input. They will verify manually that output is generated, and that the output is valid.}}
 \\
 \item{PR3\\}\label{PR3}
 
@@ -678,7 +700,7 @@ Initial State:
 The system is set up and ready to take the user's input.
 
 Input/Condition: 
-The system is ran with different date and time settings.
+The system is run with different date and time settings.
 
 Output: 
 The system generates the same output when ran at 2 different dates/times.
@@ -688,7 +710,7 @@ How this test will be performed: The developers will run the system using a samp
 \end{enumerate}
 
 \subsubsection{Operational and Environmental}
-This subsection's tests covers all Operational and Environmental requirements listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing that the system can be used with any operating system that has Python, doesn't install external packages, and properly lists all required packages. 
+This subsection's tests cover all Operational and Environmental requirements listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing that the system can be used with any operating system that has Python, doesn't install external packages, and properly lists all required packages. 
 
 \begin{enumerate}
 
@@ -703,7 +725,7 @@ Input/Condition:
 The user will be asked for their operating system and if they were able to run the system without issue.
 
 Output: 
-\textcolor{red}{\sout{All users using Windows and Linux will report that they are able to run the system without any errors.} The supervisor will report what operating system they were using and if they were able to run the system. The developers will run the system on the operating systems which the supervisor didn't use.}
+\textcolor{red}{\sout{All users using Windows and \textcolor{red}{\sout{Linux} Mac} will report that they are able to run the system without any errors.} The supervisor will report what operating system they were using and if they were able to run the system. The developers will run the system on the operating systems which the supervisor didn't use.}
 
 How this test will be performed: 
 \textcolor{red}{\sout{A test group of users} The supervisor} will be given the system, and a set of sample inputs for the system. They will be asked to use one of the sample inputs to generate an output with the system. After they do this, they will be given a usability survey. The \textcolor{red}{\sout{user} supervisor} will be asked for their operating system, and if they ran into any issues with the program. \textcolor{red}{After this, the developers will run the program on the operating systems which the supervisor did not run it on.}
@@ -716,13 +738,13 @@ Initial State:
 The system is downloaded in a virtual environment with the required packages installed.
 
 Input/Condition: 
-The system will be run in the virtual environment without downloading any external software.
+The system will be run in a virtual environment without downloading any external software.
 
 Output: 
 The system returns a valid output.
 
 How this test will be performed: 
-The developers will create a virtual environment with the required packages of PyERT and run the system. They will manually verify that a output is returned without any other external software needed.
+The developers will create a virtual environment with the required packages of PyERT and run the system. They will manually verify that the output is returned without any other external software needed.
 \\
 \item{OE3\\}\label{OE3}
 
@@ -743,7 +765,7 @@ The developers will create a virtual environment and download the system. They w
 \end{enumerate}
 
 \subsubsection{Maintainability and Support}
-This subsection's tests covers the Maintainability and Support Requirement 3 (MS3) listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing if the system is portable. Requirements MS1 and MS2 are not covered by tests, since they are Git requirements and our group felt that tests would not be appropriate.
+This subsection's tests cover the Maintainability and Support Requirement 3 (MS3) listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing if the system is portable. Requirements MS1 and MS2 are not covered by tests, since they are Git requirements and our group felt that tests would not be appropriate.
 
 \begin{enumerate}
 
@@ -761,12 +783,12 @@ Output:
 \textcolor{red}{\sout{At least 90\% of the users will report in the usability survey} The developers will confirm that} that using the system behaved the same and was similar on both devices.
 
 How this test will be performed: 
-\textcolor{red}{\sout{A test group of users will be given the system, and a set of sample inputs for the system. They will be asked to use one of the sample inputs to generate an output with the system. They will be asked to use the system on two devices. After they do this, they will be given a usability survey. The user will be asked for their experience with the system on both devices.} The 2 developers will use 3 different sample inputs. Each developer will run the program using each input. After running the program 3 times, they will confirm with each other whether the outputs were the same for each system} 
+\textcolor{red}{\sout{A test group of users will be given the system, and a set of sample inputs for the system. They will be asked to use one of the sample inputs to generate an output with the system. They will be asked to use the system on two devices. After they do this, they will be given a usability survey. The user will be asked about their experience with the system on both devices.} The 2 developers will use 3 different sample inputs. Each developer will run the program using each input. After running the program 3 times, they will confirm with each other whether the outputs were the same for each system} 
 
 \end{enumerate}
 
 \subsubsection{Security}
-This subsection's tests covers Security Requirements 1 and 2 listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing that the system does not access the user's information or external files. Requirements SR3 was not covered by tests, since it is a Git requirement and our group felt that a test would not be appropriate.
+This subsection's tests cover Security Requirements 1 and 2 listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing that the system does not access the user's information or external files. Requirements SR3 was not covered by tests, since it is a Git requirement and our group felt that a test would not be appropriate.
 
 \begin{enumerate}
 
@@ -801,7 +823,7 @@ How this test will be performed:  Once the system is complete, the developers wi
 \end{enumerate}
 
 \subsubsection{Legal}
-This subsection's tests covers the Legal Requirement listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing that all packages used to not require licenses.
+This subsection's tests cover the Legal Requirement listed in the \href{https://github.com/paezha/PyERT-BLACK/blob/main/docs/SRS/SRS.pdf}{SRS} \citep{SRS}, by testing that all packages used to not require licenses.
 
 \begin{enumerate}
 
@@ -830,7 +852,9 @@ How this test will be performed: Once the system is complete, the developers wil
 \hline
  Test ID & R1 & R2 & \color{red}\sout{R3} & R4 & R5 & R6 & R7 & R8 & R9 & R10 & R11 & R12 \\
 \hline
-test-FR1-\ref{test-FR1-1} & $\times$ & & & & & & & & & & & \\
+test-FR1,13,14,15-\ref{test-FR1,13,14,15-1} & $\times$ & & & & & & & & & & & \\
+\hline
+\textcolor{red}{test-FR1,13,14,15-\ref{test-FR1,13,14,15-2}} & \textcolor{red}{$\times$} & & & & & & & & & & & \\
 \hline
 test-FR2-\ref{test-FR2-1} & & $\times$  &  & & & & & & & & & \\
 \hline
@@ -864,6 +888,20 @@ test-FR12-\ref{test-FR12-1} & & & & & & & & & & & & $\times$\\
 \hline
 \end{tabular}
 \caption{\bf Functional Requirements Traceability}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+Test ID & R13 & R14 & R15 \\
+\hline 
+test-FR1,13,14,15-\ref{test-FR1,13,14,15-1} & $\times$ & & $\times$ \\
+\hline
+test-FR1,13,14,15-\ref{test-FR1,13,14,15-2} & & $\times$ & $\times$ \\
+\hline
+\end{tabular}
+\caption{\bf \textcolor{red}{Functional Requirements Traceability Part 2}}
 \end{table}
 
 \begin{table}[H]
@@ -924,23 +962,75 @@ LR1 & & & & $\times$ \\
 
 \section{Unit Test Description}
 \label{section:6}
-Pytest will be used by the group to implement automatic unit tests for the system. Manual unit tests will be implemented in Jupyter Notebook. For automatic unit tests, a test file will be created for each module other than the Main module. Each function in a module will either have unit test(s) for it in corresponding automatic test file or manual unit test(s) implemented in Jupyter Notebook. 
+Pytest will be used by the group to implement automatic unit tests for the system. Manual unit tests will be implemented in Jupyter Notebook. For automatic unit tests, a test file will be created for each module other than the Main module. Each function in a module will either have the unit test(s) for it in the corresponding automatic test file or manual unit test(s) implemented in Jupyter Notebook. 
 
 \subsection{Unit Testing Scope}
-The scope of unit testing includes all modules that will be implemented by the group other than the Main module (i.e. GPS Data Preprocessing Module, GPS Data Mode Detection Module, Trip Segments and Activity Locations Extraction Module, Route Choice Set Generator Module, Route Choice Analysis Variables Generator Module and Activity Locations Identification Module)
+The scope of unit testing includes all modules that will be implemented by the group other than the Main Function Module (i.e. GPS Data Preprocessing Module, GPS Data Mode Detection Module, Trip Segments and Activity Locations Extraction Module, Route Choice Set Generator Module, Route Choice Analysis Variables Generator Module , Activity Locations Identification Module and Network Data Utilities Module)
 
-\subsection{Tests for Functional Requirements}
+\subsection{Tests for GPS Data Preprocessing Module}
 
-N/A
+Implementation for the test case: \href{https://github.com/paezha/PyERT-BLACK/blob/rev1-implementation/test/test_GPSPreprocess.py}{test\_GPSPreprocess.py}
 
-\subsection{Tests for Nonfunctional Requirements}
+\begin{itemize}
+    \item test\_get\_data: Tests if the function get\_data correctly returns the processed data that has the correct data types and values as the initial input as well as an additional 'geometry' column that has the correct longitude and latitude of each corresponding point. This test also takes a sample input of data with redundant points and outliers and checks if processed data has less rows than the input.
+    \item test\_filter\_data: Tests if the function filter\_data correctly filters and removes a redundant point by manually appending a copied data row to the end of the database.
+    \item test\_filter\_data\_redundant\_only: Tests if the function filter\_data correctly filters input data with only redundant points.
+    \item test\_filter\_data\_redundant\_and\_outliers: Tests if the function filter\_data correctly filters input data with both redundant points and outliers.
+    \item test\_smooth\_data: Tests if the function smooth\_data removes outliers from redundant points only and then manually changing some rows to outliers and testing if those rows are removed.
+    \item test\_smooth\_data\_redundant\_and\_outliers: Tests if the function smooth\_data removes outliers from an input data with redundant points and outliers.
+    \item test\_smooth\_data\_outliers\_only: Tests if the function smooth\_data removes outliers from an input data with only outliers.
+\end{itemize}
 
-N/A
+\subsection{Tests for GPS Data Mode Detection Module}
+\begin{itemize}
+    \item test\_ModeDetection: Tests the distance function in the mode detection module by testing if the distance between two points is accurate to the actual distance obtained from online information, and testing if the distance between the same point is 0.
+\end{itemize}
 
+\subsection{Tests for Trip Segments and Activity Locations Extraction Module}
+Implementation of the test cases: \href{https://github.com/paezha/PyERT-BLACK/blob/rev1-implementation/test/test_Extractor.py}{test\_Extractor.py}
+\begin{itemize}
+    \item test\_fill\_points: Tests if the fill\_points function correctly populates data. All traces from the start of one one mode to the start of the next mode should be the same mode.
 
-\subsection{FR1-1n Test Cases and Modules}
+    \item test\_extract\_trip\_segments: Tests if all the traces of mode Drive and Walk are extracted by the extract\_trip\_segments function, and if only traces of mode Drive and Walk are extracted
 
-N/A
+    \item test\_extract\_activity\_locations: Tests if all the traces of mode Stop are extracted by the extract\_activity\_locations function, and if only traces of mode Stop are extracted
+
+\end{itemize}
+
+\subsection{Tests for Route Choice Set Generator Module}
+Implementation of the test cases: \href{https://github.com/paezha/PyERT-BLACK/blob/rev1-implementation/test/test_route_solver.py}{test\_route\_solver.py}
+\begin{itemize}
+    \item test\_map\_point: Tests the map\_point\_to\_network function by testing if every GPS point in the sample GPS segment has been mapped to its predetermined street or one of its predetermined streets if the GPS point is beside a cross of two streets and it is the first/last point in the trip segment that is located on the street(s).
+
+    \item test\_detect\_and\_fill\_gap: Tests the detect\_and\_fill\_gap function by testing if all the predetermined gap within the sample trip segment have been successfully detected and no error has been returned when filling the gaps.
+\end{itemize}
+
+\subsection{Tests for Route Choice Analysis Variables Generator Module}
+
+Implementation of the test cases: \href{https://github.com/paezha/PyERT-BLACK/blob/rev1-implementation/test/test_variable_generator.py}{test\_variable\_generator.py}
+\begin{itemize}
+    \item test\_var\_gen: Tests the RCA variable generated by the var\_gen function to see if all the entries are correct. The route for testing is generated by the Route Choice Set Generator Module since the route information cannot be fully stored in an SHP file.
+\end{itemize}
+
+\subsection{Tests for Activity Locations Identification Module}
+Implementation of the test cases: \href{https://github.com/paezha/PyERT-BLACK/blob/rev1-implementation/test/test_activity_location.py}{test\_activity\_location.py}
+\begin{itemize}
+    \item test\_identify\_lu: Tests the identify\_lu function to see if all the activity locations are identified as the predetermined land-use type(s) and identified to be inside the predetermined land-use area by testing the output OpenStreetMap ID of land-use area.
+    \item test\_identify\_pal: Tests the identify\_pal function to see if all identified potential activity locations (buildings and amenities) in the output are less than 100 meters away from the points of stop segments.
+\end{itemize}
+
+\subsection{Tests for Network Data Utilities Module}
+Implementation of the test cases: \href{https://github.com/paezha/PyERT-BLACK/blob/rev1-implementation/src/test_network_data_utils.py}{test\_network\_data\_utils.py} 
+\begin{itemize}
+    \item test\_get\_points\_boundary: Tests the get\_points\_boundary function to test if the output maximum and minimum latitudes and longitudes equal to the predetermined values.
+    \item test\_extract\_networkdata\_pbf: Tests the extract\_networkdata\_pbf function to see if the indices of the output edges and nodes GeoDataFrame are set to ['u','v','key'] multi-level index and 'osmid' respectively. Test if the output graph, GeoDataFrames of nodes and edges are all projected. Test if the latitude and longitude boundaries of the GeoDataFrames of nodes and edges are within the sample input boundary. Test if the function returns None when an invalid 'mode' input is used to extract the data.
+    \item test\_extract\_networkdata\_bbox: Tests the extract\_networkdata\_bbox function to see if the output graph, GeoDataFrames of nodes and edges are all projected. Test if the latitude and longitude boundaries of the GeoDataFrames of nodes and edges are within the sample input boundary. Test if the function returns None when an invalid 'mode' input is used to extract the data.
+    \item test\_extract\_ludata\_pbf: Tests the extract\_ludata\_pbf function to see if index of the output GeoDataFrames of land-use information is set to ['osm\_type','id'] multi-level index. Test if the latitude and longitude boundaries of the GeoDataFrames of land-use information are within the sample input boundary. 
+    \item test\_extract\_paldata\_pbf: Tests the extract\_paldata\_pbf function to see if the index of the output GeoDataFrames of potential activity locations' information information is set to ['osm\_type','id'] multi-level index. Test if the latitude and longitude boundaries of the GeoDataFrames of potential activity locations' information are within the sample input boundary
+    \item test\_extract\_ludata\_bbox: Tests the extract\_ludata\_bbox function to see if the latitude and longitude boundaries of the GeoDataFrames of land-use information are within the sample input boundary
+    \item test\_extract\_paldata\_bbox: Tests the extract\_paldata\_bbox function to see if the latitude and longitude boundaries of the GeoDataFrames of land-use information are within the sample input boundary
+    \item test\_get\_trip\_mode: Tests the get\_trip\_mode function to see if the output mode string matches the predetermined output.
+\end{itemize}
 				
 \bibliographystyle{plainnat}
 
@@ -955,7 +1045,7 @@ N/A
 
 N/A
 
-\subsection{Usability Survey Questions?}
+\subsection{Usability Survey Questions\textcolor{red}{\sout{?}}}
 The following questions listed below would be delivered on Google Forms and presented to the volunteer testers when testing the game. They consist of multiple choice followed by some written questions.
 \begin{enumerate}
 
@@ -1083,7 +1173,7 @@ graduate attribute of Lifelong Learning.  Please answer the following questions:
     Mike - The approach I will choose will be to research online on how to effectively hold code review sessions. This is a good approach as searching online for tips on how to hold code review sessions will reveal many tips and in-depth resources for code review sessions that we previously did not know. Making our code review sessions more efficient will allow us to constantly review our code and ensure the code base quality is up to high standard at a faster pace.
     \item Domain-specific knowledge:
     \begin{itemize}
-        \item Consult with our supervisor, Dr.Antonio Paez.
+        \item Consult with our supervisor, Dr. Antonio Paez.
         \item Do research online on technologies similar to GERT.
         \item Read the in-depth documentation provided for GERT.
     \end{itemize}

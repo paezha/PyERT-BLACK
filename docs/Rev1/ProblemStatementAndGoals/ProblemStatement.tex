@@ -1,0 +1,117 @@
+\documentclass{article}
+
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage[normalem]{ulem}
+
+\title{Problem Statement and Goals\\\progname}
+
+\author{\authname}
+
+\date{April 5, 2023}
+
+\input{../Comments}
+\input{../Common}
+
+\begin{document}
+
+\maketitle
+
+\begin{table}[hp]
+\caption{Revision History} \label{TblRevisionHistory}
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Date} & \textbf{Developer(s)} & \textbf{Change}\\
+\midrule
+Sept 23 & Jasper Leung & Modified Problem Statement, Goals, and Stretch Goals\\
+Sept 23 & Zabrain Ali & Modified Goals, Stretch Goals, Team Number, and Group Name\\
+Sept 23 & Hongzhao Tan & Modified Goals, Stretch Goals, Stakeholders, and Environment\\
+Sept 23 & Mengtong Shi & Modified Problem, Inputs and Outputs, Stakeholders, and Environment\\
+Sept 23 & Mike Li & Modified Problem Statement, Input, Output, Hardware, and Goals\\
+Sept 23 & Linqi Jiang & Modified Outputs Problems Statement and Goals\\
+April 3 & Mengtong Shi & Modified Environment\\
+April 5 & Jasper Leung & Modified Document to match Revision 1\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Problem Statement}
+
+%\wss{You should check your problem statement with the
+%\href{https://github.com/smiths/capTemplate/blob/main/docs/Checklists/%ProbState-Checklist.pdf}
+%{problem statement checklist}.}
+%\wss{You can change the section headings, as long as you include the required information.}
+
+\subsection{Problem}
+GIS-based Episode Reconstruction Toolkit (GERT) is a set of tools for working with GPS data and is used to identify stop and travel episodes and  match them to a network. The toolbox currently uses an external software ArcGIS Pro, which requires a license to be accessed. This makes GERT less accessible for most potential users and very expensive to maintain. In theory, \textcolor{red}{\sout{the re-implemented toolbox} a program which recreates the main functions of the toolbox} should be fully open-source and independent so that it can accomplish the same tasks without needing to license ArcPro.
+\subsection{Inputs and Outputs}
+    \subsubsection{Input}
+    \begin{itemize}
+    \item Geographic data
+    \item Mobility data
+    \item GPS stamps
+    \end{itemize}
+    \subsubsection{Output}
+    \begin{itemize}
+    \item Analysis of geographic data
+    \item Network and traffic analysis
+    \item Map matching
+    \item Possible research results according to user requirement
+    \end{itemize}
+%\wss{Characterize the problem in terms of ``high level'' inputs and outputs.  
+%Use abstraction so that you can avoid details.}
+
+\subsection{Stakeholders}
+
+\begin{itemize}
+    \item School of Earth Environment and Society of McMaster University
+    \item Supervisor of the project Dr. Antonio Paez and the potential users of the toolbox
+    \item Professor of the 4G06 capstone course Dr. Spencer Smith
+    \item Developers of this project Zabrain Ali, Linqi Jiang, Jasper Leung, Mike Li,  Mengtong Shi, Hongzhao Tan
+\end{itemize}
+
+\subsection{Environment}
+    \subsubsection{Software}
+    The software should be compatible with Python\textcolor{red}{\sout{, R}} and any required libraries.
+    
+    \subsubsection{Hardware}
+    The hardware that would be utilized includes personal computers for development, and computers from \textcolor{red}{the} General Science Building computer lab to access ArcGIS.
+
+%\wss{Hardware and software}
+
+\section{Goals}
+\begin{itemize}
+    \item \textcolor{red}{\sout{Re-implement the features in GERT that use ArcGIS Pro packages with open-source packages and libraries and remove any use of ArcGIS in the project.} Re-create the main functions of GERT with a separate program that uses open-source packages and libraries that don't use ArcGIS.}
+    \begin{itemize}
+        \item Using open-source packages and libraries instead of ArcGIS will make the \textcolor{red}{\sout{GERT tools} new program that recreates the functions of GERT} free to use.
+    \end{itemize}
+    \item Document the changes made to \textcolor{red}{\sout{GERT when replacing ArcGIS} the new program and how it differs from GERT}.
+    \begin{itemize}
+        \item Having detailed documentation for the \textcolor{red}{\sout{modified GERT} new program} will ensure that existing users of GERT will be able to transition from using \textcolor{red}{\sout{the ArcGIS version easily} GERT} and understand the changes made. It will also be helpful for new users.
+    \end{itemize}
+    \item Modify existing project structure to be more organized and readable.
+    \begin{itemize}
+        \item Most of the code for the current project is stored in a single file, making it hard to read. Organizing the code and potentially splitting up the code \textcolor{red}{of the new program} into separate modules would be helpful for any users trying to use the code.
+    \end{itemize}
+\end{itemize}
+\section{Stretch Goals}
+\begin{itemize}
+    \item Implement GUI for the \textcolor{red}{\sout{re-implemented tool} the new program}.
+    \begin{itemize}
+        \item The current GERT is run using the command line. Implementing a GUI \textcolor{red}{for the new program} will make it more intuitive, and may motivate new users to use it.
+    \end{itemize}
+    \item Implement new features or improve existing features in GERT.
+    \begin{itemize}
+        \item If the existing features of GERT are all \textcolor{red}{\sout{converted to Python} present in the new program} and there is still time, we can spend the \textcolor{red}{\sout{remainder} remaining time} improving these features, or add new features based on Dr.Paez's feedback\textcolor{red}{, such as visualization}.
+    \end{itemize}
+    \item Create tutorials for how to use \textcolor{red}{\sout{modified GERT} the new program}.
+    \begin{itemize}
+        \item \textcolor{red}{\sout{There is the documentation for GERT within the code, but no videos/manuals on how to use it.} Adding videos/manuals for how to use the new program} would make the tool more accessible.
+    \end{itemize}
+    \item Improve run time by implementing more efficient sorting and searching algorithms.
+    \begin{itemize}
+        \item After successfully \textcolor{red}{\sout{reverse engineering the toolbox} re-implementing the main features of GERT in the new program}, we would like to improve the speed of the software by implementing new \textcolor{red}{\sout{potential}} algorithms to efficiently handle large geographic data sets.
+    \end{itemize}
+\end{itemize}
+
+\end{document}

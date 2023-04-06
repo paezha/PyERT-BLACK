@@ -1,0 +1,1122 @@
+\documentclass[12pt, titlepage]{article}
+
+\usepackage{amsmath, mathtools}
+
+\usepackage[round]{natbib}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{colortbl}
+\usepackage{xr}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{xfrac}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage[section]{placeins}
+\usepackage{caption}
+\usepackage{fullpage}
+\usepackage{ulem}
+
+\hypersetup{
+bookmarks=true,     % show bookmarks bar?
+colorlinks=true,       % false: boxed links; true: colored links
+linkcolor=red,          % color of internal links (change box color with linkbordercolor)
+citecolor=blue,      % color of links to bibliography
+filecolor=magenta,  % color of file links
+urlcolor=cyan          % color of external links
+}
+
+\usepackage{array}
+
+\externaldocument{../../SRS/SRS}
+
+\input{../../Comments}
+\input{../../Common}
+
+\begin{document}
+
+\title{Module Interface Specification for \progname{}}
+
+\author{\authname}
+
+\date{April 5, 2023}
+
+\maketitle
+
+\pagenumbering{roman}
+
+\section{Revision History}
+
+\begin{tabularx}{\textwidth}{p{3cm}p{2cm}X}
+\toprule {\bf Date} & {\bf Version} & {\bf Notes}\\
+\midrule
+January 16, 2023 & 1.0 & Edited Abbreviations and Acronyms, Introduction and Notation \\
+January 17, 2023 & 1.1 & Edited Module Decomposition\\
+January 18, 2023 & 1.2 & Edited MIS of all Modules \\
+April 5, 2023 & 2.0 & Modified Document according to feedback from Revision 0\\
+\bottomrule
+\end{tabularx}
+
+~\newpage
+
+\section{Symbols, Abbreviations and Acronyms}
+
+See SRS Documentation at \url{https://github.com/paezha/PyERT-BLACK/tree/main/docs/SRS}.\\\\
+%\wss{Also add any additional symbols, abbreviations or acronyms}
+\begin{tabular}{l l} 
+  \toprule		
+  \textbf{symbol} & \textbf{description}\\
+  \midrule
+    ArcGIS & Geographic Information System \\
+    CRS & Coordinate-Reference System \\
+      CSV & Comma-Separated Values\\
+  EPSG & European Petroleum Survey Group\\
+  GERT &  Graphical Evaluation and Review Technique \\
+  GPS & Global Positioning System \\
+  MIS & Module Interface Specification \\
+  MG & Module Guide \\
+    OSM & OpenStreetMap: a free, open geographic database \\
+    OSMnx & Python package that lets you download geospatial data from OpenStreetMap \\
+   PBF format & Protocolbuffer Binary Format\\
+  PyERT & Python-based Episode Reconstruction Toolkit\\
+  SHP & shapefile: a geospatial vector data format for GIS software\\
+    SRS & Software Requirements Specification\\
+  URL & Uniform Resource Locator \\
+  2D & two-dimensional\\
+%   \wss{etc.} & \wss{...}\\
+  \bottomrule
+\end{tabular}\\
+
+\newpage
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\pagenumbering{arabic}
+
+\section{Introduction}
+
+The following document details the Module Interface Specifications for the project PyERT. The project aims to re-implement the functionalities of GERT~\citep{DALUMPINES2018121} which uses ArcGIS Pro packages, with
+open-source packages and libraries, and remove any use of ArcGIS in GERT. The same as the original GERT toolkit, the purpose of the product system is to match GPS trajectories to \textcolor{red}{a} transportation network for further analysis \textcolor{red}{\sout{to} of} the GPS data. 
+
+Complementary documents include the System Requirement Specifications
+and Module Guide.  The full documentation and implementation can be
+found at \url{https://github.com/paezha/PyERT-BLACK}.
+
+
+\section{Notation}
+
+%\wss{You should describe your notation.  You can use what is below as
+ % a starting point.}
+
+The structure of the MIS for modules comes from \citet{HoffmanAndStrooper1995},
+with the addition that template modules have been adapted from
+\cite{GhezziEtAl2003}.  The mathematical notation comes from Chapter 3 of
+\citet{HoffmanAndStrooper1995}.  For instance, the symbol := is used for a
+multiple assignment statement and conditional rules follow the form $(c_1
+\Rightarrow r_1 | c_2 \Rightarrow r_2 | ... | c_n \Rightarrow r_n )$.
+
+The following table summarizes the primitive data types \textcolor{red}{, derived data types and other derived data types from \href{https://pandas.pydata.org/docs/}{Pandas}, \href{https://geopandas.org/en/stable/docs.html}{GeoPandas}, \href{https://osmnx.readthedocs.io/en/stable/osmnx.html }{OSMnx} and \href{https://shapely.readthedocs.io/en/stable/manual.html}{Shapely} libraries} that are used by \progname. 
+
+\subsection{\textcolor{red}{Primitive Data Types}}
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\noindent 
+\begin{tabular}{l l p{7.5cm}} 
+\toprule 
+\textbf{Data Type} & \textbf{Notation} & \textbf{Description}\\ 
+\midrule
+character & char & A single symbol or digit\\
+integer & $\mathbb{Z}$ & A number without a fractional component in (-$\infty$, $\infty$) \\
+natural number & $\mathbb{N}$ & A number without a fractional component in [1, $\infty$) \\
+real & $\mathbb{R}$ & Any number in (-$\infty$, $\infty$)\\
+boolean & $\mathbb{B}$ & A value of either $True$ or $False$\\
+\bottomrule
+\end{tabular} 
+\end{center}
+\noindent
+The specification of \progname \ uses some derived data types: sequences, strings, and
+tuples. Sequences are lists filled with elements of the same data type. Strings
+are sequences of characters. Tuples contain a list of values, potentially of
+different types. In addition, \progname \ uses functions, which
+are defined by the data types of their inputs and outputs. Local functions are
+described by giving their type signature followed by their specification.
+
+\subsection{\textcolor{red}{Data Types From Libraries}}
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\noindent 
+\begin{tabular}{l l p{7.5cm}} 
+\toprule 
+\textbf{Data Type} & \textbf{Notation} & \textbf{Description}\\ 
+\midrule
+DataFrame & df & Tuple that the value for each field is a sequence. Sequences of different fields could be of different data types, but their lengths will be the same. \textcolor{red}{Each element in a sequence of a DataFrame is associated with the elements of other sequences with the same value of index, a row in a DataFrame is a group of elements in the DataFrame (one element from each field) that are associated with the same value of index.}\\
+GeoDataFrame & gdf & A special type of df where there will be always a field of ‘geometry’ which is a sequence of geometric data type (e.g. Point, LineString, etc.)\\\
+Point & Point & A geometric data type that describes a point, which will be a sequence of $\mathbb{R}$, the length of the sequence will be always 2 \\ 
+LineString & $ls$ & A geometric data type that describes a line segment, which will be a sequence of sequences of $\mathbb{R}$, the length of the inner sequences will be always 2\\
+\textcolor{red}{Multi-Directed Graph} & \href{https://networkx.org/documentation/stable/reference/classes/multidigraph.html}{MultiDiGraph} & \textcolor{red}{A directed graph data type from \href{https://networkx.org/}{NetworkX} library that is returned by many functions of OSMnx library. A directed graph class that can store multiedges. Multiedges are multiple edges between two nodes. Each edge can hold optional data or attributes.} \\
+Polygon & Polygon & A geometric data type that describes a shape will be a sequence of sequences of $\mathbb{R}$, where the first and last inner sequences are the same (connecting to make a closed shape), the length of the inner sequences will be always 2 \\
+\bottomrule
+\end{tabular} 
+\end{center}
+
+\newpage
+
+\section{Module Decomposition}
+
+The following table is taken directly from the Module Guide document for this project.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{p{0.3\textwidth} p{0.6\textwidth}}
+\toprule
+\textbf{Level 1} & \textbf{Level 2}\\
+\midrule
+
+{Hardware-Hiding Module} & ~ \\
+\midrule
+
+\multirow{7}{0.3\textwidth}{Behaviour-Hiding Module}
+& GPS Data Preprocessing Module\\
+& GPS Data Mode Detection Module \\
+& Trip Segments and Activity Locations Extraction Module\\
+& Route Choice Set Generator Module\\
+& Route Choice Analysis Variables Generator Module\\
+& Activity Locations Identification Module\\
+& Main Function Module\\ 
+\midrule
+
+\multirow{3}{0.3\textwidth}{Software Decision Module}
+& DataFrame Data Structure Module\\
+& GeoDataFrame Data Structure Module\\
+& Geometric Object Analysis and Manipulation Module\\
+& Network Analysis Module\\
+& OSM Network Dataset Reader Module\\
+& Plotting Module\\
+\bottomrule
+
+\end{tabular}
+\caption{Module Hierarchy}
+\label{TblMH}
+\end{table}
+
+\newpage
+
+\section{MIS of GPS Data Preprocessing Module} \label{GPSPreprocess}
+
+\subsection{Module}
+
+GPSPreprocess
+
+\subsection{Uses}
+
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+GPSPreprocess & data: df of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, latitude: seq of $\mathbb{R}$, longitude: seq of $\mathbb{R}$, Speed\_kmh: seq of $\mathbb{R}$) &  & \\
+\hline
+getData &  & processedData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of Point) & ~\\
+\hline
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+\textcolor{red}{\sout{filterData}} & & & ~\\
+\hline
+\textcolor{red}{\sout{smoothData}} & \textcolor{red}{\sout{data: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of Point)}} &   & ~\\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+
+processedData:  gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of Point)
+
+\subsubsection{Environment Variables}
+
+None
+
+\subsubsection{Assumptions}
+
+None
+
+\subsubsection{Access Routine Semantics}
+
+\noindent GPSPreprocess(data):
+\begin{itemize}
+\item transition: filters and smooths given DataFrame and converts it to a GeoDataFrame
+\item output: $out := self$
+\item exception: None
+\end{itemize}
+
+\noindent getData():
+\begin{itemize}
+\item output: $out := preprocessedData$
+\item exception: None
+\end{itemize}
+
+\noindent\textcolor{red}{\sout{filterData(data):}}
+\begin{itemize}
+\item \textcolor{red}{\sout{transition: \textcolor{red}{$data := (\forall x.latitude \wedge x.longitude \wedge x.LocalTime, 
+y.latitude \wedge y.longitude \wedge y.LocalTime : data | x \neq y)$}}}
+\item \textcolor{red}{\sout{output: a gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of Point) with redundant GPS points removed}}
+\item \textcolor{red}{\sout{exception: None}}
+\end{itemize}
+
+\noindent \textcolor{red}{\sout{smoothData(data):}}
+\begin{itemize}
+\item \textcolor{red}{\sout{transition: $data := (\forall row : data | row.kmh\_speed < \textcolor{red}{180})$}}
+\item \textcolor{red}{\sout{output: a gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of Point) with all outliers removed}}
+\item\textcolor{red}{\sout{exception: None}} 
+\end{itemize}
+
+\subsubsection{Local Functions}
+\noindent\textcolor{red}{filterData: gdf $\rightarrow$ gdf}
+
+\noindent\textcolor{red}{filterData(data) $\equiv$ $(\forall x.latitude \wedge x.longitude \wedge x.LocalTime, y.latitude \wedge y.longitude \wedge y.LocalTime : data | x \neq y)$}
+\\\\
+\noindent \textcolor{red}{smoothData: gdf $\rightarrow$ gdf}
+
+\noindent\textcolor{red}{smoothData(data) $\equiv$ $(\forall row : data | row.kmh\_speed < \textcolor{red}{180})$}
+
+\newpage
+
+\section{MIS of GPS Data Mode Detection Module} \label{ModeDetection} 
+
+\subsection{Module}
+
+ModeDetection
+
+\subsection{Uses}
+
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+
+None
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+detectModes & processedData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, geometry: seq of Point) & & \\
+\hline
+getEpisodeData & & episodeData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, Mode: seq of String, geometry: seq of Point) & \\
+\hline
+
+\end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+
+episodeData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, Mode: seq of String, geometry: seq of Point
+
+\subsubsection{Environment Variables}
+
+None
+
+\subsubsection{Assumptions}
+
+None
+
+\subsubsection{Access Routine Semantics}
+
+\noindent detectModes(processedData):
+\begin{itemize}
+\item transition: Read a processedData GeoDataFrame produced by the GPSPreprocsser module, then \textcolor{red}{\sout{partition the given points into segments, then classify these episodes by mode (walk, car, bus, etc.).} then classify the start of each Mode. A Walk is classified as a segment of points where the speed never exceeds 2.78 meters per second for at least 60 seconds. A Drive is classified as a segment of points where the speed exceeds 2.78 meters per second for at least 120 seconds. A Stop is classified as a segment of points where the speed never exceeds 0.01 meters per second for at least 120 seconds.} Store these episodes into the episodeData GeoDataFrame (a state variable).
+\item exception: None
+\end{itemize}
+
+\noindent getEpisodeData():
+\begin{itemize}
+
+\item output: \textcolor{red}{\sout{A} The} GeoDataFrame \textcolor{red}{\sout{object} state variable} containing the classified GPS Episodes. It consists of recordID (represented by a sequence of integers), serialID (represented by a sequence of integers), LocalTime (represented by a sequence of strings), Speed\_kmh (represented by a sequence of real numbers), Mode(represented by a sequence of Strings), and geometry (represented by a sequence of Points).
+\item exception: None
+\end{itemize}
+
+\subsubsection{Local Functions}
+
+None
+  
+\newpage
+
+\section{MIS of Trip Segments and Activity Locations Extraction Module} \label{Extractor} 
+\subsection{Module}
+
+Extractor
+
+\subsection{Uses}
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+None
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+extractTripSegments & episodeData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Mode: seq of String, geometry: seq of Point) &  & \\
+\hline
+getTripSegments &  & tripSegmentsData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Mode: seq of string, geometry: seq of Point) & \\
+\hline
+\end{tabular}
+\end{center}
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Routine name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions}\\
+\hline
+extractActivityLocations & episodeData: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Speed\_kmh: seq of $\mathbb{R}$, Mode: seq of String, geometry: seq of Point) & &\\
+\hline
+getActivityLocations &  & extractedData : gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Mode: seq of string, geometry: seq of Point) & \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+tripSegments: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Mode: seq of string, geometry: seq of Point
+\\
+activityLocations: gdf of (recordID: seq of $\mathbb{Z}$, SerialID: seq of $\mathbb{Z}$, LocalTime: seq of string, Mode: seq of string, geometry: seq of Point)
+
+\subsubsection{Environment Variables}
+
+None
+
+\subsubsection{Assumptions}
+
+None
+
+\subsubsection{Access Routine Semantics}
+
+\noindent extractTripSegments(episodeData):
+\begin{itemize}
+\item transition: Read the episodeData GeoDataFrame generated by the ModeDetection module, and extract trip segments (sequences of data points in a travel episode) from this GeoDataFrame. \textcolor{red}{Trip segments are defined as points with a mode that is not a Stop.} Store these trip segments into the tripSegments GeoDataFrame (a state variable).
+\item exception: None
+\end{itemize}
+
+\noindent getTripSegments():
+\begin{itemize}
+\item output: \textcolor{red}{\sout{A} The} GeoDataFrame \textcolor{red}{\sout{object} state variable} containing the trip segments data.  It consists of recordID (represented by a sequence of integers), serialID (represented by a sequence of integers), LocalTime (represented by a sequence of strings), Speed\_kmh (represented by a sequence of real numbers), Mode (represented by a sequence of Strings), and geometry (represented by a sequence of Points).
+\item exception: None
+\end{itemize}
+
+
+\noindent extractActivityLocations(episodeData):
+\begin{itemize}
+\item transition: Read the episodeData GeoDataFrame generated by the ModeDetection module, and extract activity locations (stops or endpoints of trip segments) from this GeoDataFrame. \textcolor{red}{Activity locations are defined as points with a mode of Stop.} Store these \textcolor{red}{\sout{trip segments}} \textcolor{red}{activity locations in} the \textcolor{red}{\sout{tripSegments}} \textcolor{red}{activityLocations} GeoDataFrame (a state variable).
+\item exception: None
+\end{itemize}
+
+\noindent getActivityLocations():
+\begin{itemize}
+\item output: \textcolor{red}{\sout{A} The} GeoDataFrame \textcolor{red}{\sout{object} state variable} containing the activity location data.  It consists of recordID (represented by a sequence of integers), serialID (represented by a sequence of integers), LocalTime (represented by a sequence of strings), Speed\_kmh (represented by a sequence of real numbers), Mode(represented by a sequence of Strings), and geometry (represented by a sequence of Points).
+\item exception: None
+\end{itemize}
+
+\subsubsection{Local Functions}
+
+None
+
+\newpage
+
+\section{MIS of Route Choice Set Generator Module} \label{RCSGenerator}
+
+\subsection{Module}
+\textcolor{red}{\sout{RCSGenerator} RouteSolver}
+
+\subsection{Uses}
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+None
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+\textcolor{red}{\sout{mapPointToNetwork}} & networkData: gdf of (streetName: sequence of string, geometry: sequence of $ls$) & pointOnNet: gdf of (streetGeometry: sequence of $ls$, streetName: sequence of string, geometry: sequence of Point) & - \\
+ & points: sequence of Point &&\\
+\hline
+\textcolor{red}{\sout{detectGap}} & points: sequence of Point & gapPoints: sequence of sequence of Point & - \\
+\hline
+\textcolor{red}{\sout{fillInGap}} & gapPoints: sequence of sequence of Point & filledGap: sequence of $ls$ & - \\
+\hline
+\textcolor{red}{\sout{findStreetIntersect}} & allExistStreets: sequence of $ls$ & intersections: gdf of (street1Geo: sequence of $ls$, street2Geo: sequence of $ls$, geometry: sequence of Point) & - \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{| l | >{\raggedright}p{5.2cm} | >{\raggedright}p{5cm} | l |}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+\textcolor{red}{\sout{connectPoints}} & pointOnNet: gdf of (streetGeometry: sequence of $ls$, streetName: sequence of string, geometry: sequence of Point] ) & route: $ls$ & -\\
+ & intersections: gdf of (street1Geo: sequence of $ls$, street2Geo: sequence of $ls$, geometry: sequence of Point) & & \\
+ & filledGap: sequence of $ls$ & &  \\
+\hline
+RouteChoiceGen & trip: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of string, Mode: sequence of string, geometry: sequence of Point) & routeChoice: gdf of (SerialID: sequence of $\mathbb{Z}$, \textcolor{red}{edgesRoutePassed: sequence of sequence of sequence [3] of $\mathbb{Z}$}, geometry: sequence of $ls$)& - \\
+& \textcolor{red}{\sout{networkData: gdf of (streetName: sequence of string, geometry: sequence of $ls$)}} & & \\
+& \textcolor{red}{networkGraph:MultiDiGraph} & & \\
+& \textcolor{red}{networkEdges: gdf of (name: sequence of string \newline oneway: sequence of $\mathbb{B}$ \newline geometry: sequence of $ls$)} & & \\
+& \textcolor{red}{networkNodes: gdf of (x: sequence of $\mathbb{R}$ \newline y: sequence of $\mathbb{R}$ \newline geometry: sequence of Point)} & & \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+None
+
+\subsubsection{Environment Variables}
+None
+
+\subsubsection{Assumptions}
+None
+
+\subsubsection{Access Routine Semantics}
+
+\noindent \textcolor{red}{\sout{mapPointToNetwork(networkData, points)}}:
+\begin{itemize}
+\item \textcolor{red}{\sout{output: 
+a GeoDataFrame object with the input points mapped onto the input network. It consists of streetGeometry (represented by a sequence of LineString), streetName (represented by a sequence of string), and geometry (represented by a sequence of Point).}}
+\item \textcolor{red}{\sout{exception: none}}
+\end{itemize}
+
+\noindent \textcolor{red}{\sout{detectGap(points)}}:
+\begin{itemize}
+\item \textcolor{red}{\sout{output: a sequence of all the gap points among the given points, which is a sequence of sequences [2] of Point.}}
+\item \textcolor{red}{\sout{exception: none}}
+\end{itemize}
+
+\noindent \textcolor{red}{\sout{fillInGap(gapPoints)}}:
+\begin{itemize}
+\item \textcolor{red}{\sout{output: a sequence of LineString objects that represent all the filled gaps given the gap points.}}
+\item \textcolor{red}{\sout{exception: none}}
+\end{itemize}
+
+\noindent \textcolor{red}{\sout{findStreetIntersect(allExistStreets)}}:
+\begin{itemize}
+\item \textcolor{red}{\sout{output:  a GeoDataFrame object consists of street1Geo (represented by a sequence of LineString), street2Geo (represented by a sequence of LineString), and geometry (represented by a sequence of Point), where the Point in geometry is an intersection point between the LineStrings in street1Geo and street2Geo.}}
+\item \textcolor{red}{\sout{exception: none}}
+\end{itemize}
+
+\noindent \textcolor{red}{\sout{connectPoints(pointOnNet, intersections, filledGap)}}:
+\begin{itemize}
+\item \textcolor{red}{\sout{output: a LineString object which connects all of the Point objects in pointOnNet, any Point object in intersections that involves, and the LineString objects in filledGap.}}
+\item \textcolor{red}{\sout{exception: none}}
+\end{itemize}
+
+\noindent RouteChoiceGen(trip, \textcolor{red}{\sout{networkData} networkGraph, networkEdges, networkNodes}):
+\begin{itemize}
+\item output: 
+$out := $ \newline 
+a gdf routeChoice of (SerialID: sequence of $\mathbb{Z}$, edgesRoutePassed: sequence of sequence sequence [3] of $\mathbb{Z}$, geometry: sequence of $ls$) which:
+\begin{itemize}
+    \item routeChoice.SerialID $=$ unique\_serials(trip)
+    \item routeChoice.edgesRoutePassed $=$ for every serial\_id in unique\_serials(trip), \newline unique\_edges\_passed(map\_point\_to\_network(serial\_trip(trip,serial\_id), networkGraph, networkEdges),
+    detect\_and\_fill\_gap(map\_point\_to\_network(serial\_trip(trip,serial\_id), networkGraph, networkEdges), networkGraph, networkEdges, networkNodes)) 
+    \item routeChoice.geometry $=$ for every serial\_id in unique\_serials(trip), \newline  connect\_points\_and\_filled\_gaps(map\_point\_to\_network(serial\_trip(trip,serial\_id), \newline networkGraph, networkEdges), \newline detect\_and\_fill\_gap(map\_point\_to\_network(serial\_trip(trip,serial\_id), networkGraph, networkEdges), networkGraph, networkEdges, networkNodes))
+\end{itemize} 
+
+\textcolor{red}{\sout{a GeoDataFrame object consists of SerialID (represented by a sequence of $\mathbb{Z}$), and geometry (represented by a sequence of LineString). The GeoDataFrame object will be generated by using mapPointToNetwork, detectGap, fillInGap, findStreetIntersect and connectPoints functions}}
+\item exception: none
+\end{itemize}
+
+\subsubsection{Local Functions}
+\textcolor{red}{All local functions' semantics below are added after revision 0 (i.e. Version 1.2)}\newline\newline
+unique\_serials: $trip$: gdf of (SerialID: sequence of $\mathbb{Z}$, ...) $\rightarrow$ sequence of $\mathbb{Z}$\newline
+unique\_serials $\equiv$ A sequence of $\mathbb{Z}$ where each element in the sequence is a unique value in $trip$.SerialID.\newline\newline
+serial\_trip: $trip$: gdf of (SerialID: sequence of $\mathbb{Z}$, ...) $\times \text{ }serial\_id$: $\mathbb{Z} \rightarrow$ gdf of (SerialID: sequence of $\mathbb{Z}$, ...)\newline
+serial\_trip $\equiv$ The rows in $trip$ that are with SerialID value equals to $serial\_id$\newline\newline  
+map\_point\_to\_network: \newline
+$trip$: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of string, Mode: sequence of string, geometry: sequence of Point) $\times \text{ }networkGraph$: MultiDigraph $\times$ $networkEdges$: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$)\newline $\rightarrow$ \newline 
+$mapped\_points$: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, nearEdgeID: sequence of sequence [3] of $\mathbb{Z}$, nearEdgeName: sequence of string, nearLeg: sequence of $ls$ with outer sequence length equals to 2, geometry: sequence of Point)\newline
+map\_point\_to\_network $\equiv$ output a gdf $mapped\_points$ which, 
+\begin{itemize}
+    \item $mapped\_points$.SerialID $=$ $trip$.SerialID
+    \item $mapped\_points$.RecordID $=$ $trip$.RecordID
+    \item $mapped\_points$.nearEdgeID $=$ for each $i^{th}$ element in $trip$.geometry (denoted as $trip$.geometry[$i$]) where $i \in [0, length \text{ }of\text{ }trip\text{.geometry})$,
+    find\_nearest\_edge($trip$.geometry[$i$], $networkGraph$)
+    \item $mapped\_points$.nearEdgeName $=$ for each $i^{th}$ element in $trip$.geometry (denoted as $trip$.geometry[$i$]) where $i \in [0, length \text{ }of\text{ }trip\text{.geometry})$,\newline
+    get\_edge\_name($networkEdge$, find\_nearest\_edge($trip$.geometry[$i$], $networkGraph$))
+    \item $mapped\_points$.nearLeg $=$ for each $i^{th}$ element in $trip$.geometry (denoted as $trip$.geometry[$i$]) where $i \in [0, length \text{ }of\text{ }trip\text{.geometry})$,\newline
+    nearest\_leg($networkEdge$, find\_nearest\_edge($trip$.geometry[$i$], $networkGraph$))
+    \item $mapped\_points$.geometry $=$ for each $i^{th}$ element in $trip$.geometry (denoted as $trip$.geometry[$i$]) where $i \in [0, length \text{ }of\text{ }trip\text{.geometry})$,\newline
+    snap\_point\_to\_edge(nearest\_leg($networkEdge$, find\_nearest\_edge($trip$.geometry[$i$], $networkGraph$)), $trip$.geometry[$i$])
+\end{itemize}
+find\_nearest\_edge: $point\_to\_be\_mapped$: Point $\times$ $networkGraph$: MultiDiGraph $\rightarrow$ sequence [3] of $\mathbb{Z}$ \newline
+find\_nearest\_edge $\equiv$ The index value of the edge that is nearest in terms of distance computed by using the \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.distance.nearest_edges}{OSMnx.distance.nearest\_edges} function with $point\_to\_be\_mapped$.x, $point\_to\_be\_mapped$.y and $networkGraph$ as inputs\newline\newline
+nearest\_leg: $networkEdge$: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$) $\times$ $nearest\_edge\_id$: sequence [3] of $\mathbb{Z}\text{ } \times\text{ }point\_to\_be\_mapped$: Point $\rightarrow$ $nearest\_leg\_geo$: $ls$ \newline
+nearest\_leg $\equiv$ Denote the element in $networkEdge$.geometry that is associated with index value equals to $nearest\_edge\_id$ as $nearest\_edge\_geo$: $ls$ and the the $i^{th}$ element in the outer sequence of $nearest\_edge\_geo$ as $nearest\_edge\_geo$[$i$]. \newline
+Denote the $\mathbb{Z}$,\newline $argmin_{i\in[0,length\text{ }of\text{ }nearest\_edge\_geo-1)}\text{geo\_dist}(point\_to\_be\_mapped,nearest\_edge\_geo[i:i+1])$ as $min\_dist\_i$\newline then
+$nearest\_leg\_geo\text{ }=\text{ }nearest\_edge[(min\_dist\_i, min\_dist\_i + 1)]$\newline\newline
+geo\_dist: $geo\_1$: Point or $ls$ or Polygon $\times$ $geo\_2$: Point or $ls$ or Polygon $\rightarrow$ $\mathbb{R}$\newline
+geo\_dist $\equiv$ The distance between the two Shapely geometries objects $geo\_1$ and $geo\_2$ that is calculated using \href{https://shapely.readthedocs.io/en/stable/manual.html#object.distance}{Shapely distance function} \newline\newline
+snap\_point\_to\_edge: $leg\_snap\_to$: $ls$ $\times\text{ }point\_to\_snap$:Point $\rightarrow$ Point\newline
+snap\_point\_to\_edge $\equiv$ Point after moving $point\_to\_snap$ to the nearest point to it on $leg\_snap\_to$ by using \href{https://shapely.readthedocs.io/en/stable/manual.html#object.interpolate}{Shapley interpolate} function along with \href{https://shapely.readthedocs.io/en/stable/manual.html#object.interpolate}{Shapley project} function\newline\newline
+get\_edge\_name: $networkEdge$: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$) $\times$ $edge\_id$: sequence [3] of $\mathbb{Z}$ $\rightarrow\text{ }edge\_name$: string\newline
+get\_edge\_name $\equiv$ The value in $networkEdge$.name that is associated with the index value equals to $edge\_id$.\newline\newline
+detect\_and\_fill\_gap: \newline
+$mapped\_points$: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, nearEdgeID: sequence of sequence [3] of $\mathbb{Z}$, nearEdgeName: sequence of string, nearLeg: sequence of $ls$ with outer sequence length equals to 2, geometry: sequence of Point) $\times$ 
+$networkGraph$: MultiDigraph $\times$ $networkEdges$: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$) $\times$ $networkNodes$: gdf of (x: sequence of $\mathbb{R}$  y: sequence of $\mathbb{R}$, geometry: sequence of Point) \newline $\rightarrow$ \newline gdf of (SerialID: sequence of $\mathbb{Z}$, OrigPointRecordID: sequence of $\mathbb{Z}$, EdgesGapPassed: sequence of sequence of sequence [3] of $\mathbb{Z}$, geometry: sequence of $ls$)\newline
+detect\_and\_fill\_gap $\equiv$ fill\_gaps(detect\_gaps($mapped\_points$), $mapped\_points$, $networkGraph$, $networkEdges$, $networkNodes$)\newline\newline
+detect\_gaps: \newline
+$mapped\_points$ gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, nearEdgeID: sequence of sequence [3] of $\mathbb{Z}$, nearEdgeName: sequence of string, nearLeg: sequence of $ls$ with outer sequence length equals to 2, geometry: sequence of Point) $\rightarrow$ $gaps\_start\_points$: sequence of $\mathbb{Z}$
+detect\_gaps $\equiv$ The values in $mapped\_points$.RecordID on the $i^{th}$ rows of $mapped\_points$ where, \newline $((\neg (mapped\_points\text{.nearEdgeID}[i] =mapped\_points\text{.nearEdgeID}[i+1])$\newline
+$\text{    }\land\text{ }(\text{geo\_dist}(mapped\_points\text{.geometry}[i],mapped\_points\text{.geometry}[i+1])\text{ }>\text{ }50))$\newline$\lor\text{ }\neg(mapped\_points\text{.nearEdgeName}[i]\text{ }=\text{ }mapped\_points\text{.nearEdgeName}[i+1]))\text{ }\equiv\text{ }True$\newline\newline
+fill\_gaps: $gaps\_start\_points\_id$: sequence of $\mathbb{Z}$ $\times$ $mapped\_points$: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, nearEdgeID: sequence of sequence [3] of $\mathbb{Z}$, nearEdgeName: sequence of string, nearLeg: sequence of $ls$ with outer sequence length equals to 2, geometry: sequence of Point) $\times$ 
+$networkGraph$: MultiDigraph $\times$ $networkEdges$: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$) $\times$ $networkNodes$: gdf of (x: sequence of $\mathbb{R}$  y: sequence of $\mathbb{R}$, geometry: sequence of Point)
+\newline$\rightarrow$\newline $filled\_gaps\_gdf$: gdf of (SerialID: sequence of $\mathbb{Z}$, OrigPointRecordID: sequence of $\mathbb{Z}$, EdgesGapPassed: sequence of sequence of sequence [3] of $\mathbb{Z}$, geometry: sequence of $ls$)\newline
+fill\_gaps $\equiv$ output a gdf $filled\_gaps\_gdf$ which,\newline
+\begin{itemize}
+    \item $filled\_gaps\_gdf$.SerialID $=$ a sequence that replicates the values in $mapped\_points$.SerialID that are on the rows with $mapped\_points$.RecordID values that exist in $gaps\_start\_points\_id$
+    \item $filled\_gaps\_gdf$.OrigPointRecordID $=$ $gaps\_start\_points\_id$
+    \item $filled\_gaps\_gdf$.geometry $=$ for every Point in $mapped\_points$.geometry that is associated with the same index value $i$ as a value in $mapped\_points$.RecordID that exist in $gaps\_start\_points\_id$,
+    \begin{itemize}
+        \item Find the indices of the nodes on $networkGraph$ that are nearest to $mapped\_points$.geometry[$i$] and $mapped\_points$.geometry[$i+1$] respectively using \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.distance.nearest_nodes}{OSMnx.distance.nearest\_nodes} function. Denote the two nodes as $start\_node$ and $end\_node$ respectively
+        \item Find the shortest path between $start\_node$ and $end\_node$ on $networkGraph$ using \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.distance.shortest_path}{OSMnx.distance.shortest\_path} function which will output a sequence of the indices of the nodes that are on the shortest path in $networkNodes$. Denote these nodes' indices as $shortest\_path\_nodes\_id$.
+        \item Get the sequence of Point from the values in $networkNodes$.geometry where each of the element Point is associated with an index value that exists in $shortest\_path\_nodes\_id$. Denote the sequence of Point as $shortest\_path\_points$
+        \item Generate an $ls$ with the x and y values of the elements of $shortest\_path\_points$ using \href{https://shapely.readthedocs.io/en/stable/manual.html#LineString}{Shapely LineString constructor function}
+    \end{itemize}
+    \item $filled\_gaps\_gdf$.EdgesGapPassed $=$ sequence of sequence [3] of $\mathbb{Z}$ that are the unique values of the indices of $ls$ in $networkEdges$.geometry that each of the $filled\_gaps\_gdf$.geometry values has been on.
+\end{itemize}
+connect\_points\_and\_filled\_gaps: \newline
+$mapped\_points$: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, nearEdgeID: sequence of sequence [3] of $\mathbb{Z}$, nearEdgeName: sequence of string, nearLeg: sequence of $ls$ with outer sequence length equals to 2, geometry: sequence of Point) $\times$ $filled\_gaps\_gdf$: gdf of (SerialID: sequence of $\mathbb{Z}$, OrigPointRecordID: sequence of $\mathbb{Z}$, EdgesGapPassed: sequence of sequence of sequence [3] of $\mathbb{Z}$, geometry: sequence of $ls$) $\rightarrow$ $route\_choice$: $ls$\newline
+connect\_points\_and\_filled\_gaps $\equiv$ an $ls$ that is constructed with the x and y values of Point objects in $mapped\_points$.geometry and the values in the inner sequences of the $ls$ objects in $filled\_gaps\_gdf$.geometry using \href{https://shapely.readthedocs.io/en/stable/manual.html#LineString}{Shapely LineString constructor function}\newline\newline
+unique\_edges\_passed: \newline
+$mapped\_points$: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, nearEdgeID: sequence of sequence [3] of $\mathbb{Z}$, nearEdgeName: sequence of string, nearLeg: sequence of $ls$ with outer sequence length equals to 2, geometry: sequence of Point) $\times$ $filled\_gaps\_gdf$: gdf of (SerialID: sequence of $\mathbb{Z}$, OrigPointRecordID: sequence of $\mathbb{Z}$, EdgesGapPassed: sequence of sequence of sequence [3] of $\mathbb{Z}$, geometry: sequence of $ls$) $\rightarrow$ $edges\_route\_choice\_passed$: sequence of sequence [3] of $\mathbb{Z}$\newline
+unique\_edges\_passed $\equiv$ A sequence of sequence [3] of $\mathbb{Z}$ where, each of the sequence [3] of $\mathbb{Z}$ is a unique value that exists in $mapped\_points$.nearEdgeID and $filled\_gaps\_gdf$.EdgesGapPassed.
+
+\newpage
+
+\section{MIS of Route Choice Analysis Variables Generator Module} \label{RCAVarGenerator} 
+
+\subsection{Module}
+\textcolor{red}{\sout{RCAVarGenerator} VariableGenerator}
+
+\subsection{Uses}
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+None
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| >{\raggedright}p{3cm} | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+\noindent{\color{red}\sout{routelength}} & \noindent{\color{red}\sout{route: sequence of sequence[2] of $\mathbb{R}$}} & \noindent{\color{red}\sout{length: $\mathbb{R}$}} & \color{red}\sout{-} \\
+\hline
+countTurns & \noindent \color{red} networkEdges: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$), \newline edgesRoutePassed: sequence of sequence of sequence [3] of $\mathbb{Z}$, \newline route: sequence of sequence [2] of $\mathbb{R}$ & \noindent \color{red} numOfTurnsByType: tuple of (left: $\mathbb{Z}$, right: $\mathbb{Z}$, total: $\mathbb{Z}$)& - \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{| >{\raggedright}p{3cm} | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+\noindent{\color{red}\sout{mapLegToStreet} findNearestStreet} & \noindent \color{red} networkEdges: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$), \newline edgesRoutePassed: sequence of sequence of sequence [3] of $\mathbb{Z}$, \newline coord: sequence [2] of $\mathbb{R}$ & \noindent \color{red} \sout{streetOnRoute: gdf of (streetName: sequence of \textit{string}, geometry: sequence of $ls$),\newline numOfRoad: $\mathbb{Z}$} \newline nearestStreet: string & - \\
+ & \noindent \color{red} \sout{networkData: gdf of (Name: sequence of \textit{string}, geometry: sequence of $ls$)} & & \\
+\hline
+longestLeg & \noindent \color{red} \sout{streetOnRoute: gdf of (streetName: sequence of \textit{string}, geometry: sequence of $ls$)} \newline networkEdges: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$), \newline edgesRoutePassed: sequence of sequence of sequence [3] of $\mathbb{Z}$, \newline route: sequence of sequence [2] of $\mathbb{R}$ & \noindent \color{red} 
+ longestLegInfo: tuple of (legStreet: string, legLength: $\mathbb{Z}$, numOfStreets: $\mathbb{Z}$) & - \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{| >{\raggedright}p{3cm} | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+RCAVarGen & route: (SerialID: sequence of $\mathbb{Z}$, \textcolor{red}{edgesRoutePassed: sequence of sequence of sequence [3] of $\mathbb{Z}$}, geometry: sequence of $ls$) \newline \textcolor{red}{networkEdges: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$)} \newline \textcolor{red}{\sout{networkData: gdf of (streetName: sequence of string, geometry: sequence of $ls$)}} & \noindent \color{red} RCA: (SerialID: sequence of $\mathbb{Z}$, distanceMeter: sequence of $\mathbb{Z}$, numOfLturns: sequence of $\mathbb{Z}$, numOfRturns: sequence of $\mathbb{Z}$, numOfRoads: sequence of $\mathbb{Z}$, streetLongestLeg: sequence of string, lengthLongestLeg: sequence of $\mathbb{Z}$, geometry: sequence of $ls$) & - \\
+\hline
+\end{tabular}
+\end{center}
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+
+None
+
+\subsubsection{Environment Variables}
+
+None
+
+\subsubsection{Assumptions}
+
+None
+
+\subsubsection{Access Routine Semantics}
+
+\noindent \textcolor{red}{\sout{routelength(route):}}
+\begin{itemize}
+\item \textcolor{red}{\sout{output: An $\mathbb{Z}$ that represents the length of the input route in meters.}}
+\item \textcolor{red}{\sout{exception: none}}
+\end{itemize}
+
+\noindent countTurns(\textcolor{red}{networkEdges, edgesRoutePassed,} route):
+\begin{itemize}
+\item output: \textcolor{red}{a tuple of (left: $\mathbb{Z}$, right: $\mathbb{Z}$, total: $\mathbb{Z}$) that contains information about the number of left turns, right turns and the total number of turns in the input route.}
+\item exception: none
+\end{itemize}
+
+\noindent \textcolor{red}{\sout{mapLegToStreet(networkData, route):}}
+\begin{itemize}
+\item \textcolor{red}{\sout{output: streetOnRoute := a GeoDataFrame object consists of street name (represented by a sequence of string) and geometry (represented by a sequence of LineStrings.\\
+numOfRoad := An $\mathbb{Z}$ that counts the number of unique streets the input route has been on.}}
+\item \textcolor{red}{\sout{exception: none}}
+\end{itemize}
+
+\noindent \textcolor{red}{findNearestStreet(networkEdges, edgesRoutePassed, coord):}
+\begin{itemize}
+    \item \textcolor{red}{output: the name of the nearest street to the input coordinates as a string.}
+    \item \textcolor{red}{exception: none}
+\end{itemize}
+
+\noindent longestLeg(\textcolor{red}{\sout{streetOnRoute} networkEdges, edgesRoutePassed, route}):
+\begin{itemize}
+\item output: \textcolor{red}{a tuple of (legStreet: string, legLength: $\mathbb{Z}$, numOfStreets: $\mathbb{Z}$) that contains the street name that the longest leg belongs to, the length of the longest leg in meters, and the number of streets in the route.}
+\item exception: none
+\end{itemize}
+
+\noindent RCAVarGen(\textcolor{red}{\sout{networkData} networkEdges,} route):
+\begin{itemize}
+\item output: \textcolor{red}{a GeoDataFrame object consists of SerialID (represented by a sequence of $\mathbb{Z}$), the total distance travelled in the route (represented by a sequence of $\mathbb{Z}$), the number of roads (represented by a sequence of $\mathbb{Z}$), the number of left and right turns (each represented by a sequence of $\mathbb{Z}$), the street name that the longest leg belongs to (represented by a sequence of string), the length of the longest leg (represented by $\mathbb{Z}$), and the geometry (represented by a sequence of $ls$). This GeoDataFrame object will be generated by using countTurns, findNearestStreet and longestLeg functions.}
+\end{itemize}
+
+\subsubsection{Local Functions}
+None
+
+\newpage
+
+\section{MIS of Activity Locations Identification Module} \label{ALIM} %\wss{Use labels for cross-referencing}
+
+\subsection{Module}
+
+{ALIM}
+
+\subsection{Uses}
+
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+None
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{longtable}{| l | >{\raggedright}p{5cm} | >{\raggedright}p{4cm} | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+create\_al\_info & ALlu\_gdf: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of Point, house\_number: sequence of $\mathbb{Z}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of Polygon, lu\_match: sequence of string, lu\_code: sequence of $\mathbb{Z}$, lu\_classification: sequence of string) \newline \newline ALpal\_gdf: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of Point, house\_number: sequence of $\mathbb{Z}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of Polygon, pal\_match: sequence of string, pal\_id: sequence of $\mathbb{Z}$, pal\_classification: sequence of string) & ALinfo\_gdf: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of Point, house\_number: sequence of $\mathbb{Z}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of Polygon, lu\_match: sequence of string, lu\_code: sequence of $\mathbb{Z}$, lu\_classification: sequence of string, pal\_match: sequence of string, pal\_id: sequence of $\mathbb{Z}$, pal\_classification: sequence of string) &\\
+\hline
+\end{longtable}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+
+None
+
+\subsubsection{Environment Variables}
+
+None
+
+\subsubsection{Assumptions}
+
+None
+
+\subsubsection{Access Routine Semantics}
+
+create\_al\_info(al\_lu\_gdf, al\_pal\_gdf):
+\begin{itemize}
+\item output: A GeoDataFrame of Activity Location Information with appending information to the object based on the inputted identified Activity Location GeoDataFrame with LU additional information and identified Activity Location GeoDataFrame with PAL additional information 
+\item exception: None
+\end{itemize}
+
+\subsubsection{Local Functions}
+
+identify\_lu: \newline
+AL\_gdf: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of Point), \newline \newline 
+LU\_gdf: gdf of (house\_number: sequence of $\mathbb{Z}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of Polygon, lu\_code: sequence of $\mathbb{Z}$, lu\_classification: sequence of string)  \newline
+$\rightarrow$
+\newline
+ALlu\_gdf: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of Point, house\_number: sequence of $\mathbb{Z}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of Polygon, lu\_match: sequence of string, lu\_code: sequence of $\mathbb{Z}$, lu\_classification: sequence of string) 
+\newline \newline
+A GeoDataFrame of Activity Locations with appending information to the object based on the inputted LU GeoDataFrame that corresponds with an existing SerialID of Activity Locations if it exists. This includes the lu\_match which states if the SerialID matches the LU, lu\_code and lu\_classification
+\newline 
+
+\noindent identify\_pal: \newline
+AL\_gdf: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of Point), \newline \newline 
+PAL\_gdf: gdf of (house\_number: sequence of $\mathbb{Z}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of Polygon, pal\_id: sequence of $\mathbb{Z}$, pal\_classification: sequence of string)\newline
+$\rightarrow$
+\newline
+ALpal\_gdf: gdf of (SerialID: sequence of $\mathbb{Z}$, RecordID: sequence of $\mathbb{Z}$, TimeStart: sequence of s, Mode: sequence of string, geometry: sequence of Point, house\_number: sequence of $\mathbb{Z}$, street\_name: sequence of string, name\_of\_building: sequence of string, building\_geometry: sequence of Polygon, pal\_match: sequence of string, pal\_id: sequence of $\mathbb{Z}$, pal\_classification: sequence of string)
+\newline \newline
+A GeoDataFrame of Activity Locations with appending information to the object based on the inputted PAL GeoDataFrame that corresponds with an existing SerialID of Activity Locations if it exists. This includes  pal\_match which states if the SerialID matches the PAL, pal\_id and pal\_classification
+\newpage
+
+\section{\textcolor{red}{MIS of Network Data Utilities Module}} \label{Network Data Utilities}
+\subsection{Module}
+NetworkDataUtils
+
+\subsection{Uses}
+N/A
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+NetworkModes = ['drive','walk','all']
+
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| >{\raggedright}p{5cm} | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+get\_points\_boundary & points\_gdf: gdf of (any field(s), \newline geometry: sequence of Point) & sequence of [4] $\mathbb{R}$ & -\\
+\hline
+extract\_networkdata\_pbf & pbf\_file\_path: string,\newline mode: string,\newline bbox: sequence of [4] $\mathbb{R}$  & graph\_proj: MultiDigraph, \newline edges\_proj: gdf of (name: sequence of string, \newline oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$), \newline nodes\_proj: gdf of (x: sequence of $\mathbb{R}$, \newline y: sequence of $\mathbb{R}$, geometry: sequence of Point), \newline pbf\_boundary: sequence of [4] $\mathbb{R}$ & NetworkModeError\\
+\hline
+\end{tabular}
+
+\begin{tabular}{| >{\raggedright}p{5cm} | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+extract\_networkdata\_bbox & max\_lat: $\mathbb{R}$, \newline min\_lat: $\mathbb{R}$, \newline max\_lon: $\mathbb{R}$, \newline min\_lon: $\mathbb{R}$ & graph\_proj: MultiDigraph, \newline edges\_proj: gdf of (name: sequence of string, \newline oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$), \newline nodes\_proj: gdf of (x: sequence of $\mathbb{R}$, \newline y: sequence of $\mathbb{R}$, geometry: sequence of Point) & NetworkModeError\\
+\hline
+extract\_ludata\_pbf & pbf\_file\_path: string,\newline bbox: sequence of [4] $\mathbb{R}$ & landuse\_gdf: gdf of (landuse: sequence of string, \newline geometry: sequence of Polygon) & -\\
+\hline
+extract\_paldata\_pbf & string,\newline bbox: sequence of [4] $\mathbb{R}$ & pal\_info: gdf of (addr:housenumber: sequence of $\mathbb{Z}$, \newline addr:street: sequence of string, \newline building: sequence of string, \newline amenity: sequence of string, \newline addr:city : sequence of string, \newline name: sequence of string, \newline geometry: sequence of Polygon or Point) & -\\
+\hline
+extract\_ludata\_bbox & max\_lat: $\mathbb{R}$, \newline min\_lat: $\mathbb{R}$, \newline max\_lon: $\mathbb{R}$, \newline min\_lon: $\mathbb{R}$ & landuse\_gdf: gdf of (landuse: sequence of string, \newline geometry: sequence of Polygon) & -\\
+\hline
+
+\end{tabular}
+
+\begin{tabular}{| >{\raggedright}p{5cm} | >{\raggedright}p{4cm} | >{\raggedright}p{4cm} | l |}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+extract\_paldata\_bbox & max\_lat: $\mathbb{R}$, \newline min\_lat: $\mathbb{R}$, \newline max\_lon: $\mathbb{R}$, \newline min\_lon: $\mathbb{R}$ & pal\_info: gdf of (addr:housenumber: sequence of $\mathbb{Z}$, \newline addr:street: sequence of string, \newline building: sequence of string, \newline amenity: sequence of string, \newline addr:city : sequence of string, \newline name: sequence of string, \newline geometry: sequence of Polygon or Point) & -\\
+\hline
+get\_trip\_mode & points\_gdf: gdf of (any field(s), \newline modes: sequence of string, \newline geometry: sequence of Point) & trip\_mode: string & -\\
+\hline
+
+\end{tabular}
+\end{center}
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+None
+
+\subsubsection{Environment Variables} None
+
+\subsubsection{Assumptions} None
+
+\subsubsection{Access Routine Semantics}
+get\_points\_boundary(points\_gdf):
+\begin{itemize}
+\item output: 
+$ out := sequence$ (max\_y(points\_gdf.geometry)+0.005, min\_y(points\_gdf.geometry)-0.005, max\_x(points\_gdf.geometry)+0.005, min\_x(points\_gdf.geometry)-0.005)
+\item exception: None
+\end{itemize}
+
+extract\_networkdata\_pbf(pbf\_file\_path, mode, bbox):
+\begin{itemize}
+\item output: 
+$out := $ preprocess\_networkdata\_pbf(networkdata\_from\_pbf(pbf\_file\_path, mode, bbox))
+\item exception: $exc := \neg(\exists m \in \text{NetworkModes} | (m = \text{mode})) 
+  \Rightarrow \text{NetworkModeError}$
+\end{itemize}
+
+extract\_networkdata\_bbox(max\_lat, min\_lat, max\_lon, min\_lon, mode): 
+\begin{itemize}
+\item output: 
+$out := $ preprocess\_networkdata\_osm(networkdata\_from\_osm(max\_lat, min\_lat, max\_lon, min\_lon, mode))
+\item exception: 
+$exc := \neg(\exists m \in \text{NetworkModes} | (m = \text{mode})) 
+  \Rightarrow \text{NetworkModeError}$
+\end{itemize}
+
+extract\_ludata\_pbf(pbf\_file\_path, bbox):
+\begin{itemize}
+\item output: 
+$out := $ preprocess\_ludata\_pbf(ludata\_from\_pbf(pbf\_file\_path, bbox))
+\item exception: None
+\end{itemize}
+
+extract\_paldata\_pbf(pbf\_file\_path, bbox):
+\begin{itemize}
+\item output: 
+$out := $ preprocess\_paldata\_pbf(paldata\_from\_pbf(pbf\_file\_path, bbox))
+\item exception: None
+\end{itemize}
+
+extract\_ludata\_bbox(max\_lat, min\_lat, max\_lon, min\_lon):
+\begin{itemize}
+\item output: 
+$out := $ extract land-use data from OpenStreetMap API using \newline \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.graph.graph_from_bbox}{OSMnx.graph.graph\_from\_bbox} function with max\_lat, min\_lat, max\_lon and min\_lon as inputs. 
+\item exception: None
+\end{itemize}
+
+extract\_paldata\_bbox(max\_lat, min\_lat, max\_lon, min\_lon):
+\begin{itemize}
+\item output: 
+$out := $ extract buildings and amenities data from OpenStreetMap API using \newline \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.geometries.geometries_from_bbox}{OSMnx.geometries.geometries\_from\_bbox} function with max\_lat, min\_lat, max\_lon and min\_lon as inputs.
+\item exception: None
+\end{itemize}
+
+get\_trip\_mode(trip\_data):
+\begin{itemize}
+\item output: \newline
+$out :=$ \newline $('Drive' \notin \text{unique\_modes(trip\_data)}) \land  ('Walk' \in \text{unique\_modes(trip\_data)}) \Rightarrow 'walk' $ \newline
+$('Drive' \in \text{unique\_modes(trip\_data)}) \land  ('Walk' \notin \text{unique\_modes(trip\_data)}) \Rightarrow 'drive' $ \newline
+$('Drive' \in \text{unique\_modes(trip\_data)}) \land  ('Walk' \in \text{unique\_modes(trip\_data)}) \Rightarrow 'all' $
+
+$('Drive' \notin \text{unique\_modes(trip\_data)}) \land  ('Walk' \notin \text{unique\_modes(trip\_data)}) \Rightarrow 'no\text{ }mode\text{ }found' $
+\item exception: None
+\end{itemize}
+
+\subsection{Local Functions}
+
+max\_y: sequence of Point $\rightarrow \mathbb{Z}$ \newline
+max\_y $\equiv$ The maximum y value in a sequence of Point.\newline\newline
+min\_y: sequence of Point $\rightarrow \mathbb{Z}$ \newline
+min\_y $\equiv$ The minimum y value in a sequence of Point.\newline\newline
+max\_x: sequence of Point $\rightarrow \mathbb{Z}$ \newline
+max\_x $\equiv$ The maximum x value in a sequence of Point.\newline\newline
+min\_y: sequence of Point $\rightarrow \mathbb{Z}$ \newline
+min\_y $\equiv$ The minimum y value in a sequence of Point.\newline\newline
+networkdata\_from\_pbf:\newline 
+pbf\_file\_path: string $\times$ mode: string $\times$ bbox: sequence of [4] $\mathbb{R} \rightarrow$ network\_edges: gdf of (u: sequence of $\mathbb{Z}$, v: sequence of $\mathbb{Z}$, key: sequence of $\mathbb{Z}$, name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$) 
+$\times$ network\_nodes: gdf of (osmid: sequence of $\mathbb{Z}$, x: sequence of $\mathbb{R}$, y: sequence of $\mathbb{R}$, geometry: sequence of Point)\newline
+networkdata\_from\_pbf $\equiv$ Two gdf that are generated by reading the transportation network data from an OSM PBF file located at pbf\_file\_path using functions in \href{https://pyrosm.readthedocs.io/en/latest/basics.html#read-street-networks}{Pyrosm} library with pbf\_file\_path, mode and bbox as inputs\newline\newline
+preprocess\_networkdata\_pbf:\newline
+network\_edges: gdf of (u: sequence of $\mathbb{Z}$, v: sequence of $\mathbb{Z}$, key: sequence of $\mathbb{Z}$, name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$) $\times$ network\_nodes: gdf of (osmid: sequence of $\mathbb{Z}$, x: sequence of $\mathbb{R}$, y: sequence of $\mathbb{R}$, geometry: sequence of Point) \newline$\rightarrow$ \newline edges\_proj: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$) $\times$ nodes\_proj: gdf of (x: sequence of $\mathbb{R}$, y: sequence of $\mathbb{R}$, geometry: sequence of Point), graph\_proj: MultiDiGraph\newline
+preprocess\_networkdata\_pbf $\equiv$ 
+\begin{itemize}
+\item Set network\_edges.u, network\_edges.v and network\_edges.key as multi-level index of  network\_edges and network\_nodes.osmid as index of network\_nodes.
+\item Generate a MultiDigraph graph\_proj using \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.utils_graph.graph_from_gdfs}{OSMnx.utils\_graph.graph\_from\_gdfs} function with network\_edges and network\_nodes as inputs, project the generated MultiDigraph using \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.projection.project_graph}{OSMnx.projection.project\_graph} function.
+\item Generate two gdf nodes\_proj and edges\_proj using \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.projection.project_graph}{OSMnx.utils\_graph.graph\_to\_gdfs} function with graph\_proj as input. 
+\end{itemize}
+networkdata\_from\_osm: max\_lat: $\mathbb{R}$ $\times$ min\_lat: $\mathbb{R}$ $\times$ max\_lon: $\mathbb{R}$ $\times$ min\_lon: $\mathbb{R}$ $\times$ mode: string $\rightarrow$ network\_graph: MultiDigraph\newline
+networkdata\_from\_osm $\equiv$ A MultiDiGraph generated using \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.graph.graph_from_bbox}{OSMnx.graph.graph\_from\_bbox} function with max\_lat, min\_lat, max\_lon, min\_lon and mode as inputs\newline\newline
+preprocess\_networkdata\_osm: network\_graph: MultiDigraph $\rightarrow$ edges\_proj: gdf of (name: sequence of string, oneway: sequence of $\mathbb{B}$, geometry: sequence of $ls$) $\times$ nodes\_proj: gdf of (x: sequence of $\mathbb{R}$, y: sequence of $\mathbb{R}$, geometry: sequence of Point), graph\_proj: MultiDiGraph \newline
+preprocess\_networkdata\_osm $\equiv$ 
+\begin{itemize}
+\item Projecting network\_graph using \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.projection.project_graph}{OSMnx.projection.project\_graph} function to get graph\_proj.
+\item Generate two gdf nodes\_proj and edges\_proj using \href{https://osmnx.readthedocs.io/en/stable/osmnx.html#osmnx.projection.project_graph}{OSMnx.utils\_graph.graph\_to\_gdfs} function with graph\_proj as input. 
+\end{itemize}
+ludata\_from\_pbf: pbf\_file\_path: string $\times$ bbox: sequence of [4] $\mathbb{R} \rightarrow$ lu\_gdf: gdf of (element\_type: sequence of $\mathbb{Z}$, osmid: sequence of $\mathbb{Z}$, landuse: sequence of string, geometry: sequence of Polygon)\newline
+ludata\_from\_pbf $\equiv$ A gdf that is generated by reading the land-use data from an OSM PBF file located at pbf\_file\_path using functions in \href{https://pyrosm.readthedocs.io/en/latest/basics.html#read-landuse}{Pyrosm} library using pbf\_file\_path and bbox as inputs\newline\newline
+preprocess\_ludata\_pbf: \newline
+lu\_gdf: gdf of (element\_type: sequence of $\mathbb{Z}$, osmid: sequence of $\mathbb{Z}$, landuse: sequence of string, geometry: sequence of Polygon) \newline $\rightarrow$ \newline lu\_gdf: gdf of (landuse: sequence of string, geometry: sequence of Polygon) \newline
+preprocess\_ludata\_pbf $\equiv$ Setting lu\_gdf.element\_type and lu\_gdf.osmid as multi-level index of lu\_gdf.\newline\newline
+paldata\_from\_pbf: pbf\_file\_path: string $\times$ bbox: sequence of [4] $\mathbb{R} \rightarrow$ \newline
+buildings\_gdf: gdf of (element\_type: sequence of $\mathbb{Z}$, osmid: sequence of $\mathbb{Z}$, addr:housenumber: sequence of $\mathbb{Z}$, addr:street: sequence of string, building: sequence of string, addr:city : sequence of string, name: sequence of string, geometry: sequence of Polygon) $\times$ \newline
+amenities\_gdf: gdf of (element\_type: sequence of $\mathbb{Z}$, osmid: sequence of $\mathbb{Z}$, addr:housenumber: sequence of $\mathbb{Z}$, addr:street: sequence of string, amenity: sequence of string, addr:city : sequence of string, name: sequence of string, geometry: sequence of Polygon or Point)\newline
+paldata\_from\_pbf $\equiv$
+\begin{itemize}
+    \item A gdf buildings\_gdf that is generated by reading the buildings' data from an OSM PBF file located at pbf\_file\_path using functions in \href{https://pyrosm.readthedocs.io/en/latest/basics.html#read-buildings}{Pyrosm} library using pbf\_file\_path and bbox as inputs
+    \item A gdf amenities\_gdf that is generated by reading the amenities' data from an OSM PBF file located at pbf\_file\_path using functions in \href{https://pyrosm.readthedocs.io/en/latest/basics.html#read-points-of-interest}{Pyrosm} library using pbf\_file\_path and bbox as inputs
+\end{itemize}
+preprocess\_paldata\_pbf: \newline
+buildings\_gdf: gdf of (element\_type: sequence of $\mathbb{Z}$, osmid: sequence of $\mathbb{Z}$, addr:housenumber: sequence of $\mathbb{Z}$, addr:street: sequence of string, building: sequence of string, addr:city : sequence of string, name: sequence of string, geometry: sequence of Polygon) $\times$ \newline
+amenities\_gdf: gdf of (element\_type: sequence of $\mathbb{Z}$, osmid: sequence of $\mathbb{Z}$, addr:housenumber: sequence of $\mathbb{Z}$, addr:street: sequence of string, amenity: sequence of string, addr:city : sequence of string, name: sequence of string, geometry: sequence of Polygon or Point) \newline $\rightarrow$ \newline
+pal\_info: gdf of (addr:housenumber: sequence of $\mathbb{Z}$, addr:street: sequence of string, building: sequence of string, amenity: sequence of string, addr:city : sequence of string, name: sequence of string, geometry: sequence of Polygon or Point)\newline
+paldata\_from\_pbf $\equiv$
+\begin{itemize}
+    \item Set buildings\_gdf.element\_type and buildings\_gdf.osmid as multi-level index of buidings\_gdf and amenities\_gdf.element\_type and amenities\_gdf.osmid as multi-level index of amenities\_gdf.\
+    \item Generate a gdf pal\_info by concatenating buildings\_gdf and amenities\_gdf using \href{https://pandas.pydata.org/docs/reference/api/pandas.concat.html}{Pandas.concat} function.
+    \item Remove rows in pal\_info with duplicated indeices (keep the first row for each of the unique duplicated indices)
+    \item Sort rows of pal\_info by their index values using \href{https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.sort_index.html}{pandas.DataFrame.sort\_index} function
+\end{itemize}
+unique\_modes: trip\_data: gdf of (modes: sequence of string, geometry: sequence of Point) $\rightarrow$ sequence of string\newline
+unique\_modes $\equiv$ A sequence of string where each element in the sequence is a unique value in trip\_data.modes.
+\newpage
+
+\section{MIS of Main Function Module} \label{Main} %\wss{Use labels for cross-referencing}
+
+%\wss{You can reference SRS labels, such as R\ref{R_Inputs}.}
+
+%\wss{It is also possible to use \LaTeX for hyperlinks to external documents.}
+
+\subsection{Module}
+Main
+
+\subsection{Uses}
+GPSPreprocess (Section \ref{GPSPreprocess}),
+ModeDetection (Section \ref{ModeDetection}), 
+Extractor (Section \ref{Extractor}), \newline
+\textcolor{red}{\sout{RCSGenerator}RouteSolver} (Section \ref{RCSGenerator}), 
+\textcolor{red}{\sout{RCAVarGenerator}VariableGenerator} (Section \ref{RCAVarGenerator}), 
+ALIM (Section \ref{ALIM})
+\textcolor{red}{NetworkDataUtils} (Section \ref{Network Data Utilities})
+
+\subsection{Syntax}
+
+\subsubsection{Exported Constants}
+EPSGNumEarth: $\mathbb{N}$
+\subsubsection{Exported Access Programs}
+
+\begin{center}
+\begin{tabular}{| l | l | l | l |}%{p{2cm} p{4cm} p{4cm} p{2cm}}
+\hline
+\textbf{Name} & \textbf{In} & \textbf{Out} & \textbf{Exceptions} \\
+\hline
+main & - & - & InvalidFilePathException, InvalidFileFormatException, \textcolor{red}{\sout{InvalidEPSGNum}}\\
+ &  &  & \textcolor{red}{InvalidDataException}, \textcolor{red}{InvalidGPSDataException}, \textcolor{red}{NetworkDataExtractionError}\\
+  &  &  & \textcolor{red}{OutofBoundException, InvalidInputException}\\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Semantics}
+
+\subsubsection{State Variables}
+programProgress: $\mathbb{R}$
+
+\subsubsection{Environment Variables}
+consoleWin: 2D sequence of pixels displayed on the screen\\
+gpsDataFile: A text file in CSV format\\
+networkDatasetFile: A file/folder that contains the data for the transportation network dataset\\
+outputFolder: A virtual location in computer for files or other folders/directories\\
+
+\subsubsection{Assumptions} None
+
+\subsubsection{Access Routine Semantics}
+
+
+
+\subsubsection{Local Functions}
+
+
+\noindent main():
+\begin{itemize}
+\item transition: \textcolor{red}{\sout{Modify consoleWin to display text prompts asking user to input the file paths for the gpsDataFile, networkDatasetFile and outputFolder, asking user to input the EPSG CRS number ($\mathbb{N}$), informing the user which stage of map matching the running program is currently on, showing error/warning to user if exception appears, display the current progress based on the programProgress state variable, and displaying URLs that user can copy to visualize the map-matching result on browser.\\
+Modify outputFolder to generate files that the program will output under the file path of outputFolder.}\newline
+Modify and process the state of environment variables by the following steps:}
+\begin{itemize}
+    \item Modify consoleWin to display text prompts asking user to input the file paths for the gpsDataFile, networkDatasetFile and outputFolder, asking user to input the radius around the activity locations that the activity locations' information will be gathered from and the number of GPS points in the trip segment that the user wants \progname{} to match and process. 
+    
+    \item Modify consoleWin to display text prompts to inform the user that \progname{} is now preprocessing the GPS data. Read and preprocess the raw GPS data from gpsDataFile using exported access programs of GPS Data Preprocessing Module(Section \ref{GPSPreprocess}). 
+    
+    \item Modify consoleWin to display text prompts to inform the user \progname{} is now detecting modes of the GPS data. Detect Modes of preprocessed GPS data using exported access programs of GPS Data Mode Detection Module(Section \ref{ModeDetection}). 
+
+    \item Modify consoleWin to display text prompts to inform the user \progname{} is now extracting trip and stop segments from the GPS data. Extract trip and stop segments from mode-detected GPS data using exported access programs of Trip Segments and Activity Locations Extraction Module(Section \ref{Extractor}).
+
+    \item Modify consoleWin to display text prompts to inform the user \progname{} is now extracting transportation network, landuse, amenities and buildings data. Extract transportation network, landuse, amenities and buildings by first getting the longitudes and latitudes boundaries of trip and stop segments and then extract data from networkDatasetFile or from OSM API based on the boundaries using exported access programs of Network Data Untilities Module(Section \ref{Network Data Utilities}). 
+
+    \item Modify consoleWin to display text prompts to inform the user \progname{} is now generating route choices for trip segments. Generate route choices for the extracted trip segments using exported access program RouteChoiceGen of Route Choice Set Generator Module(Section \ref{RCSGenerator}) by matching the trip segments onto the transportation network data set extracted.
+
+    \item Modify consoleWin to display text prompts to inform the user \progname{} is now generating values of route choice analysis variables for the generated route choices. Generate values of route choice analysis variables for the route choices using exported access program RCAVarGen of Route Choice Analysis Variables Genrator Module(Section \ref{RCAVarGenerator}).
+
+    \item Generate URL for the generated route choices using functions from \href{https://pypi.org/project/geojsonio/}{geojsonio} library and open it in web browser for the user to to visualize the map-matching result
+
+    \item Generate output files that contains the geographic information of route choices and values of route choice analysis variables into outputFolder as shapefile and CSV file type respectively into outputFolder.
+    
+    \item Modify consoleWin to display text prompts to inform the user \progname{} is now identifying activity locations inforamation for stop segments. Identify activity locations inforamation for stop segments using exported access program createActLocInfo of Activity Locations Identification Module(Section \ref{ALIM}).
+
+    \item Generate URL for the identified activity locations around the stop segments using functions from \href{https://pypi.org/project/geojsonio/}{geojsonio} library and open it in web browser for the user to to visualize the activity locations.
+
+    \item Generate output files that contains the information of identified activity locations as shapefile file type into outputFolder.
+
+\end{itemize}
+
+\item output: None 
+\item exception: exc := a file path gpsDataFile OR networkDatasetFile cannot be found $\Rightarrow$  \textcolor{red}{\sout{FileNotFoundError} InvalidFilePathException} \\
+  exc := the format of gpsDataFile OR networkDatasetFile is incorrect $\Rightarrow$  \textcolor{red}{\sout{FileTypeError} InvalidFileFormatException}\\
+  \textcolor{red}{\sout{exc := the EPSG CRS number from user input cannot be used $\Rightarrow$  InvalidEPSGNum}}\\
+  \textcolor{red}{exc := the raw GPS data does not have necessary attributes ['RecordID', 'SerialID', 'LocalTime', 'latitude', 'longitude', 'Fix\_Status', 'DOP', 'Speed\_kmh', 'Limit\_kmh'] $\Rightarrow$ InvalidDataException}\\
+  \textcolor{red}{exc := the preprocessed GPS data does not have necessary 'geometry' attribute $\Rightarrow$ InvalidGPSDataException}\\
+  \textcolor{red}{exc := None is output from extracting transporation network data from networkDatasetFile$\Rightarrow$ NetworkDataExtractionError}\\
+  \textcolor{red}{exc := The longitudes and latitudes boundaries of trip segments are not within the boundaries of the extracted transportation network data$\Rightarrow$ OutofBoundException}\\
+  \textcolor{red}{exc := The input path to outputFolder is not to a folder $\Rightarrow$ OutofBoundException}\\
+\end{itemize}
+
+%\wss{A module without environment variables or state variables is unlikely to
+%  have a state transition.  In this case a state transition can only occur if
+%    the module is changing the state of another module.}
+
+%\wss{Modules rarely have both a transition and an output.  In most cases you
+%  will have one or the other.}
+
+\subsubsection{Local Functions} None
+
+%\wss{As appropriate} \wss{These functions are for the purpose of specification.
+%  They are not necessarily something that is going to be implemented
+%  explicitly.  Even if they are implemented, they are not exported; they only
+%  have local scope.}
+
+
+\newpage
+
+\bibliographystyle {plainnat}
+% \bibliography {../../../refs/References}
+\bibliography{MIS.bib}
+
+\newpage
+
+\section{Appendix} \label{Appendix}
+N/A
+%\wss{Extra information if required}
+
+\end{document}
