@@ -32,6 +32,8 @@ import pandas as pd
 
 from Exceptions import NetworkModeError
 
+# Valid trip modes
+valid_modes = ['drive', 'walk', 'all']
 
 def get_points_boundary(points_gdf):
     """
@@ -43,7 +45,7 @@ def get_points_boundary(points_gdf):
     points_gdf = GeoDataFrame that contains GPS points with longitude 
         and latitude values
     """
-    max_x, max_y, min_x, min_y = -180, -180, 180, 180
+    max_x, max_y, min_x, min_y = -180, -90, 180, 90
 
     for point in points_gdf['geometry']:
         if point.x > max_x:
@@ -76,7 +78,7 @@ def extract_networkdata_pbf(pbf_file_path, mode='drive', bbox=None):
         the network data will be extracted from
     """
     try:
-        if mode not in ['drive', 'walk', 'all']:
+        if mode not in valid_modes:
             raise NetworkModeError
         
         osm = OSM(pbf_file_path,bounding_box=bbox)
@@ -131,7 +133,7 @@ def extract_networkdata_bbox(max_lat, min_lat, max_lon, min_lon, mode):
     mode = Mode of the transportation network data to be extracted
     """
     try:
-        if mode not in ['drive', 'walk', 'all']:
+        if mode not in valid_modes:
             raise NetworkModeError
     except NetworkModeError:
         print(

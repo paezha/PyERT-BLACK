@@ -30,8 +30,12 @@ al_gdf = test_stop_seg
 def test_identify_lu(al_gdf, lu_gdf, pal_gdf):
     test_lu_gdf = ali.create_al_info(al_gdf, lu_gdf, pal_gdf, 100)
     for i in range(test_lu_gdf.shape[0]):
+        # Test if the land use type for all the potential activity locations 
+        # are 'residential'
         #print(test_lu_gdf.iloc[i]['lu_type'])
         assert test_lu_gdf.iloc[i]['lu_type'] == 'residential'
+        # Test if the identified potential activity locations 
+        # are all in the predetermined land-use area
         assert test_lu_gdf.iloc[i]['lu_index'] == ('relation', 13745200)
 
 @pytest.mark.parametrize(
@@ -40,7 +44,8 @@ def test_identify_lu(al_gdf, lu_gdf, pal_gdf):
 )
 def test_identify_pal(al_gdf, lu_gdf, pal_gdf):
     test_pal_gdf = ali.create_al_info(al_gdf, lu_gdf, pal_gdf, 100)
-
+    # Test if the distance from each of the identified potential activity 
+    # locations to its nearest point in the al_gdf is less than 100 (meters)
     for i in range(test_pal_gdf.shape[0]):
         polygon = test_pal_gdf.iloc[i]['geometry']
         point =  al_gdf.loc[0]['geometry']

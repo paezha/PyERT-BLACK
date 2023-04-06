@@ -45,7 +45,7 @@ import activity_locations_identification as al_identifier
 from network_data_utils import get_points_boundary, extract_networkdata_pbf, extract_networkdata_bbox, \
     extract_ludata_pbf, extract_paldata_pbf, extract_ludata_bbox, extract_paldata_bbox, get_trip_mode
 from Exceptions import InvalidInputException, InvalidFilePathException, InvalidFileFormatException, \
-    InvalidDataException, InvalidGPSDataException, OutofBoundException, NetworkBoundError
+    InvalidDataException, InvalidGPSDataException, OutofBoundException, NetworkDataExtractionError
 import webbrowser
 
 def main():
@@ -188,9 +188,9 @@ def main():
                         "Trip Segment is out of the boundary of the extracted network\n")
                     return None
             else:
-                raise NetworkBoundError()
-        except NetworkBoundError:
-            print("Network bound is None\n")
+                raise NetworkDataExtractionError()
+        except NetworkDataExtractionError:
+            print("Nothing is extracted from input network dataset\n")
             return None
         print('Extracting landuse data...')
         landuse_info = extract_ludata_pbf(
