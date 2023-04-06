@@ -4,11 +4,11 @@ import pandas as pd
 import osmnx as ox
 import os
 import sys
-import route_solver as rs
+from src import route_solver as rs
 
 #test_data_path = os.getcwd().split("PyERT-BLACK")[0] + 'PyERT-BLACK/test/test_data/sample-gps'
 test_data_path = './test_data'
-print(test_data_path)
+#print(test_data_path)
 
 @pytest.mark.parametrize(
     'test_trip_seg_path, test_network_g_path', 
@@ -25,6 +25,7 @@ def test_map_point(test_trip_seg_path, test_network_g_path):
     network_n, network_e = ox.graph_to_gdfs(netowrk_g)
 
     matched_trip_seg = rs.map_point_to_network(test_trip_seg,netowrk_g, network_e)
+    # Test if all the points are mapped to the predetermined street(s)
     for i in range(matched_trip_seg.shape[0]):
         if (i == 0) or (89 <= i < matched_trip_seg.shape[0]):
             assert matched_trip_seg.iloc[i]['nearEdgeName'] == 'Pearl Drive'
@@ -38,6 +39,8 @@ def test_map_point(test_trip_seg_path, test_network_g_path):
             assert matched_trip_seg.iloc[i]['nearEdgeName'] == 'Caldwell Road'
         elif (83 <= i <= 87):
             assert matched_trip_seg.iloc[i]['nearEdgeName'] == 'Atholea Drive'
+        # This point is the last point in the trip segment on Sherwood Street
+        # and the first point on Astral Drive, mapping it to either one would be fine
         elif(i == 7):
             assert ((matched_trip_seg.iloc[i]['nearEdgeName'] == 'Sherwood Street') or
                     (matched_trip_seg.iloc[i]['nearEdgeName'] == 'Astral Drive'))
@@ -73,7 +76,7 @@ def test_detect_and_fill_gap(test_trip_seg_path, test_network_g_path):
     filled_gap_trip_seg, trip_seg_gaps = rs.detect_and_fill_gap(matched_trip_seg, netowrk_g, network_n, network_e)
 
     orig_points_rec_id = list(trip_seg_gaps['OrigPointRecordID'])
-
+    # Test if all the start points of predetermined gaps in the trip segment are detected
     assert ('15325215' in orig_points_rec_id)
     assert (('15325225' in orig_points_rec_id) or ('15325226' in orig_points_rec_id))
     assert (('15325264' in orig_points_rec_id) or ('15325265' in orig_points_rec_id))
