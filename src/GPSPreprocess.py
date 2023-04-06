@@ -1,3 +1,16 @@
+"""
+Module Name: GPSPreprocess
+Source Name: GPSPreprocess.py
+Creator: Zabrain Ali (aliz8@mcmaster.ca)
+Requirements: Python 3.8 or later
+Date Created: Feb 12, 2023
+Last Revised: Mar 18, 2023
+Description: Preprocess raw GPS data to remove redundant and outliers GPS points
+
+Version History:
+2023-02-12 (GPSPreprocess.py) Create skeleton of class GPSPreprocess
+2023-02-15 (GPSPreprocess.py) Create get_data, filter_data and smooth_data
+"""
 import geopandas as gpd
 import pandas as pd
 import os

@@ -66,7 +66,7 @@ def var_gen(route, network_edges):
         curr_route_coord = list(route_gdf_proj.loc[i]['geometry'].coords)
 
         # Get the length of the input route in meters
-        route_dist_length = route_gdf_proj.loc[i]['geometry'].length
+        route_dist_length = round(route_gdf_proj.loc[i]['geometry'].length)
         distance.append(route_dist_length)
         edges_route_passed = list(route_gdf_proj.loc[i]['edgesRoutePassed'])
         # print("Length of matched Route Choice is: " +
@@ -85,7 +85,7 @@ def var_gen(route, network_edges):
             network_edges, edges_route_passed, curr_route_coord)
         # print(longest_leg_info)
         street_name.append(longest_leg_info['legStreet'])
-        length.append(longest_leg_info['legLength'])
+        length.append(round(longest_leg_info['legLength']))
         num_r.append(longest_leg_info['numOfStreets'])
 
     temp_df = pd.DataFrame({'SerialID': serial_id,

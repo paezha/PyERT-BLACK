@@ -33,6 +33,6 @@ class OutofBoundException(Exception):
     pass
 
 
-class NetworkBoundError(Exception):
-    """Raised when Network Bound is None"""
+class NetworkDataExtractionError(Exception):
+    """Raised when None is extracted from network dataset"""
     pass

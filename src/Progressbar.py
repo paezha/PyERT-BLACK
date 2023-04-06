@@ -1,14 +1,17 @@
 class Progressbar:
     def __init__(self, iteration, total):
-        self.iteration = iteration
-        self.total = total
-
-    def printProgressBar(self, prefix='', suffix='', decimals=1, length=100, fill='█', print_end="\r"):
         """
-        Call in a loop to create terminal progress bar
         @params:
             iteration   - Required  : current iteration (Int)
             total       - Required  : total iterations (Int)
+        """
+        self.iteration = iteration
+        self.total = total
+
+    def print_progress_bar(self, prefix='', suffix='', decimals=1, length=100, fill='█', print_end="\r"):
+        """
+        Call in a loop to create terminal progress bar
+        @params:
             prefix      - Optional  : prefix string (Str)
             suffix      - Optional  : suffix string (Str)
             decimals    - Optional  : positive number of decimals in percent complete (Int)
